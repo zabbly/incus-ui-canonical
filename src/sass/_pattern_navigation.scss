@@ -5,20 +5,20 @@
 
   .p-panel__logo-image {
     height: 36px;
-    margin-top: -3px;
+    margin-top: 2px;
     max-width: inherit;
   }
 
   .logo-text {
     color: #fff;
-    left: 47px;
+    left: 70px;
     position: absolute;
     top: $spv--x-small;
   }
 
   @include mobile {
     .logo-text {
-      left: 38px;
+      left: 66px;
     }
   }
 
@@ -28,7 +28,7 @@
     }
 
     .logo-text {
-      left: 52px;
+      left: 80px;
     }
   }
 }
