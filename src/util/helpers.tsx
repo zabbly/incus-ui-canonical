@@ -268,22 +268,24 @@ export const defaultFirst = (
 export const isWidthBelow = (width: number): boolean =>
   window.innerWidth < width;
 
-export const logout = (hasOidc?: boolean, hasCertificate?: boolean): void => {
-  if (window.location.href.includes("/ui/login")) {
-    return;
+export const getParentsBottomSpacing = (element: Element): number => {
+  let sum = 0;
+  while (element.parentElement) {
+    element = element.parentElement;
+    const style = window.getComputedStyle(element);
+    const margin = parseInt(style.marginBottom);
+    const padding = parseInt(style.paddingBottom);
+    sum += margin + padding;
   }
-  void fetch("/oidc/logout").then(() => {
-    if (hasOidc) {
-      window.location.href = "/ui/login/";
-      return;
-    }
-    if (hasCertificate) {
-      window.location.href = "/ui/login/certificate-add";
-      return;
-    }
-    window.location.href = "/ui/login/certificate-generate";
-  });
+  return sum;
 };
+
+export const logout = (): void =>
+  void fetch("/oidc/logout").then(() => {
+    if (!window.location.href.includes("/ui/login")) {
+      window.location.href = "/ui/login";
+    }
+  });
 
 export const capitalizeFirstLetter = (val: string): string =>
   val.charAt(0).toUpperCase() + val.slice(1);

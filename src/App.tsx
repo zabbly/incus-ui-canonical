@@ -9,16 +9,11 @@ import { setTitle } from "util/title";
 import NoMatch from "components/NoMatch";
 import { logout } from "util/helpers";
 import lazy from "util/lazyWithRetry";
-import { useSettings } from "context/useSettings";
-import NotificationRow from "components/NotificationRow";
 import {
   applyTheme,
   loadTheme,
-  useNotify,
-  CustomLayout,
   Spinner,
 } from "@canonical/react-components";
-import { setFavicon } from "util/favicon";
 import { ALL_PROJECTS } from "util/loginProject";
 
 const CertificateAdd = lazy(async () => import("pages/login/CertificateAdd"));
@@ -108,18 +103,8 @@ const PermissionIdpGroups = lazy(
 const HOME_REDIRECT_PATHS = ["/", "/ui", "/ui/project"];
 
 const App: FC = () => {
-  const {
-    defaultProject,
-    hasNoProjects,
-    isAuthLoading,
-    isAuthenticated,
-    authError,
-  } = useAuth();
-  const notify = useNotify();
-  const { data: settings } = useSettings();
-  const hasOidc = settings?.auth_methods?.includes("oidc");
-  const hasCertificate = settings?.client_certificate;
-  setFavicon();
+  const { defaultProject, hasNoProjects, isAuthLoading, isAuthenticated } =
+    useAuth();
   setTitle();
 
   useEffect(() => {
@@ -131,28 +116,8 @@ const App: FC = () => {
     return <Spinner className="u-loader" text="Loading..." isMainComponent />;
   }
 
-  if (authError) {
-    const title = "Authentication failed";
-    if (notify.notification?.title !== title) {
-      const logoutAction = [
-        {
-          label: "Logout",
-          onClick: () => (window.location.href = "/oidc/logout"),
-        },
-      ];
-
-      notify.failure(title, authError, null, logoutAction);
-    }
-
-    return (
-      <CustomLayout contentClassName="login">
-        <NotificationRow />
-      </CustomLayout>
-    );
-  }
-
-  if (!isAuthenticated && hasOidc != undefined && hasCertificate != undefined) {
-    logout(hasOidc, hasCertificate);
+  if (!isAuthenticated) {
+    logout();
   }
 
   if (!isAuthenticated && !window.location.href.includes("/ui/login")) {
