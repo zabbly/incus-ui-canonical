@@ -13,7 +13,7 @@ const NoMatch: FC = () => {
             <br />
             If you think this is an error in our product, please{" "}
             <a
-              href="https://github.com/canonical/lxd-ui/issues/new"
+              href="https://github.com/zabbly/incus/issues/new"
               target="_blank"
               rel="noopener noreferrer"
               title="Report a bug"
