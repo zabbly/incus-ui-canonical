@@ -20,9 +20,8 @@ const Login: FC = () => {
 
   return (
     <>
-      <CustomLayout contentClassName="login">
+      <CustomLayout>
         <div className="empty-state login-page">
-          <Icon name="pods" className="lxd-icon" />
           <h1 className="p-heading--4 u-sv-2">Login</h1>
 
           <>
