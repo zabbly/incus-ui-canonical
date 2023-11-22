@@ -22,18 +22,15 @@ const Login: FC = () => {
 
   return (
     <>
-      <CustomLayout contentClassName="login">
+      <CustomLayout>
         <div className="empty-state login-page">
-          {hasOidc && (
-            <>
-              <div className="u-sv2">
-                <Icon name="cluster-host" className="lxd-icon" />
-              </div>
-              <div className="auth-container">
-                <a
-                  className="p-button--positive has-icon"
-                  href={`${ROOT_PATH}/oidc/login`}
-                >
+          <h1 className="p-heading--4 u-sv-2">Login</h1>
+
+          <>
+            <p className="u-sv1">Choose your login method</p>
+            <div className="auth-container">
+              {hasOidc && (
+                <a className="p-button--positive has-icon" href={`${ROOT_PATH}/oidc/login`}>
                   <Icon name="security" light />
                   <span>Login with SSO</span>
                 </a>

@@ -2,16 +2,16 @@ var screenshot = window.location.origin + "/ui/assets/img/";
 
 const manifestElement = document.getElementById("manifest");
 const dynamicManifest = JSON.stringify({
-  short_name: "LXD " + window.location.origin,
-  name: "LXD-UI - " + window.location.origin,
+  short_name: "Incus " + window.location.origin,
+  name: "Incus UI - " + window.location.origin,
   icons: [
     {
-      src: window.location.origin + "/ui/assets/img/canonical-lxd-512.png",
+      src: window.location.origin + "/ui/assets/img/app-logo.png",
       type: "image/png",
       sizes: "512x512",
     },
   ],
-  id: "LXDID-"  + window.location.origin,
+  id: "INCUSID-"  + window.location.origin,
   start_url: window.location.origin,
   background_color: "#E95420",
   display: "standalone",
@@ -19,24 +19,13 @@ const dynamicManifest = JSON.stringify({
   theme_color: "#262626",
   shortcuts: [],
   description:
-    "LXD provides a unified user experience for managing system containers and virtual machines.",
+    "Incus provides a unified user experience for managing containers and virtual machines.",
   screenshots: [
     {
-      src: screenshot + "LXD-screenshot.png",
+      src: screenshot + "screenshot.png",
       type: "image/png",
-      sizes: "954x953",
+      sizes: "1537x816",
       form_factor: "wide",
-    },
-    {
-      src: screenshot + "LXD-screenshot2.png",
-      type: "image/png",
-      sizes: "954x953",
-      form_factor: "wide",
-    },
-    {
-      src: screenshot + "LXD-screenshot3.png",
-      type: "image/png",
-      sizes: "1920x1075",
     },
   ],
 });
