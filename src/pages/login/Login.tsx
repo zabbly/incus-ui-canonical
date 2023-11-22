@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { Icon } from "@canonical/react-components";
+import { Button, Icon } from "@canonical/react-components";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "context/auth";
 import Loader from "components/Loader";
@@ -13,7 +13,7 @@ const Login: FC = () => {
   const hasOidc = settings?.auth_methods?.includes("oidc");
 
   if (isAuthLoading) {
-    return <Loader isMainComponent />;
+    return <Loader />;
   }
 
   if (isAuthenticated) {
@@ -22,7 +22,7 @@ const Login: FC = () => {
 
   return (
     <CustomLayout>
-      <div className="empty-state login-page">
+      <div className="empty-state login">
         <h1 className="p-heading--4 u-sv-2">Login</h1>
 
         <>

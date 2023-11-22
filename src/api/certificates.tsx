@@ -10,11 +10,19 @@ export const fetchCertificates = async (): Promise<LxdCertificate[]> => {
     });
 };
 
-export const addCertificate = async (token: string): Promise<void> => {
-  await fetch(`/1.0/auth/identities/tls`, {
-    method: "POST",
-    body: JSON.stringify({
-      trust_token: token,
-    }),
-  }).then(handleResponse);
+export const addCertificate = async (
+  token: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/certificates`, {
+      method: "POST",
+      body: JSON.stringify({
+        type: "client",
+        trust_token: token,
+      }),
+    })
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
 };
