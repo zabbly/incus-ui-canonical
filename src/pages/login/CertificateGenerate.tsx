@@ -79,7 +79,7 @@ const CertificateGenerate: FC = () => {
     downloadLink.click();
   };
 
-  const crtFileName = `lxd-ui-${location.hostname}.crt`;
+  const crtFileName = `incus-ui.crt`;
 
   return (
     <CustomLayout
@@ -87,7 +87,7 @@ const CertificateGenerate: FC = () => {
       header={
         <div className="p-panel__header is-sticky">
           <h1 className="p-panel__title">
-              Setup LXD UI
+              Setup Incus UI
           </h1>
         </div>
       }
@@ -146,7 +146,7 @@ const CertificateGenerate: FC = () => {
                       <Col size={6}>
                         <p>
                           Download the <code>.crt</code> file and add it to the
-                          LXD trust store
+                          Incus trust store
                         </p>
                       </Col>
                       {certs && (
@@ -165,7 +165,7 @@ const CertificateGenerate: FC = () => {
                     <div className="p-code-snippet">
                       <pre className="p-code-snippet__block--icon">
                         <code>
-                          lxc config trust add Downloads/
+                          incus config trust add-certificate Downloads/
                           {crtFileName}
                         </code>
                       </pre>
@@ -185,7 +185,7 @@ const CertificateGenerate: FC = () => {
                       certs
                         ? () => {
                             downloadBase64(
-                              `lxd-ui-${location.hostname}.pfx`,
+                              `incus-ui.pfx`,
                               certs.pfx,
                             );
                           }
@@ -202,7 +202,7 @@ const CertificateGenerate: FC = () => {
                 </Col>
                 <Col size={6}>
                   <div className="p-stepped-list__content">
-                    <p>Enjoy LXD UI.</p>
+                    <p>Enjoy Incus UI.</p>
                   </div>
                 </Col>
               </Row>

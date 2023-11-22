@@ -26,7 +26,7 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
     <>
       <li className="p-list__item">
         This opens a certificate management dialog. Click <code>Import...</code>
-        then <code>Next</code> and select the <code>lxd-ui.pfx</code> file you
+        then <code>Next</code> and select the <code>incus-ui.pfx</code> file you
         just downloaded. Enter your password, or leave the field empty if you
         have not set one. Click <code>Next</code>.
       </li>
@@ -35,7 +35,7 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
         <code>Next</code>, then click <code>Finish</code>.
       </li>
       <li className="p-list__item">
-        Restart the browser and open LXD-UI. Select the LXD-UI certificate.
+        Restart the browser and open the Incus UI. Select the Incus UI certificate.
       </li>
     </>
   );
@@ -89,7 +89,7 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
                 your password, or leave the field empty if you have not set one.
               </li>
               <li className="p-list__item">
-                Restart the browser and open LXD-UI. Select the LXD-UI
+                Restart the browser and open the Incus UI. Select the Incus UI
                 certificate.
               </li>
             </ul>
@@ -110,11 +110,11 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
               </li>
               <li className="p-list__item">
                 Click the <code>Import</code> button and select the{" "}
-                <code>lxd-ui.pfx</code> file you just downloaded. Enter your
+                <code>incus-ui.pfx</code> file you just downloaded. Enter your
                 password, or leave the field empty if you have not set one.
               </li>
               <li className="p-list__item">
-                Restart the browser and open LXD-UI. Select the LXD-UI
+                Restart the browser and open Incus-UI. Select the Incus-UI
                 certificate.
               </li>
             </ul>
@@ -181,7 +181,7 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
                 keychain.
               </li>
               <li className="p-list__item">
-                Drag the <code>lxd-ui.pfx</code> file onto the Keychain Access
+                Drag the <code>incus-ui.pfx</code> file onto the Keychain Access
                 app.
               </li>
               <li className="p-list__item">
@@ -189,7 +189,7 @@ const BrowserImport: FC<Props> = ({ sendPfx }) => {
                 and password for an administrator user on this computer.
               </li>
               <li className="p-list__item">
-                Restart the browser and open LXD-UI. Select the LXD-UI
+                Restart the browser and open Incus-UI. Select the Incus-UI
                 certificate.
               </li>
             </ul>
