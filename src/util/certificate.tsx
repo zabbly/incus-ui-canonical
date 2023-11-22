@@ -30,7 +30,7 @@ const details = [
   },
   {
     name: "organizationName",
-    value: sanitizeOrgName(`LXD UI ${location.hostname} (Browser Generated)`),
+    value: sanitizeOrgName(`Incus UI ${location.hostname} (Browser Generated)`),
   },
 ];
 
@@ -55,7 +55,7 @@ const generateCert = (password: string) => {
   const asn1 = forge.pkcs12.toPkcs12Asn1(keys.privateKey, [cert], password, {
     algorithm: "3des", // would like to use aes, but macOS keychain only supports 3des
     generateLocalKeyId: true,
-    friendlyName: "LXD-UI",
+    friendlyName: "Incus-UI",
   });
   const der = forge.asn1.toDer(asn1).getBytes();
   const pfx = forge.util.encode64(der);

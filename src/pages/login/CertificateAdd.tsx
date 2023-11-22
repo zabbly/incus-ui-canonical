@@ -59,7 +59,7 @@ const CertificateAdd: FC = () => {
                     <p>Generate a token on the command line</p>
                     <div className="p-code-snippet">
                       <pre className="p-code-snippet__block--icon">
-                        <code>lxc config trust add --name lxd-ui</code>
+                        <code>incus config trust add incus-ui</code>
                       </pre>
                     </div>
                   </div>
@@ -85,7 +85,7 @@ const CertificateAdd: FC = () => {
                 </Col>
                 <Col size={6}>
                   <div className="p-stepped-list__content">
-                    <p>Enjoy LXD UI.</p>
+                    <p>Enjoy Incus UI.</p>
                   </div>
                 </Col>
               </Row>
