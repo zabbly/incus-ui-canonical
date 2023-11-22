@@ -6,6 +6,6 @@ export const setTitle = (): void => {
 
   useEffect(() => {
     const host = settings?.config?.["user.ui_title"] ?? location.hostname;
-    document.title = `${host} | LXD UI`;
+    document.title = `${host} | Incus UI`;
   }, [settings?.config]);
 };
