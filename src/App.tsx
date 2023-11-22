@@ -6,19 +6,14 @@ import ProjectLoader from "pages/projects/ProjectLoader";
 import { useAuth } from "context/auth";
 import { setTitle } from "util/title";
 import NoMatch from "components/NoMatch";
-import { isBearerAuthError, logoutBearerToken, logoutOidc } from "util/helpers";
+import { isBearerAuthError, logout, logoutBearerToken, logoutOidc } from "util/helpers";
 import { ROOT_PATH } from "util/rootPath";
 import lazy from "util/lazyWithRetry";
-import { useSettings } from "context/useSettings";
-import NotificationRow from "components/NotificationRow";
 import {
   applyTheme,
   loadTheme,
-  useNotify,
-  CustomLayout,
   Spinner,
 } from "@canonical/react-components";
-import { setFavicon } from "util/favicon";
 import { ALL_PROJECTS } from "util/projects";
 import { AUTH_METHOD } from "util/authentication";
 
@@ -129,18 +124,8 @@ const HOME_REDIRECT_PATHS = [
 ];
 
 const App: FC = () => {
-  const {
-    defaultProject,
-    hasNoProjects,
-    isAuthLoading,
-    isAuthenticated,
-    authError,
-  } = useAuth();
-  const notify = useNotify();
-  const { data: settings } = useSettings();
-  const hasOidc = settings?.auth_methods?.includes(AUTH_METHOD.OIDC);
-  const hasCertificate = settings?.client_certificate;
-  setFavicon();
+  const { defaultProject, hasNoProjects, isAuthLoading, isAuthenticated } =
+    useAuth();
   setTitle();
 
   useEffect(() => {
@@ -152,33 +137,8 @@ const App: FC = () => {
     return <Spinner className="u-loader" text="Loading..." isMainComponent />;
   }
 
-  if (authError) {
-    const title = "Authentication failed";
-    if (notify.notification?.title !== title) {
-      const logoutAction = [
-        {
-          label: "Logout",
-          onClick: () => {
-            if (isBearerAuthError(authError)) {
-              logoutBearerToken();
-            } else {
-              logoutOidc();
-            }
-          },
-        },
-      ];
-      notify.failure(title, authError, null, logoutAction);
-    }
-
-    return (
-      <CustomLayout contentClassName="login">
-        <NotificationRow />
-      </CustomLayout>
-    );
-  }
-
-  if (!isAuthenticated && hasOidc != undefined && hasCertificate != undefined) {
-    logoutOidc();
+  if (!isAuthenticated) {
+    logout();
   }
 
   if (

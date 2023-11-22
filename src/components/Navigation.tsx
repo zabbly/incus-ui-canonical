@@ -99,6 +99,7 @@ const Navigation: FC = () => {
   const onTrustToken = location.pathname.includes("certificate-add");
   const { data: settings } = useSettings();
   const hasOidc = settings?.auth_methods?.includes(AUTH_METHOD.OIDC);
+  const navigate = useNavigate();
   const isClustered = useIsClustered();
   const isOidc = authMethod === AUTH_METHOD.OIDC;
   const isBearerToken = authMethod === AUTH_METHOD.BEARER;
@@ -784,11 +785,7 @@ const Navigation: FC = () => {
                         className="p-side-navigation__link"
                         title="Log out"
                         onClick={() => {
-                          if (isBearerToken) {
-                            logoutBearerToken();
-                          } else {
-                            logoutOidc();
-                          }
+                          logout();
 
                           softToggleMenu();
                         }}
