@@ -1,66 +1,59 @@
 import type { FC } from "react";
 import { useState } from "react";
-import { Col, Row, Tabs } from "@canonical/react-components";
-import CertificateGenerateBtn from "./CertificateGenerateBtn";
+import {
+  Button,
+  Col,
+  Notification,
+  Row,
+  Tabs,
+} from "@canonical/react-components";
 
 const FIREFOX = "Firefox";
-const CHROME_LINUX = "Chrome on Linux";
-const CHROME_WINDOWS = "Chrome on Windows";
-const EDGE = "Microsoft Edge";
+const CHROME_LINUX = "Chrome (Linux)";
+const CHROME_WINDOWS = "Chrome (Windows)";
+const EDGE = "Edge";
 const MACOS = "macOS";
 const TABS: string[] = [FIREFOX, CHROME_LINUX, CHROME_WINDOWS, EDGE, MACOS];
 
-const getDefaultTab = (): string => {
-  const ua = navigator.userAgent.toLowerCase();
+interface Props {
+  sendPfx?: () => void;
+}
 
-  const isMac = ua.includes("macintosh") || ua.includes("mac os");
-  const isWindows = ua.includes("windows");
-  const isLinux = ua.includes("linux");
-
-  const isEdge = ua.includes("edg/");
-  const isFirefox = ua.includes("firefox");
-  const isChrome = ua.includes("chrome");
-
-  if (isFirefox) return FIREFOX;
-  if (isMac) return MACOS;
-  if (isEdge) return EDGE;
-  if (isChrome && isWindows) return CHROME_WINDOWS;
-  if (isChrome && isLinux) return CHROME_LINUX;
-
-  return FIREFOX;
-};
-
-const BrowserImport: FC = () => {
-  const [activeTab, handleTabChange] = useState(getDefaultTab());
+const BrowserImport: FC<Props> = ({ sendPfx }) => {
+  const [activeTab, handleTabChange] = useState(FIREFOX);
 
   const windowsDialogSteps = (
     <>
       <li className="p-list__item">
-        In the modal that appears, click <b>Import...</b>
+        This opens a certificate management dialog. Click <code>Import...</code>
+        then <code>Next</code> and select the <code>incus-ui.pfx</code> file you
+        just downloaded. Enter your password, or leave the field empty if you
+        have not set one. Click <code>Next</code>.
       </li>
       <li className="p-list__item">
-        Follow the instructions in the Certificate Import Wizard. When prompted
-        with <b>File to Import</b>, click <b>Browse</b> and choose the
-        certificate you downloaded. In order to see the certificate file, ensure
-        that the file type picker is set to{" "}
-        <b>Personal Information Exchange (*.pfx;*.p12)</b>.
+        Select <code>Automatically select the certificate store</code> and click{" "}
+        <code>Next</code>, then click <code>Finish</code>.
       </li>
       <li className="p-list__item">
-        <b>Restart the browser.</b>
+        Restart the browser and open the Incus UI. Select the Incus UI certificate.
       </li>
     </>
   );
 
   const downloadPfx = (
     <li className="p-list__item u-clearfix">
-      Create and download a client certificate:
-      <CertificateGenerateBtn isPasswordRequired={activeTab === MACOS} />
+      Download the <code>.pfx</code> file for importing to your browser.
+      {sendPfx && (
+        <div className="u-float-right--large">
+          <Button onClick={sendPfx}>Download pfx</Button>
+        </div>
+      )}
     </li>
   );
 
   return (
     <Row>
-      <Col size={10}>
+      <Col size={8}>
         <Tabs
           links={TABS.map((tab) => ({
             label: tab,
@@ -76,25 +69,28 @@ const BrowserImport: FC = () => {
             <ul className="p-list--divided u-no-margin--bottom">
               {downloadPfx}
               <li className="p-list__item">
-                Go to Firefox&rsquo;s privacy settings:
-                <pre className="p-code-snippet__block u-no-margin--bottom">
-                  <code>about:preferences#privacy</code>
-                </pre>
+                Paste this link into the address bar:
+                <div className="p-code-snippet u-no-margin--bottom">
+                  <pre className="p-code-snippet__block">
+                    <code>about:preferences#privacy</code>
+                  </pre>
+                </div>
               </li>
               <li className="p-list__item">
-                Scroll down to the certificates section and click{" "}
-                <b>View Certificates</b>
+                Scroll down to the certificates section and click the{" "}
+                <code>View Certificates</code> button.
               </li>
               <li className="p-list__item">
-                In the modal that appears, go to Your <b>certificates</b> and
-                click Import
+                In the popup click <code>Your certificates</code> and then{" "}
+                <code>Import</code>.
               </li>
               <li className="p-list__item">
-                Select the .pfx file you just downloaded. If you created a
-                password for the certificate, type it in now.
+                Select the <code>.pfx</code> file you just downloaded. Enter
+                your password, or leave the field empty if you have not set one.
               </li>
               <li className="p-list__item">
-                <b>Restart the browser.</b>
+                Restart the browser and open the Incus UI. Select the Incus UI
+                certificate.
               </li>
             </ul>
           </div>
@@ -105,24 +101,21 @@ const BrowserImport: FC = () => {
             <ul className="p-list--divided u-no-margin--bottom">
               {downloadPfx}
               <li className="p-list__item">
-                Go to Chrome&apos;s certificate manager:
-                <pre className="p-code-snippet__block u-no-margin--bottom">
-                  <code>chrome://certificate-manager</code>
-                </pre>
+                Paste into the address bar:
+                <div className="p-code-snippet u-no-margin--bottom">
+                  <pre className="p-code-snippet__block">
+                    <code>chrome://settings/certificates</code>
+                  </pre>
+                </div>
               </li>
               <li className="p-list__item">
-                Click <b>Your certificates</b>
+                Click the <code>Import</code> button and select the{" "}
+                <code>incus-ui.pfx</code> file you just downloaded. Enter your
+                password, or leave the field empty if you have not set one.
               </li>
               <li className="p-list__item">
-                Go to <b>View imported certificates from Linux</b>
-              </li>
-              <li className="p-list__item">
-                Select <b>Import</b> and choose the .pfx file you just
-                downloaded. If you created a password for the certificate, type
-                it in now.
-              </li>
-              <li className="p-list__item">
-                <b>Restart the browser.</b>
+                Restart the browser and open Incus-UI. Select the Incus-UI
+                certificate.
               </li>
             </ul>
           </div>
@@ -133,21 +126,16 @@ const BrowserImport: FC = () => {
             <ul className="p-list--divided u-no-margin--bottom">
               {downloadPfx}
               <li className="p-list__item">
-                Go to Chrome&apos;s certificate settings:
-                <pre className="p-code-snippet__block u-no-margin--bottom">
-                  <code>chrome://settings/certificates</code>
-                </pre>
+                Paste into the address bar:
+                <div className="p-code-snippet u-no-margin--bottom">
+                  <pre className="p-code-snippet__block">
+                    <code>chrome://settings/security</code>
+                  </pre>
+                </div>
               </li>
               <li className="p-list__item">
-                Near the bottom of the page, click <b>Manage certificates</b>
-              </li>
-              <li className="p-list__item">
-                Make sure{" "}
-                <b>
-                  Use imported local certificates from your operating system
-                </b>{" "}
-                is toggled on, and click{" "}
-                <b>Manage imported certificates from Windows</b>{" "}
+                Scroll down to the <code>Advanced settings</code> and click{" "}
+                <code>Manage device certificates</code>
               </li>
               {windowsDialogSteps}
             </ul>
@@ -159,13 +147,16 @@ const BrowserImport: FC = () => {
             <ul className="p-list--divided u-no-margin--bottom">
               {downloadPfx}
               <li className="p-list__item">
-                Go to Edge&apos;s certificate settings:
-                <pre className="p-code-snippet__block u-no-margin--bottom">
-                  <code>edge://settings/privacy</code>
-                </pre>
+                Paste into the address bar:
+                <div className="p-code-snippet u-no-margin--bottom">
+                  <pre className="p-code-snippet__block">
+                    <code>edge://settings/privacy</code>
+                  </pre>
+                </div>
               </li>
               <li className="p-list__item">
-                Under <b>Security</b>, click <b>Manage certificates</b>
+                Scroll to the <code>Security</code> section and click{" "}
+                <code>Manage Certificates</code>
               </li>
               {windowsDialogSteps}
             </ul>
@@ -175,22 +166,31 @@ const BrowserImport: FC = () => {
         {activeTab === MACOS && (
           <div role="tabpanel" aria-label="safari macos">
             <ul className="p-list--divided u-no-margin--bottom">
+              <li className="p-list__item">
+                <Notification
+                  severity="caution"
+                  className="u-no-margin--bottom"
+                >
+                  The certificate must be protected by password. An empty
+                  password will fail to be imported on macOS.
+                </Notification>
+              </li>
               {downloadPfx}
               <li className="p-list__item">
-                Launch the <b>Keychain Access app</b> (you will need to
-                authenticate using your mac&rsquo;s login credentials)
+                Start the Keychain Access app on your Mac, select the login
+                keychain.
               </li>
               <li className="p-list__item">
-                Import the certificate file that was created earlier. This can
-                be done either by dragging the file from Finder onto Keychain
-                Access, or with <b> File &gt; Import Items...</b>
+                Drag the <code>incus-ui.pfx</code> file onto the Keychain Access
+                app.
               </li>
               <li className="p-list__item">
-                Unlock the certificate by typing in the password used to create
-                it.
+                If you are asked to provide a name and password, type the name
+                and password for an administrator user on this computer.
               </li>
               <li className="p-list__item">
-                <b>Restart the browser.</b>
+                Restart the browser and open Incus-UI. Select the Incus-UI
+                certificate.
               </li>
             </ul>
           </div>

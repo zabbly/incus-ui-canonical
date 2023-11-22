@@ -228,22 +228,12 @@ export const getParentsBottomSpacing = (element: Element): number => {
   return sum;
 };
 
-export const logout = (hasOidc?: boolean, hasCertificate?: boolean): void => {
-  if (window.location.href.includes("/ui/login")) {
-    return;
-  }
+export const logout = (): void =>
   void fetch("/oidc/logout").then(() => {
-    if (hasOidc) {
-      window.location.href = "/ui/login/";
-      return;
+    if (!window.location.href.includes("/ui/login")) {
+      window.location.href = "/ui/login";
     }
-    if (hasCertificate) {
-      window.location.href = "/ui/login/certificate-add";
-      return;
-    }
-    window.location.href = "/ui/login/certificate-generate";
   });
-};
 
 export const capitalizeFirstLetter = (val: string): string =>
   val.charAt(0).toUpperCase() + val.slice(1);
