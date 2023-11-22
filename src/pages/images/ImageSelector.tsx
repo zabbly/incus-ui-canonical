@@ -30,9 +30,7 @@ import { useSettings } from "context/useSettings";
 import { useParams } from "react-router-dom";
 import { useRemoteImages, useLocalImagesInProject } from "context/useImages";
 import {
-  canonicalServer,
-  imagesLxdServer,
-  minimalServer,
+  linuxContainersServer,
 } from "util/imageLegacy";
 
 interface Props {
@@ -200,14 +198,8 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
           "ubuntu-minimal",
           "",
         ].includes(item.registryName ?? "");
-        if (item.server === canonicalServer && isKnownRegistry) {
-          source = "Ubuntu";
-        }
-        if (item.server === minimalServer && isKnownRegistry) {
-          source = "Ubuntu Minimal";
-        }
-        if (item.server === imagesLxdServer && isKnownRegistry) {
-          source = "LXD Images";
+        if (item.server === linuxContainersServer) {
+          source = "Linux Containers";
         }
         return source;
       };
