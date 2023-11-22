@@ -35,16 +35,9 @@ interface Props {
   onClose: () => void;
 }
 
-const canonicalJson =
-  "https://cloud-images.ubuntu.com/releases/streams/v1/com.ubuntu.cloud:released:download.json";
-const canonicalServer = "https://cloud-images.ubuntu.com/releases";
-
-const minimalJson =
-  "https://cloud-images.ubuntu.com/minimal/releases/streams/v1/com.ubuntu.cloud:released:download.json";
-const minimalServer = "https://cloud-images.ubuntu.com/minimal/releases/";
-
-const imagesLxdJson = "https://images.lxd.canonical.com/streams/v1/images.json";
-const imagesLxdServer = "https://images.lxd.canonical.com/";
+const linuxContainersJson =
+  "https://images.linuxcontainers.org/streams/v1/images.json";
+const linuxContainersServer = "https://images.linuxcontainers.org";
 
 const ANY = "any";
 const CONTAINER = "container";
@@ -78,36 +71,13 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
 
   const { data: settings, isLoading: isSettingsLoading } = useSettings();
 
-  const { data: canonicalImages = [], isLoading: isCiLoading } = useQuery({
-    queryKey: [queryKeys.images, canonicalServer],
-    queryFn: () => loadImages(canonicalJson, canonicalServer),
-    retry: false, // avoid retry to ease experience in airgapped deployments
-  });
-
-  const { data: minimalImages = [], isLoading: isMinimalLoading } = useQuery({
-    queryKey: [queryKeys.images, minimalServer],
-    queryFn: () => loadImages(minimalJson, minimalServer),
-    retry: false, // avoid retry to ease experience in airgapped deployments
-  });
-
-  const { data: imagesLxdImages = [], isLoading: isImagesLxdLoading } =
-    useQuery({
-      queryKey: [queryKeys.images, imagesLxdServer],
-      queryFn: () => loadImages(imagesLxdJson, imagesLxdServer),
-      retry: false, // avoid retry to ease experience in airgapped deployments
-    });
-
   const { data: localImages = [], isLoading: isLocalImageLoading } = useQuery({
     queryKey: [queryKeys.images, project],
     queryFn: () => fetchImageList(project ?? ""),
+    retry: false, // avoid retry to ease experience in airgapped deployments
   });
 
-  const isLoading =
-    isCiLoading ||
-    isMinimalLoading ||
-    isImagesLxdLoading ||
-    isLocalImageLoading ||
-    isSettingsLoading;
+  const isLoading = isLciLoading || isLocalImageLoading || isSettingsLoading;
   const archSupported = getArchitectureAliases(
     settings?.environment?.architectures ?? [],
   );
@@ -116,9 +86,7 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
     : localImages
         .map(localLxdToRemoteImage)
         .sort((a, b) => Number(b.cached) - Number(a.cached))
-        .concat([...canonicalImages].reverse().sort(byLtsFirst))
-        .concat([...minimalImages].reverse().sort(byLtsFirst))
-        .concat([...imagesLxdImages])
+        .concat(linuxContainerImages)
         .filter((image) => archSupported.includes(image.arch));
 
   const archAll = [...new Set(images.map((item) => item.arch))]
@@ -226,14 +194,8 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
         if (!item.cached && item.created_at) {
           source = "Local";
         }
-        if (item.server === canonicalServer) {
-          source = "Ubuntu";
-        }
-        if (item.server === minimalServer) {
-          source = "Ubuntu Minimal";
-        }
-        if (item.server === imagesLxdServer) {
-          source = "LXD Images";
+        if (item.server === linuxContainersServer) {
+          source = "Linux Containers";
         }
         return source;
       };
