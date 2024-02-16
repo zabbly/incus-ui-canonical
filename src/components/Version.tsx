@@ -14,9 +14,7 @@ const Version: FC = () => {
   const serverMajor = serverVersion.includes(".")
     ? serverVersion.split(".")[0]
     : undefined;
-  const isOutdated = serverMajor
-    ? parseInt(serverMajor) < RECENT_MAJOR_SERVER_VERSION
-    : false;
+  const isOutdated = false;
 
   return (
     <>
