@@ -186,7 +186,7 @@ export const checkDuplicateName = async (
   const signal = deduplicateController.signal;
   return fetch(`/1.0/${basePath}/${candidate}?project=${project}${params}`, {
     signal,
-  }).then((response) => response.status === 404);
+  }).then((response) => response.status === 404 || response.status === 403);
 };
 
 export const getUrlParam = (paramName: string, url?: string): string | null => {
