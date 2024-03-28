@@ -241,7 +241,7 @@ const _checkDuplicateName = async (
       signal,
     },
   ).then((response) => {
-    if (response.status === 404) {
+    if (response.status === 404 || response.status === 403) {
       validNameCache[cacheKey].push(candidate);
       return true;
     } else {
