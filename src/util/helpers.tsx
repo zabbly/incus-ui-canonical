@@ -172,7 +172,7 @@ export const checkDuplicateName = (
   const signal = deduplicateController.signal;
   return fetch(`/1.0/${target}/${candidate}?project=${project}`, {
     signal,
-  }).then((response) => response.status === 404);
+  }).then((response) => response.status === 404 || response.status === 403);
 };
 
 export const getUrlParam = (paramName: string, url?: string): string | null => {
