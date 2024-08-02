@@ -71,7 +71,7 @@ const Settings: FC = () => {
   const configFields = toConfigFields(configOptions?.configs?.server ?? {});
 
   configFields.push({
-    key: "user.ui_title",
+    key: "user.ui.title",
     category: "user",
     default: "",
     shortdesc: "Title for the LXD-UI web page. Shows the hostname when unset.",
