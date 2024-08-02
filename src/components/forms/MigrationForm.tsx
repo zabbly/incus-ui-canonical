@@ -37,7 +37,7 @@ const MigrationForm: FC<Props> = ({ formik }) => {
       rows={[
         getConfigurationRow({
           formik,
-          label: "Stateful migration (VMs only)",
+          label: "Stateful migration",
           name: "migration_stateful",
           defaultValue: "",
           disabled: isVmOnlyDisabled,
