@@ -11,6 +11,7 @@ const Login: FC = () => {
   const { isAuthenticated, isAuthLoading } = useAuth();
   const { data: settings } = useSettings();
   const hasOidc = settings?.auth_methods?.includes("oidc");
+  const hasSSOOnly = settings?.config?.["user.ui.sso_only"] == "true";
 
   if (isAuthLoading) {
     return <Loader />;
@@ -24,9 +25,10 @@ const Login: FC = () => {
     <CustomLayout>
       <div className="empty-state login">
         <h1 className="p-heading--4 u-sv-2">Login</h1>
-
         <>
+          {!hasSSOOnly && (
           <p className="u-sv1">Choose your login method</p>
+          )}
           <div className="auth-container">
             {hasOidc && (
               <a className="p-button--positive has-icon" href="/oidc/login">
@@ -34,6 +36,8 @@ const Login: FC = () => {
                 <span>Login with SSO</span>
               </a>
             )}
+          {!hasSSOOnly && (
+          <>
             <Link
               className={classnames(" has-icon", {
                 "p-button--positive": !hasOidc,
@@ -49,6 +53,8 @@ const Login: FC = () => {
               />
               <span>Login with TLS</span>
             </Link>
+          </>
+	  )}
           </div>
         </>
       </div>
