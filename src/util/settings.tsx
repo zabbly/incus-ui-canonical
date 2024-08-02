@@ -95,7 +95,7 @@ export const getUserSettings = (
       isSaved: true,
     },
     {
-      key: "user.ui_title",
+      key: "user.ui.title",
       category: "user",
       default: "",
       shortdesc:
