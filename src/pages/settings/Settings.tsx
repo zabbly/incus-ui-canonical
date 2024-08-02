@@ -109,6 +109,14 @@ const Settings: FC = () => {
   });
 
   configFields.push({
+    key: "user.ui.sso_only",
+    category: "user",
+    default: "false",
+    shortdesc: "Whether to restrict login options to SSO/OIDC only.",
+    type: "bool",
+  });
+
+  configFields.push({
     key: "user.ui_login_project",
     category: "user",
     default: getDefaultProject(projects),
