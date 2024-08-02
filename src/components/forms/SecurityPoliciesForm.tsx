@@ -157,7 +157,7 @@ const SecurityPoliciesForm: FC<Props> = ({ formik, setSection }) => {
 
         getConfigurationRow({
           formik,
-          label: "Allow /dev/lxd in the instance (Containers only)",
+          label: "Allow /dev/lxd in the instance",
           name: "security_devlxd",
           defaultValue: "",
           disabled: isContainerOnlyDisabled,
