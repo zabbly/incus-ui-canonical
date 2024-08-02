@@ -78,6 +78,14 @@ const Settings: FC = () => {
     type: "string",
   });
 
+  configFields.push({
+    key: "user.ui.sso_only",
+    category: "user",
+    default: "false",
+    shortdesc: "Whether to restrict login options to SSO/OIDC only.",
+    type: "bool",
+  });
+
   if (hasAccessManagement) {
     configFields.push({
       key: "user.show_permissions",
