@@ -720,7 +720,7 @@ const Navigation: FC = () => {
                     <SideNavigationItem>
                       <div
                         className="p-side-navigation__link"
-                        title={`${loggedInUserName} (${loggedInUserID})`}
+                        title={`${loggedInUserName}`}
                       >
                         <Icon
                           className="p-side-navigation__icon is-dark"
