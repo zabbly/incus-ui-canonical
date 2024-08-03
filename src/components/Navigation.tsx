@@ -610,7 +610,7 @@ const Navigation: FC = () => {
                     <SideNavigationItem>
                       <div
                         className="p-side-navigation__link"
-                        title={`${loggedInUserName} (${loggedInUserID})`}
+                        title={`${loggedInUserName}`}
                       >
                         {authMethod == "tls" ? (
                           <Icon
