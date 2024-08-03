@@ -1,6 +1,4 @@
 import { useSettings } from "./useSettings";
-import { useIdentity } from "./useIdentities";
-import { getIdentityName } from "util/permissionIdentities";
 
 export const useLoggedInUser = () => {
   const { data: settings } = useSettings();
@@ -8,11 +6,8 @@ export const useLoggedInUser = () => {
   const id = settings?.auth_user_name || "";
   const authMethod = settings?.auth_user_method || "";
 
-  const identityQueryEnabled = !!id && !!authMethod && authMethod !== "unix";
-  const { data: identity } = useIdentity(id, authMethod, identityQueryEnabled);
-
   return {
-    loggedInUserName: authMethod === "unix" ? id : getIdentityName(identity),
+    loggedInUserName: id,
     loggedInUserID: id,
     authMethod,
   };
