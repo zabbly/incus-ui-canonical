@@ -382,6 +382,10 @@ const CreateInstance: FC = () => {
     } else if (isContainerOnlyImage(image)) {
       void formik.setFieldValue("instanceType", "container");
     }
+
+    if (image.profiles) {
+      void formik.setFieldValue("profiles", image.profiles);
+    }
   };
 
   useEffect(() => {
