@@ -382,6 +382,10 @@ const CreateInstance: FC = () => {
     } else {
       formik.setFieldValue("targetSelectedByVolume", undefined);
     }
+
+    if (image.profiles) {
+      void formik.setFieldValue("profiles", image.profiles);
+    }
   };
 
   useEffect(() => {

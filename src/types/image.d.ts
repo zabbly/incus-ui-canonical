@@ -30,6 +30,7 @@ export interface LxdImage {
   uploaded_at: string;
   aliases: LxdImageAlias[];
   cached: boolean;
+  profiles: string[];
   name?: string;
   access_entitlements?: string[];
 }
@@ -82,6 +83,7 @@ export interface RemoteImage {
   volume?: LxdStorageVolume;
   type?: LxdImageType;
   fingerprint?: string;
+  profiles?: string[];
   cached?: boolean;
   isLts?: boolean;
   registryBuiltIn?: boolean;
