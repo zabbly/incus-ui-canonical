@@ -58,6 +58,7 @@ export const localLxdToRemoteImage = (image: LxdImage): RemoteImage => {
     release_title: releaseTitle,
     type: image.type,
     cached: image.cached,
+    profiles: image.profiles ?? ["default"],
     server: image.cached ? image.update_source?.server : LOCAL_IMAGE,
     variant: image.properties?.variant,
   };
