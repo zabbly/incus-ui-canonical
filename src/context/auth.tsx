@@ -62,7 +62,7 @@ export const AuthProvider: FC<ProviderProps> = ({ children }) => {
       value={{
         isAuthenticated: (settings && settings.auth !== "untrusted") ?? false,
         isOidc: settings?.auth_user_method === "oidc",
-        isAuthLoading: isLoading,
+        isAuthLoading: isLoading || isProjectsLoading,
         isRestricted,
         defaultProject,
         hasNoProjects: projects.length === 0 && !isProjectsLoading,
