@@ -15,6 +15,8 @@ import useEventListener from "util/useEventListener";
 import { enablePermissionsFeature } from "util/permissions";
 import { Location, useLocation } from "react-router-dom";
 import { useLoggedInUser } from "context/useLoggedInUser";
+import { useSettings } from "context/useSettings";
+import { isClusteredServer } from "util/settings";
 
 const isSmallScreen = () => isWidthBelow(620);
 
@@ -35,6 +37,8 @@ const initialiseOpenNavMenus = (location: Location) => {
 
 const Navigation: FC = () => {
   const { isRestricted, isOidc } = useAuth();
+  const { data: settings } = useSettings();
+  const isClustered = isClusteredServer(settings);
   const docBaseLink = useDocs();
   const { menuCollapsed, setMenuCollapsed } = useMenuCollapsed();
   const { project, isLoading } = useProject();
@@ -310,6 +314,8 @@ const Navigation: FC = () => {
                           Configuration
                         </NavLink>
                       </SideNavigationItem>
+                      {isClustered && (
+                      <>
                       <hr className="is-dark navigation-hr" />
                       <SideNavigationItem>
                         <NavLink
@@ -324,6 +330,8 @@ const Navigation: FC = () => {
                           Cluster
                         </NavLink>
                       </SideNavigationItem>
+                      </>
+                      )}
                       <SideNavigationItem>
                         <NavLink
                           to={`/ui/operations`}
