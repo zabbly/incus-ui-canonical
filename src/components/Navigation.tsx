@@ -31,6 +31,7 @@ import { useLoggedInUser } from "context/useLoggedInUser";
 import ProjectPermissionWarning from "pages/projects/ProjectPermissionWarning";
 import { useSettings } from "context/useSettings";
 import type { LxdProject } from "types/project";
+import { isClusteredServer } from "util/settings";
 
 const isSmallScreen = () => isWidthBelow(620);
 
@@ -74,6 +75,8 @@ const initializeProjectName = (
 
 const Navigation: FC = () => {
   const { isRestricted, isOidc } = useAuth();
+  const { data: settings } = useSettings();
+  const isClustered = isClusteredServer(settings);
   const docBaseLink = useDocs();
   const { menuCollapsed, setMenuCollapsed } = useMenuCollapsed();
   const {
@@ -95,7 +98,6 @@ const Navigation: FC = () => {
   );
   const onGenerate = location.pathname.includes("certificate-generate");
   const onTrustToken = location.pathname.includes("certificate-add");
-  const { data: settings } = useSettings();
   const hasOidc = settings?.auth_methods?.includes("oidc");
   const navigate = useNavigate();
 
@@ -430,6 +432,8 @@ const Navigation: FC = () => {
                           Configuration
                         </NavLink>
                       </SideNavigationItem>
+                      {isClustered && (
+                      <>
                       <hr
                         className={classnames("navigation-hr", {
                           "is-light": !isAuthenticated,
@@ -448,6 +452,8 @@ const Navigation: FC = () => {
                           Cluster
                         </NavLink>
                       </SideNavigationItem>
+                      </>
+                      )}
                       <SideNavigationItem>
                         <NavLink
                           to={`/ui/operations`}
