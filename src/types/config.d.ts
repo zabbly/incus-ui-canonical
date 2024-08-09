@@ -56,6 +56,7 @@ export interface LxdMetadata {
     "storage-pure": LxcConfigOptionCategories;
     "storage-zfs": LxcConfigOptionCategories;
     "storage-alletra": LxcConfigOptionCategories;
+    "storage-lvmcluster": LxcConfigOptionCategories;
   };
   entities: LxdEntityEntitlements;
 }
