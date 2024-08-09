@@ -9,6 +9,7 @@ export const cephDriver = "ceph";
 export const cephFSDriver = "cephfs";
 export const powerFlex = "powerflex";
 export const pureStorage = "pure";
+export const lvmClusterDriver = "lvmcluster";
 
 const storageDriverLabels: { [key: string]: string } = {
   [dirDriver]: "Directory",
@@ -19,6 +20,7 @@ const storageDriverLabels: { [key: string]: string } = {
   [cephFSDriver]: "CephFS",
   [powerFlex]: "Dell PowerFlex",
   [pureStorage]: "Pure Storage",
+  [lvmClusterDriver]: "LVM Cluster",
 };
 
 export const getStorageDriverOptions = (
