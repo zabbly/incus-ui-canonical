@@ -102,6 +102,7 @@ const storagePoolDriverToOptionKey: Record<string, LxdConfigOptionsKeys> = {
   powerflex: "storage-powerflex",
   pure: "storage-pure",
   cephobject: "storage-cephobject",
+  lvmcluster: "storage-lvmcluster",
 };
 
 export const storagePoolFormDriverToOptionKey = (
