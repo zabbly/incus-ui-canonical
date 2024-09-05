@@ -6,7 +6,7 @@ import { testFutureDate, testValidDate, testValidTime } from "./snapshots";
 
 /*** Instance snapshot utils ***/
 export const isInstanceStateful = (instance: LxdInstance): boolean => {
-  return Boolean(instance.config["migration.stateful"]);
+  return Boolean(instance.expanded_config["migration.stateful"]);
 };
 
 export const testDuplicateInstanceSnapshotName = (
