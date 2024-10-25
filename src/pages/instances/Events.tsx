@@ -4,6 +4,7 @@ import type { LxdEvent } from "types/event";
 import { useEventQueue } from "context/eventQueue";
 import { useAuth } from "context/auth";
 import { useQueryClient } from "@tanstack/react-query";
+import { getWsProtocol } from "util/helpers";
 import { queryKeys } from "util/queryKeys";
 import { useOperations } from "context/operationsProvider";
 import { useNotify } from "@canonical/react-components";
@@ -102,7 +103,9 @@ const Events: FC = () => {
 
   const connectEventWs = (retryCount = 0) => {
     try {
-      const wsUrl = `wss://${location.host}/1.0/events?type=operation,lifecycle&all-projects=true`;
+      const wsProtocol = getWsProtocol();
+
+      const wsUrl = `${wsProtocol}://${location.host}/1.0/events?type=operation,lifecycle&all-projects=true`;
       const ws = new WebSocket(wsUrl);
       ws.onopen = () => {
         setEventWs(ws);
