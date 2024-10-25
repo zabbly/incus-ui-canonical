@@ -119,6 +119,14 @@ export const humanFileSize = (bytes: number): string => {
   return `${bytes.toFixed(1)} ${units[u]}`;
 };
 
+export const getWsProtocol = (): string => {
+    if (window.location.protocol === 'https:') {
+        return "wss";
+    }
+
+    return "ws";
+};
+
 export const getWsErrorMsg = (code: number): string => {
   // See https://www.rfc-editor.org/rfc/rfc6455#section-7.4.1
   if (code == 1000)
