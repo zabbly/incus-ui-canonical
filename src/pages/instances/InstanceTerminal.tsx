@@ -2,7 +2,7 @@ import { FC, useEffect, useRef, useState } from "react";
 import { unstable_usePrompt as usePrompt, useParams } from "react-router-dom";
 import { FitAddon } from "xterm-addon-fit";
 import { connectInstanceExec } from "api/instances";
-import { getWsErrorMsg } from "util/helpers";
+import { getWsErrorMsg, getWsProtocol } from "util/helpers";
 import useEventListener from "@use-it/event-listener";
 import ReconnectTerminalBtn from "./actions/ReconnectTerminalBtn";
 import { TerminalConnectPayload } from "types/terminal";
@@ -96,9 +96,11 @@ const InstanceTerminal: FC<Props> = ({ instance }) => {
       return;
     }
 
+    const wsProtocol = getWsProtocol();
+
     const operationUrl = result.operation.split("?")[0];
-    const dataUrl = `wss://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds["0"]}`;
-    const controlUrl = `wss://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds.control}`;
+    const dataUrl = `${wsProtocol}://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds["0"]}`;
+    const controlUrl = `${wsProtocol}://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds.control}`;
 
     const data = new WebSocket(dataUrl);
     const control = new WebSocket(controlUrl);

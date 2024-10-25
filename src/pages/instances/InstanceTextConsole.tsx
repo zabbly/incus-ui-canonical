@@ -5,7 +5,7 @@ import {
   connectInstanceConsole,
   fetchInstanceConsoleBuffer,
 } from "api/instances";
-import { getWsErrorMsg } from "util/helpers";
+import { getWsErrorMsg, getWsProtocol } from "util/helpers";
 import Loader from "components/Loader";
 import useEventListener from "@use-it/event-listener";
 import { LxdInstance } from "types/instance";
@@ -83,9 +83,11 @@ const InstanceTextConsole: FC<Props> = ({
       return;
     }
 
+    const wsProtocol = getWsProtocol();
+
     const operationUrl = result.operation.split("?")[0];
-    const dataUrl = `wss://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds["0"]}`;
-    const controlUrl = `wss://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds.control}`;
+    const dataUrl = `${wsProtocol}://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds["0"]}`;
+    const controlUrl = `${wsProtocol}://${location.host}${operationUrl}/websocket?secret=${result.metadata.metadata.fds.control}`;
 
     const data = new WebSocket(dataUrl);
     const control = new WebSocket(controlUrl);
