@@ -476,7 +476,7 @@ const Navigation: FC = () => {
                   <SideNavigationItem>
                     <a
                       className="p-side-navigation__link"
-                      href={docBaseLink}
+                      href={docBaseLink+"/"}
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Documentation"
