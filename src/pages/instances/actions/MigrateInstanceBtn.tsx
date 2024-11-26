@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { ActionButton, Icon } from "@canonical/react-components";
+import { Button, Icon } from "@canonical/react-components";
 import usePortal from "react-useportal";
 import { LxdInstance } from "types/instance";
 import { useInstanceLoading } from "context/instanceLoading";
@@ -29,17 +29,16 @@ const MigrateInstanceBtn: FC<Props> = ({ instance, classname }) => {
           <MigrateInstanceModal close={closePortal} instance={instance} />
         </Portal>
       )}
-      <ActionButton
-        onClick={openPortal}
-        type="button"
-        className={classNames("u-no-margin--bottom has-icon", classname)}
+      <Button
+        appearance="base"
         loading={isLoading}
+        className="has-icon is-dense"
+        onClick={openPortal}
         disabled={isDisabled}
         title="Migrate instance"
       >
         <Icon name="machines" />
-        <span>Migrate</span>
-      </ActionButton>
+      </Button>
     </>
   );
 };
