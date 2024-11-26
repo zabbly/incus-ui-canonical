@@ -1,7 +1,7 @@
 export const STATUS = "Status";
 export const NAME = "Name";
 export const TYPE = "Type";
-export const CLUSTER_MEMBER = "Cluster member";
+export const CLUSTER_MEMBER = "Location";
 export const DESCRIPTION = "Description";
 export const IPV4 = "IPv4";
 export const IPV6 = "IPv6";
