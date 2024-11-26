@@ -2,7 +2,6 @@ import type { FC } from "react";
 import { cloneElement, useState } from "react";
 import DeleteInstanceBtn from "./actions/DeleteInstanceBtn";
 import type { LxdInstance } from "types/instance";
-import MigrateInstanceBtn from "./actions/MigrateInstanceBtn";
 import CreateImageFromInstanceBtn from "./actions/CreateImageFromInstanceBtn";
 import CopyInstanceBtn from "./actions/CopyInstanceBtn";
 import { ContextualMenu } from "@canonical/react-components";
@@ -27,12 +26,6 @@ const InstanceDetailActions: FC<Props> = ({ instance, project, isLoading }) => {
     : "p-segmented-control__button";
 
   const menuElements = [
-    <MigrateInstanceBtn
-      key="migrate"
-      instance={instance}
-      project={project}
-      classname={classname}
-    />,
     <CreateImageFromInstanceBtn
       key="publish"
       instance={instance}
