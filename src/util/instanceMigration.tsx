@@ -128,8 +128,7 @@ export const useInstanceMigration = ({
     const targetPool = type === "root storage pool" ? target : undefined;
     const targetProject = type === "project" ? target : undefined;
     migrateInstance(
-      instance.name,
-      instance.project,
+      instance,
       targetMember,
       targetPool,
       targetProject,
