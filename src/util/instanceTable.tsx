@@ -1,7 +1,7 @@
 export const STATUS = "Status";
 export const NAME = "Name";
 export const TYPE = "Type";
-export const CLUSTER_MEMBER = "Cluster member";
+export const CLUSTER_MEMBER = "Location";
 export const DESCRIPTION = "Description";
 export const MEMORY = "Memory";
 export const FILESYSTEM = "Root filesystem";

@@ -83,7 +83,7 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
               {isClustered && (
                 <>
                   <tr>
-                    <th className="u-text--muted">Cluster member</th>
+                    <th className="u-text--muted">Location</th>
                     <td>
                       {instance.location ? (
                         <ClusterMemberRichChip

@@ -70,7 +70,7 @@ const InstanceSearchFilter: FC<Props> = ({ instances, hasProjectFilter }) => {
       ? [
           {
             id: 4,
-            heading: "Cluster member",
+            heading: "Location",
             chips: locationSet.map((location) => {
               return { lead: CLUSTER_MEMBER, value: location };
             }),
