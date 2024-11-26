@@ -96,7 +96,7 @@ export const useInstanceMigration = ({
     instanceLoading.setLoading(instance, "Migrating");
     const targetMember = type === "cluster member" ? target : undefined;
     const targetPool = type === "root storage pool" ? target : undefined;
-    migrateInstance(instance.name, instance.project, targetMember, targetPool)
+    migrateInstance(instance, targetMember, targetPool)
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,
