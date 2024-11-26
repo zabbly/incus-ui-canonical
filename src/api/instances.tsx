@@ -139,18 +139,17 @@ export const renameInstance = async (
 };
 
 export const migrateInstance = async (
-  name: string,
-  project: string,
+  instance: LxdInstance,
   target?: string,
   pool?: string,
   targetProject?: string,
 ): Promise<LxdOperationResponse> => {
   const params = new URLSearchParams();
-  params.set("project", project);
+  params.set("project", instance.project);
   addTarget(params, target);
 
   return fetch(
-    `/1.0/instances/${encodeURIComponent(name)}?${params.toString()}`,
+    `/1.0/instances/${encodeURIComponent(instance.name)}?${params.toString()}`,
     {
       method: "POST",
       headers: {
@@ -158,6 +157,7 @@ export const migrateInstance = async (
       },
       body: JSON.stringify({
         migration: true,
+        live: instance.type === "virtual-machine" && instance.status === "Running",
         pool,
         project: targetProject,
       }),

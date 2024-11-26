@@ -23,7 +23,7 @@ export const COLUMN_WIDTHS: Record<string, number> = {
   [SNAPSHOTS]: 110,
   [PROJECT]: 160,
   [STATUS]: 160,
-  [ACTIONS]: 210,
+  [ACTIONS]: 240,
 };
 
 export const SIZE_HIDEABLE_COLUMNS = [
