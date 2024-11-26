@@ -17,7 +17,7 @@ export const COLUMN_WIDTHS: Record<string, number> = {
   [IPV6]: 330,
   [SNAPSHOTS]: 110,
   [STATUS]: 160,
-  [ACTIONS]: 210,
+  [ACTIONS]: 240,
 };
 
 export const SIZE_HIDEABLE_COLUMNS = [
