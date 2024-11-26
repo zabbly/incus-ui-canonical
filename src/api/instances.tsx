@@ -89,12 +89,11 @@ export const renameInstance = (
 };
 
 export const migrateInstance = (
-  name: string,
-  project: string,
+  instance: LxdInstance,
   target?: string,
   pool?: string,
 ): Promise<LxdOperationResponse> => {
-  let url = `/1.0/instances/${name}?project=${project}`;
+  let url = `/1.0/instances/${instance.name}?project=${instance.project}`;
   if (target) {
     url += `&target=${target}`;
   }
@@ -104,6 +103,7 @@ export const migrateInstance = (
       method: "POST",
       body: JSON.stringify({
         migration: true,
+        live: instance.type === "virtual-machine" && instance.status === "Running",
         pool,
       }),
     })
