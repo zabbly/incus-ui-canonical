@@ -7,6 +7,7 @@ import * as Yup from "yup";
 import InstanceLinkChip from "pages/instances/InstanceLinkChip";
 import type { InstanceIconType } from "components/ResourceIcon";
 import type { LxdInstance } from "types/instance";
+import { instanceCreationTypes } from "util/instanceOptions";
 
 export const instanceLinkFromOperation = (args: {
   operation?: LxdOperationResponse;
@@ -90,4 +91,18 @@ export const fileToInstanceName = (
 
 export const getInstanceKey = (instance: LxdInstance) => {
   return `${instance.name} ${instance.project}`;
+};
+
+export const getInstanceType = (
+  instance: LxdInstance
+): string => {
+  const label = instanceCreationTypes.find(
+    (item) => item.value === instance.type,
+  )?.label;
+
+  if (instance.config["volatile.container.oci"] === "true") {
+    return `${label} (App)`
+  }
+
+  return label ? label : "";
 };
