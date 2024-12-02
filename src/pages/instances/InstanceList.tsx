@@ -15,7 +15,6 @@ import { queryKeys } from "util/queryKeys";
 import usePanelParams, { panels } from "util/usePanelParams";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Loader from "components/Loader";
-import { instanceCreationTypes } from "util/instanceOptions";
 import InstanceStatusIcon from "./InstanceStatusIcon";
 import TableColumnsSelect from "components/TableColumnsSelect";
 import useEventListener from "@use-it/event-listener";
@@ -61,6 +60,7 @@ import InstanceDetailPanel from "./InstanceDetailPanel";
 import { useSmallScreen } from "context/useSmallScreen";
 import { useSettings } from "context/useSettings";
 import { isClusteredServer } from "util/settings";
+import { getInstanceType } from "util/instances";
 
 const loadHidden = () => {
   const saved = localStorage.getItem("instanceListHiddenColumns");
@@ -366,9 +366,7 @@ const InstanceList: FC = () => {
             content: (
               <>
                 {
-                  instanceCreationTypes.find(
-                    (item) => item.value === instance.type,
-                  )?.label
+                  getInstanceType(instance)
                 }
               </>
             ),
