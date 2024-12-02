@@ -71,6 +71,12 @@ export const getInstanceMacAddresses = (instance: LxdInstance) => {
 export const getInstanceType = (instance: LxdInstance) => {
   return instanceCreationTypes.find((item) => item.value === instance.type)
     ?.label;
+
+  if (instance.config["volatile.container.oci"] === "true") {
+    return `${label} (App)`
+  }
+
+  return label ? label : "";
 };
 
 export const getInstanceClusterMember = (
