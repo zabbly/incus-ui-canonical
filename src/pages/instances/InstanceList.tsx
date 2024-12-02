@@ -20,7 +20,6 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "util/queryKeys";
 import usePanelParams, { panels } from "util/usePanelParams";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { instanceCreationTypes } from "util/instanceOptions";
 import InstanceStatusIcon from "./InstanceStatusIcon";
 import classnames from "classnames";
 import InstanceStateActions from "pages/instances/actions/InstanceStateActions";
@@ -79,7 +78,7 @@ import { useIsClustered } from "context/useIsClustered";
 import { useProject } from "context/useProjects";
 import InstanceClusterMemberChip from "pages/instances/InstanceClusterMemberChip";
 import InstanceProjectChip from "pages/instances/InstanceProjectChip";
-import { getInstanceKey } from "util/instances";
+import { getInstanceKey, getInstanceType } from "util/instances";
 import DocLink from "components/DocLink";
 
 const loadHidden = () => {
@@ -457,9 +456,7 @@ const InstanceList: FC = () => {
             content: (
               <>
                 {
-                  instanceCreationTypes.find(
-                    (item) => item.value === instance.type,
-                  )?.label
+                  getInstanceType(instance)
                 }
               </>
             ),

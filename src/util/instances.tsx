@@ -10,6 +10,7 @@ import type { LxdInstance } from "types/instance";
 import { useImagesInProject } from "context/useImages";
 import ResourceLabel from "components/ResourceLabel";
 import ResourceLink from "components/ResourceLink";
+import { instanceCreationTypes } from "util/instanceOptions";
 
 export const instanceLinkFromOperation = (args: {
   operation?: LxdOperationResponse;
@@ -97,4 +98,18 @@ export const getImageLink = (instance: LxdInstance) => {
       to={`/ui/project/${encodeURIComponent(instance.project)}/images`}
     />
   );
+};
+
+export const getInstanceType = (
+  instance: LxdInstance
+): string => {
+  const label = instanceCreationTypes.find(
+    (item) => item.value === instance.type,
+  )?.label;
+
+  if (instance.config["volatile.container.oci"] === "true") {
+    return `${label} (App)`
+  }
+
+  return label ? label : "";
 };
