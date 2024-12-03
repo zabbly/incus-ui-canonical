@@ -121,6 +121,14 @@ export const humanFileSize = (bytes: number): string => {
   return `${bytes.toFixed(1)} ${units[u]}`;
 };
 
+export const humanCpuUsage = (nseconds: number): string => {
+  if (nseconds <= 0) {
+    return "-";
+  }
+
+  return (nseconds/1000000000).toFixed(2);
+};
+
 export const getWsProtocol = (): string => {
     if (window.location.protocol === 'https:') {
         return "wss";
