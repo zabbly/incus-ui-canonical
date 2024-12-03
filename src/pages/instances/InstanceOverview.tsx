@@ -1,7 +1,7 @@
 import { FC, useEffect } from "react";
 import { isoTimeToString } from "util/helpers";
 import { Col, Row, useNotify } from "@canonical/react-components";
-import { LxdInstance } from "types/instance";
+import { LxdInstance, LxdInstanceState } from "types/instance";
 import { instanceCreationTypes } from "util/instanceOptions";
 import useEventListener from "@use-it/event-listener";
 import { updateMaxHeight } from "util/updateMaxHeight";
@@ -124,7 +124,7 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
           <h2 className="p-heading--5">Usage</h2>
         </Col>
         <Col size={7}>
-          <InstanceOverviewMetrics instance={instance} onFailure={onFailure} />
+          <InstanceOverviewMetrics state={instance.state as LxdInstanceState} onFailure={onFailure} />
         </Col>
       </Row>
       <Row className="networks">
