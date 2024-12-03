@@ -1,13 +1,15 @@
 import { FC } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "util/queryKeys";
-import { fetchMetrics } from "api/metrics";
-import { humanFileSize } from "util/helpers";
+import { fetchInstanceState } from "api/metrics";
 import { getInstanceMetrics } from "util/metricSelectors";
+import { humanCpuUsage, humanFileSize } from "util/helpers";
 import Meter from "components/Meter";
 import Loader from "components/Loader";
-import { LxdInstance } from "types/instance";
+import { LxdInstance, LxdInstanceState } from "types/instance";
 import { useAuth } from "context/auth";
+import { isRootDisk } from "util/instanceValidation";
+import { FormDevice } from "util/formDevices";
 
 interface Props {
   instance: LxdInstance;
@@ -17,22 +19,57 @@ interface Props {
 const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
   const { isRestricted } = useAuth();
 
-  const {
-    data: metrics = [],
+    const {
+    data: state,
     error,
     isLoading,
   } = useQuery({
     queryKey: [queryKeys.metrics],
-    queryFn: fetchMetrics,
+    queryFn: () => fetchInstanceState(instance.name, instance.project),
     refetchInterval: 15 * 1000, // 15 seconds
     enabled: !isRestricted,
   });
 
+  const getRootDiskName = (intsance: LxdInstance) => {
+    for (let key in instance.expanded_devices) {
+      if (isRootDisk(instance.expanded_devices[key] as FormDevice)) {
+        return key;
+      }
+    }
+
+    return "";
+  };
+
+  const hasRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
+    if (!state) {
+      return false;
+    }
+
+    if (state.disk == null || typeof state.disk != "object") {
+      return false
+    }
+
+    let diskName = getRootDiskName(instance);
+    if (diskName != "" && Object.hasOwn(state.disk, diskName)) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const getRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
+    if (!state || !hasRootDisk(instance, state)) {
+      return null;
+    }
+
+    return state.disk[getRootDiskName(instance)];
+  };
+
+  const rootDisk = getRootDisk(instance, state);
+
   if (error) {
     onFailure("Loading metrics failed", error);
   }
-
-  const instanceMetrics = getInstanceMetrics(metrics, instance);
 
   if (isRestricted) {
     return (
@@ -50,23 +87,33 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
         <table>
           <tbody>
             <tr className="metric-row">
+              <th className="u-text--muted">CPU Time(s)</th>
+              <td>
+                {state && state.cpu && state.cpu.usage > 0 ? (
+                  <div>
+                    {humanCpuUsage(state.cpu.usage)}
+                  </div>
+                ) : (
+                  "-"
+                )}
+              </td>
+            </tr>
+            <tr className="metric-row">
               <th className="u-text--muted">Memory</th>
               <td>
-                {instanceMetrics.memory ? (
+                {state && state.memory ? (
                   <div>
                     <Meter
                       percentage={
-                        (100 / instanceMetrics.memory.total) *
-                        (instanceMetrics.memory.total -
-                          instanceMetrics.memory.free)
+                        (100 / state.memory.total) *
+                        state.memory.usage
                       }
                       text={
                         humanFileSize(
-                          instanceMetrics.memory.total -
-                            instanceMetrics.memory.free,
+                          state.memory.usage
                         ) +
                         " of " +
-                        humanFileSize(instanceMetrics.memory.total) +
+                        humanFileSize(state.memory.total) +
                         " memory used"
                       }
                     />
@@ -79,21 +126,19 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">Disk</th>
               <td>
-                {instanceMetrics.disk ? (
+                {rootDisk ? (
                   <div>
                     <Meter
                       percentage={
-                        (100 / instanceMetrics.disk.total) *
-                        (instanceMetrics.disk.total - instanceMetrics.disk.free)
+                        (rootDisk.total ? ((100 / rootDisk.total) * rootDisk.usage) : 0)
                       }
                       text={
                         humanFileSize(
-                          instanceMetrics.disk.total -
-                            instanceMetrics.disk.free,
+                          rootDisk.usage
                         ) +
                         " of " +
-                        humanFileSize(instanceMetrics.disk.total) +
-                        " disk used"
+                        (rootDisk.total ? (humanFileSize(rootDisk.total) +
+                        " disk used") : ("unlimited"))
                       }
                     />
                   </div>
