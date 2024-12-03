@@ -1,5 +1,5 @@
 import type { LxdApiResponse } from "types/apiResponse";
-import type { LxdInstance } from "types/instance";
+import type { LxdInstance, LxdInstanceState } from "types/instance";
 import type { LxdProject } from "types/project";
 import type { LxdProfile } from "types/profile";
 import type { LxdNetwork, LxdNetworkAcl } from "types/network";
@@ -106,7 +106,8 @@ type EtagObject =
   | LxdNetwork
   | LxdNetworkAcl
   | LxdStorageVolume
-  | LxdStoragePool;
+  | LxdStoragePool
+  | LxdInstanceState;
 
 export const handleEtagResponse = async (response: Response) => {
   const data = (await handleResponse(response)) as LxdApiResponse<EtagObject>;
@@ -174,6 +175,14 @@ export const humanFileSize = (bytes: number): string => {
   );
 
   return `${bytes.toFixed(1)} ${units[u]}`;
+};
+
+export const humanCpuUsage = (nseconds: number): string => {
+  if (nseconds <= 0) {
+    return "-";
+  }
+
+  return (nseconds/1000000000).toFixed(2);
 };
 
 export const getWsErrorMsg = (code: number): string => {

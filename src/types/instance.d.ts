@@ -1,8 +1,13 @@
 import type { LxdConfigPair } from "./config";
 import type { LxdDevices } from "./device";
 
-interface LxdInstanceUsageProp {
+interface LxdInstanceCPUUsage {
   usage: number;
+}
+
+interface LxdInstanceDiskUsage {
+  usage: number;
+  total: number;
 }
 
 interface LxdInstanceMemory {
@@ -10,6 +15,7 @@ interface LxdInstanceMemory {
   swap_usage_peak: number;
   usage: number;
   usage_peak: number;
+  total: number;
 }
 
 export type IpFamily = "inet" | "inet6";
@@ -47,15 +53,16 @@ interface LxdInstanceNetwork {
 }
 
 interface LxdInstanceState {
-  cpu: LxdInstanceUsageProp;
+  cpu: LxdInstanceCPUUsage;
   disk: {
-    root: LxdInstanceUsageProp;
-  } & Record<string, LxdInstanceUsageProp>;
+    root: LxdInstanceDiskUsage;
+  } & Record<string, LxdInstanceDiskUsage>;
   memory: LxdInstanceMemory;
   network?: Record<string, LxdInstanceNetwork>;
   pid: number;
   processes: number;
   status: string;
+  etag?: string;
 }
 
 interface LxdInstanceSnapshot {
