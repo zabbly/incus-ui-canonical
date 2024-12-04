@@ -258,11 +258,13 @@ const InstanceList: FC = () => {
       },
       {
         content: IPV4,
+        sortKey: "ipv4",
         className: "u-align--right",
         style: { width: `${COLUMN_WIDTHS[IPV4]}px` },
       },
       {
         content: IPV6,
+        sortKey: "ipv6",
         id: "header-ipv6",
         style: { width: `${COLUMN_WIDTHS[IPV6]}px` },
       },
@@ -507,6 +509,8 @@ const InstanceList: FC = () => {
           status: instance.status,
           type: instance.type,
           snapshots: instance.snapshots?.length ?? 0,
+          ipv4: ipv4,
+          ipv6: ipv6,
         },
       };
     });
