@@ -1,9 +1,9 @@
 import { FC } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "util/queryKeys";
-import { fetchMetrics } from "api/metrics";
-import { humanFileSize } from "util/helpers";
+import { fetchInstanceState } from "api/metrics";
 import { getInstanceMetrics } from "util/metricSelectors";
+import { humanCpuUsage, humanFileSize } from "util/helpers";
 import Meter from "components/Meter";
 import Loader from "components/Loader";
 import { LxdInstance } from "types/instance";
@@ -17,13 +17,13 @@ interface Props {
 const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
   const { isRestricted } = useAuth();
 
-  const {
-    data: metrics = [],
+    const {
+    data: state,
     error,
     isLoading,
   } = useQuery({
     queryKey: [queryKeys.metrics],
-    queryFn: fetchMetrics,
+    queryFn: () => fetchInstanceState(instance.name, instance.project),
     refetchInterval: 15 * 1000, // 15 seconds
     enabled: !isRestricted,
   });
@@ -31,8 +31,6 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
   if (error) {
     onFailure("Loading metrics failed", error);
   }
-
-  const instanceMetrics = getInstanceMetrics(metrics, instance);
 
   if (isRestricted) {
     return (
@@ -50,23 +48,33 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
         <table>
           <tbody>
             <tr className="metric-row">
+              <th className="u-text--muted">CPU Time(s)</th>
+              <td>
+                {state.cpu && state.cpu.usage > 0 ? (
+                  <div>
+                    {humanCpuUsage(state.cpu.usage)}
+                  </div>
+                ) : (
+                  "-"
+                )}
+              </td>
+            </tr>
+            <tr className="metric-row">
               <th className="u-text--muted">Memory</th>
               <td>
-                {instanceMetrics.memory ? (
+                {state.memory ? (
                   <div>
                     <Meter
                       percentage={
-                        (100 / instanceMetrics.memory.total) *
-                        (instanceMetrics.memory.total -
-                          instanceMetrics.memory.free)
+                        (100 / state.memory.total) *
+                        state.memory.usage
                       }
                       text={
                         humanFileSize(
-                          instanceMetrics.memory.total -
-                            instanceMetrics.memory.free,
+                          state.memory.usage
                         ) +
                         " of " +
-                        humanFileSize(instanceMetrics.memory.total) +
+                        humanFileSize(state.memory.total) +
                         " memory used"
                       }
                     />
@@ -79,21 +87,20 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">Disk</th>
               <td>
-                {instanceMetrics.disk ? (
+                {state.disk ? (
                   <div>
                     <Meter
                       percentage={
-                        (100 / instanceMetrics.disk.total) *
-                        (instanceMetrics.disk.total - instanceMetrics.disk.free)
+                        (100 / state.disk.root.total) *
+                        state.disk.root.usage
                       }
                       text={
                         humanFileSize(
-                          instanceMetrics.disk.total -
-                            instanceMetrics.disk.free,
+                          state.disk.root.usage
                         ) +
                         " of " +
-                        humanFileSize(instanceMetrics.disk.total) +
-                        " disk used"
+                        (state.disk.root.total ? (humanFileSize(state.disk.root.total) +
+                        " disk used") : ("unlimited"))
                       }
                     />
                   </div>

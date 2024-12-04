@@ -1,8 +1,13 @@
 import { LxdConfigPair } from "./config";
 import { LxdDevices } from "./device";
 
-interface LxdInstanceUsageProp {
+interface LxdInstanceCPUUsage {
   usage: number;
+}
+
+interface LxdInstanceDiskUsage {
+  usage: number;
+  total: number;
 }
 
 interface LxdInstanceMemory {
@@ -41,10 +46,10 @@ interface LxdInstanceNetwork {
 }
 
 interface LxdInstanceState {
-  cpu: LxdInstanceUsageProp;
+  cpu: LxdInstanceCPUUsage;
   disk: {
-    root: LxdInstanceUsageProp;
-  } & Record<string, LxdInstanceUsageProp>;
+    root: LxdInstanceDiskUsage;
+  } & Record<string, LxdInstanceDiskUsage>;
   memory: LxdInstanceMemory;
   network?: Record<string, LxdInstanceNetwork>;
   pid: number;
