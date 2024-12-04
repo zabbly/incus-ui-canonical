@@ -86,11 +86,7 @@
 
   .status-header {
     padding-left: 3.33rem;
-    pointer-events: none;
-
-    > * {
-      pointer-events: all;
-    }
+    pointer-events: auto;
   }
 
   #instance-table-measure {

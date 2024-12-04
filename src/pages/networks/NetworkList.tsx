@@ -106,8 +106,8 @@ const NetworkList: FC = () => {
     { content: "Type", sortKey: "type", className: "type" },
     { content: "Managed", sortKey: "managed", className: "managed" },
     ...(isClustered ? [{ content: "Cluster member", sortKey: "member" }] : []),
-    { content: "IPV4", className: "u-align--right" },
-    { content: "IPV6" },
+    { content: "IPV4", sortKey: "ipv4", className: "u-align--right" },
+    { content: "IPV6", sortKey: "ipv6" },
     {
       content: "Description",
       sortKey: "description",
@@ -239,6 +239,8 @@ const NetworkList: FC = () => {
           state: network.status,
           usedBy: network.used_by?.length ?? 0,
           member: network.memberName,
+          ipv4: network.config["ipv4.address"],
+          ipv6: network.config["ipv6.address"],
         },
       };
     });
