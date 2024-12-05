@@ -7,6 +7,7 @@ import useEventListener from "@use-it/event-listener";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import InstanceOverviewProfiles from "./InstanceOverviewProfiles";
 import InstanceOverviewMetrics from "./InstanceOverviewMetrics";
+import InstancePreview from "./InstancePreview";
 import InstanceIps from "pages/instances/InstanceIps";
 import { useSettings } from "context/useSettings";
 import NotificationRow from "components/NotificationRow";
@@ -117,6 +118,16 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
               </tr>
             </tbody>
           </table>
+        </Col>
+      </Row>
+      <Row className="instance-preview">
+        <Col size={3}>
+          <h2 className="p-heading--5">Preview</h2>
+        </Col>
+        <Col size={4}>
+          <InstancePreview instance={instance} onFailure={onFailure}/>
+        </Col>
+        <Col size={3}>
         </Col>
       </Row>
       <Row className="usage">
