@@ -121,6 +121,15 @@ export const handleRawResponse = async (
   return response;
 };
 
+export const handleBlobResponse = async (response: Response) => {
+  if (!response.ok) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const result: ErrorResponse = await response.json();
+    throw Error(result.error);
+  }
+  return response.blob();
+};
+
 export const humanFileSize = (bytes: number): string => {
   if (Math.abs(bytes) < 1000) {
     return `${bytes} B`;
