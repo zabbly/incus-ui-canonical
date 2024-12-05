@@ -6,6 +6,7 @@
   }
 
   .general,
+  .instance-preview,
   .usage,
   .networks {
     border-bottom: $border-thin;
@@ -16,6 +17,7 @@
   }
 
   .general,
+  .instance-preview,
   .usage {
     tr {
       border: none;
