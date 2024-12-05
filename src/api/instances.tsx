@@ -1,4 +1,6 @@
 import {
+  continueOrFinish,
+  handleBlobResponse,
   handleEtagResponse,
   handleResponse,
   handleTextResponse,
@@ -407,4 +409,13 @@ export const createInstanceBackup = async (
     .then((data: LxdOperationResponse) => {
       return data;
     });
+};
+
+export const fetchInstancePreview = (instance: LxdInstance): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/instances/${instance.name}/console?project=${instance.project}&type=vga`)
+      .then(handleBlobResponse)
+      .then((data) => resolve(URL.createObjectURL(data)))
+      .catch(reject);
+  });
 };

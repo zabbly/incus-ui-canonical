@@ -8,6 +8,7 @@ import useEventListener from "util/useEventListener";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import InstanceOverviewProfiles from "./InstanceOverviewProfiles";
 import InstanceOverviewMetrics from "./InstanceOverviewMetrics";
+import InstancePreview from "./InstancePreview";
 import InstanceIps from "pages/instances/InstanceIps";
 import { useSettings } from "context/useSettings";
 import NotificationRow from "components/NotificationRow";
@@ -40,6 +41,7 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
 
   const pid =
     !instance.state || instance.state.pid === 0 ? "-" : instance.state.pid;
+  const isVm = instance.type === "virtual-machine";
 
   const getImageLink = () => {
     const imageDescription = instance.config["image.description"];
@@ -139,6 +141,18 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
           </table>
         </Col>
       </Row>
+      {isVm && (
+        <Row className="instance-preview">
+          <Col size={3}>
+            <h2 className="p-heading--5">Preview</h2>
+          </Col>
+          <Col size={4}>
+            <InstancePreview instance={instance} onFailure={onFailure}/>
+          </Col>
+          <Col size={3}>
+          </Col>
+        </Row>
+      )}
       <Row className="usage">
         <Col size={3}>
           <h2 className="p-heading--5">Usage</h2>
