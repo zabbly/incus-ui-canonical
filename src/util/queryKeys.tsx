@@ -27,4 +27,5 @@ export const queryKeys = {
   idpGroups: "idpGroups",
   permissions: "permissions",
   currentIdentity: "currentIdentity",
+  instancePreview: "instancePreview",
 };
