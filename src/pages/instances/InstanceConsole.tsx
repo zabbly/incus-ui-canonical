@@ -1,4 +1,4 @@
-import { FC, useState } from "react";
+import { FC, useEffect, useState, useRef } from "react";
 import {
   ActionButton,
   Button,
@@ -20,6 +20,8 @@ import {
 import AttachIsoBtn from "pages/instances/actions/AttachIsoBtn";
 import NotificationRow from "components/NotificationRow";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
+import { useOperations } from "context/operationsProvider";
+import { getInstanceName, getProjectName } from "util/operations";
 
 interface Props {
   instance: LxdInstance;
@@ -30,8 +32,12 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
   const isVm = instance.type === "virtual-machine";
   const [isGraphic, setGraphic] = useState(isVm);
   const { hasCustomVolumeIso } = useSupportedFeatures();
-
   const isRunning = instance.status === "Running";
+
+  const [attemptConnection, setAttemptConnection] = useState(true);
+  const [instancePreviousState, setInstancePreviousState] = useState("");
+  const { operations, isFetching } = useOperations();
+  const lastRestartOp = useRef("");
 
   const onFailure = (title: string, e: unknown, message?: string) => {
     notify.failure(title, e, message);
@@ -48,6 +54,10 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
     /**/
   };
 
+  const handleConnection = () => {
+    setAttemptConnection(true);
+  };
+
   const onChildMount = (childHandleFullScreen: () => void) => {
     handleFullScreen = childHandleFullScreen;
   };
@@ -55,9 +65,47 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
   const setGraphicConsole = (isGraphic: boolean) => {
     notify.clear();
     setGraphic(isGraphic);
+    setAttemptConnection(true);
   };
 
   const { handleStart, isLoading } = useInstanceStart(instance);
+
+  useEffect(() => {
+    // Initial run.
+    if (instancePreviousState == "") {
+      setInstancePreviousState(instance.status);
+      setAttemptConnection(isRunning);
+      return;
+    }
+
+    // Check if there are any relevant instance operations.
+    operations.filter((operation) => {
+      const projectName = getProjectName(operation);
+      const instanceName = getInstanceName(operation);
+
+      if (projectName == instance.project && instanceName == instance.name && ["Starting instance", "Stopping instance", "Restarting instance"].includes(operation.description)) {
+        return true;
+      }
+      return false;
+    }).sort((a, b) => {
+        new Date(a.created_at) > new Date(b.created_at)
+    }).forEach((op) => {
+      if (op.description == "Restarting instance" && op.created_at != lastRestartOp.current) {
+        lastRestartOp.current = op.created_at;
+      } else if (["Starting instance", "Stopping instance"].includes(op.description)){
+        lastRestartOp.current = "";
+      }
+    });
+
+    // If instance state doesn't change, do nothing.
+    if (instancePreviousState == instance.status) {
+      return;
+    }
+
+    setInstancePreviousState(instance.status);
+    setAttemptConnection(lastRestartOp.current != "" && attemptConnection);
+
+  }, [instance.state, attemptConnection, instancePreviousState]);
 
   return (
     <div className="instance-console-tab">
@@ -76,15 +124,23 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
               onChange={() => setGraphicConsole(false)}
             />
           </div>
-          {isGraphic && isRunning && (
+          {isRunning && (
             <div>
-              {hasCustomVolumeIso && <AttachIsoBtn instance={instance} />}
+              {!attemptConnection && <Button
+                className="u-no-margin--bottom"
+                onClick={() => handleConnection()}
+              >
+                <span>Connect</span>
+              </Button>}
+              {isGraphic && hasCustomVolumeIso && <AttachIsoBtn instance={instance} />}
+              {isGraphic &&
               <Button
                 className="u-no-margin--bottom"
                 onClick={() => handleFullScreen()}
               >
                 <span>Fullscreen</span>
-              </Button>
+              </Button>}
+              {isGraphic &&
               <ContextualMenu
                 hasToggleIcon
                 toggleLabel="Shortcuts"
@@ -103,7 +159,7 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
                     onClick: () => sendAltF4(window.spice_connection),
                   },
                 ]}
-              />
+              />}
             </div>
           )}
         </div>
@@ -125,7 +181,7 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
           </ActionButton>
         </EmptyState>
       )}
-      {isGraphic && isRunning && (
+      {isGraphic && attemptConnection && (
         <div className="spice-wrapper">
           <InstanceGraphicConsole
             instance={instance}
@@ -134,7 +190,7 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
           />
         </div>
       )}
-      {!isGraphic && (
+      {!isGraphic && attemptConnection && (
         <InstanceTextConsole
           instance={instance}
           onFailure={onFailure}
