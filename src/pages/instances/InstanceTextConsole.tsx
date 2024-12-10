@@ -147,7 +147,7 @@ const InstanceTextConsole: FC<Props> = ({
         });
       });
     };
-  }, [fitAddon, instance.status]);
+  }, [fitAddon]);
 
   useEffect(() => {
     if (!textBuffer || !xtermRef.current || isLoading) {
