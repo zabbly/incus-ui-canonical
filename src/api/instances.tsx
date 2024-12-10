@@ -407,6 +407,7 @@ export const connectInstanceVga = async (
       },
       body: JSON.stringify({
         type: "vga",
+        force: true,
         width: 0,
         height: 0,
       }),
@@ -436,6 +437,7 @@ export const connectInstanceConsole = async (
       body: JSON.stringify({
         "wait-for-websocket": true,
         type: "console",
+        force: true,
       }),
     },
   )
