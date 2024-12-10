@@ -143,7 +143,7 @@ const InstanceTextConsole: FC<Props> = ({
         websockets?.map((websocket) => websocket.close());
       });
     };
-  }, [fitAddon, instance.status]);
+  }, [fitAddon]);
 
   useEffect(() => {
     if (!textBuffer || !xtermRef.current || isLoading) {
