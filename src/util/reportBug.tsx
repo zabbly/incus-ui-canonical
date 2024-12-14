@@ -22,5 +22,5 @@ export const getReportBugBodyTemplate = (error?: Error) => {
 };
 
 export const getReportBugURL = (error?: Error) => {
-  return `https://github.com/canonical/lxd-ui/issues/new?labels=Bug&title=Bug%20report&body=${encodeURIComponent(getReportBugBodyTemplate(error))}`;
+  return `https://github.com/zabbly/incus-ui-canonical/issues/new?type=Bug&title=Error%20report&body=${encodeURIComponent(getReportBugBodyTemplate(error))}`;
 };

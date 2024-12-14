@@ -733,7 +733,7 @@ const Navigation: FC = () => {
                   <SideNavigationItem>
                     <a
                       className="p-side-navigation__link"
-                      href="https://discourse.ubuntu.com/c/lxd/126"
+                      href="https://discuss.linuxcontainers.org"
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Discussion"

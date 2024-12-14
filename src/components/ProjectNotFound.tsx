@@ -12,8 +12,8 @@ const ProjectNotFound: FC = () => {
         <Col size={6} className="col-start-large-4">
           <h1 className="p-heading--4">Project not found</h1>
           <p>
-            The project <code>{project}</code> is missing or you do not have the{" "}
-            <code>viewer</code> permission for it.
+            The project <code>{project}</code> is missing or you do not have
+            access.
           </p>
         </Col>
       </Row>
