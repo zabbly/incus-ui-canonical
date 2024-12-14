@@ -33,7 +33,7 @@ Path: ${location.pathname}${location.search}
 ${error?.stack ?? "No stack trace"}
 \`\`\``,
   );
-  const url = `https://github.com/canonical/lxd-ui/issues/new?labels=bug&title=Error%20report&body=${body}`;
+  const url = `https://github.com/zabbly/incus-ui-canonical/issues/new?labels=bug&title=Error%20report&body=${body}`;
 
   const updateHeight = () => {
     updateMaxHeight("error-info", undefined, 0, "max-height");

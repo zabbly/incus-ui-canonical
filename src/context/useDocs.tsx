@@ -1,7 +1,7 @@
 import { useSupportedFeatures } from "./useSupportedFeatures";
 
 export const useDocs = (): string => {
-  const remoteBase = "https://documentation.ubuntu.com/lxd/en/latest";
+  const remoteBase = "/documentation";
   const localBase = "/documentation";
 
   const { hasLocalDocumentation } = useSupportedFeatures();
