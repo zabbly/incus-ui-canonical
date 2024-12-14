@@ -36,6 +36,7 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
 
   const pid =
     !instance.state || instance.state.pid === 0 ? "-" : instance.state.pid;
+  const isVm = instance.type === "virtual-machine";
 
   return (
     <div className="instance-overview-tab">
@@ -120,16 +121,18 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
           </table>
         </Col>
       </Row>
-      <Row className="instance-preview">
-        <Col size={3}>
-          <h2 className="p-heading--5">Preview</h2>
-        </Col>
-        <Col size={4}>
-          <InstancePreview instance={instance} onFailure={onFailure}/>
-        </Col>
-        <Col size={3}>
-        </Col>
-      </Row>
+      {isVm && (
+        <Row className="instance-preview">
+          <Col size={3}>
+            <h2 className="p-heading--5">Preview</h2>
+          </Col>
+          <Col size={4}>
+            <InstancePreview instance={instance} onFailure={onFailure}/>
+          </Col>
+          <Col size={3}>
+          </Col>
+        </Row>
+      )}
       <Row className="usage">
         <Col size={3}>
           <h2 className="p-heading--5">Usage</h2>
