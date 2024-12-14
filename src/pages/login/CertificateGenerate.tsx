@@ -86,12 +86,7 @@ const CertificateGenerate: FC = () => {
       header={
         <div className="p-panel__header is-sticky">
           <h1 className="p-panel__title">
-            <HelpLink
-              href="https://github.com/canonical/lxd-ui/wiki/Authentication-Setup-FAQ"
-              title="Authentication Setup FAQ"
-            >
               Setup LXD UI
-            </HelpLink>
           </h1>
         </div>
       }
