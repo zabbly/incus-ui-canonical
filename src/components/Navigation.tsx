@@ -501,7 +501,7 @@ const Navigation: FC = () => {
                   <SideNavigationItem>
                     <a
                       className="p-side-navigation__link"
-                      href="https://github.com/zabbly/incus/issues/new"
+                      href="https://github.com/zabbly/incus-ui-canonical/issues/new"
                       target="_blank"
                       rel="noopener noreferrer"
                       title="Report a bug"

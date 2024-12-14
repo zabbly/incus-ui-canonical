@@ -26,10 +26,6 @@ const CertificateAdd: FC = () => {
       header={
         <div className="p-panel__header is-sticky">
           <h1 className="p-panel__title">
-            <HelpLink
-              href="https://github.com/canonical/lxd-ui/wiki/Authentication-Setup-FAQ"
-              title="Authentication Setup FAQ"
-            >
               Add existing certificate
             </HelpLink>
           </h1>
@@ -44,11 +40,6 @@ const CertificateAdd: FC = () => {
             A client certificate must be present and selected in your browser.
             <br />
             Learn more in the{" "}
-            <a
-              href="https://github.com/canonical/lxd-ui/wiki/Authentication-Setup-FAQ#reusing-certificates"
-              rel="noopener noreferrer"
-              target="_blank"
-            >
               Authentication Setup FAQ
             </a>
           </Notification>
