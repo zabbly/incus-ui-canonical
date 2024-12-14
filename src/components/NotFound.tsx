@@ -47,8 +47,7 @@ const NotFound: FC<Props> = ({ entityType, entityName, errorMessage }) => {
           {entityName && <code>{entityName}</code>} could not be loaded
         </p>
         <p>
-          The {entityLabel} is missing or you do not have the{" "}
-          <code>viewer</code> permission for it.
+          The {entityLabel} is missing or you do not have access.
         </p>
         {errorMessage && (
           <Notification severity="negative" borderless>
