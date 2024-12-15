@@ -6,8 +6,9 @@ import { getInstanceMetrics } from "util/metricSelectors";
 import { humanCpuUsage, humanFileSize } from "util/helpers";
 import Meter from "components/Meter";
 import Loader from "components/Loader";
-import { LxdInstance } from "types/instance";
+import { LxdInstance, LxdInstanceState } from "types/instance";
 import { useAuth } from "context/auth";
+import { isRootDisk } from "util/instanceValidation";
 
 interface Props {
   instance: LxdInstance;
@@ -27,6 +28,43 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
     refetchInterval: 15 * 1000, // 15 seconds
     enabled: !isRestricted,
   });
+
+  const getRootDiskName = (intsance: LxdInstance) => {
+    for (let key in instance.expanded_devices) {
+      if (isRootDisk(instance.expanded_devices[key])) {
+        return key;
+      }
+    }
+
+    return "";
+  };
+
+  const hasRootDisk = (instance: LxdInstance, state: LxdInstanceState) => {
+    if (!state) {
+      return false;
+    }
+
+    if (typeof state.disk != "object") {
+      return false
+    }
+
+    let diskName = getRootDiskName(instance);
+    if (diskName != "" && Object.hasOwn(state.disk, diskName)) {
+      return true;
+    }
+
+    return false;
+  };
+
+  const getRootDisk = (instance: LxdInstance, state: LxdInstanceState) => {
+    if (!hasRootDisk(instance, state)) {
+      return null;
+    }
+
+    return state.disk[getRootDiskName(instance)];
+  };
+
+  const rootDisk = getRootDisk(instance, state);
 
   if (error) {
     onFailure("Loading metrics failed", error);
@@ -87,19 +125,18 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">Disk</th>
               <td>
-                {state.disk ? (
+                {hasRootDisk(instance, state) ? (
                   <div>
                     <Meter
                       percentage={
-                        (100 / state.disk.root.total) *
-                        state.disk.root.usage
+                        (rootDisk.total ? ((100 / rootDisk.total) * rootDisk.usage) : 0)
                       }
                       text={
                         humanFileSize(
-                          state.disk.root.usage
+                          rootDisk.usage
                         ) +
                         " of " +
-                        (state.disk.root.total ? (humanFileSize(state.disk.root.total) +
+                        (rootDisk.total ? (humanFileSize(rootDisk.total) +
                         " disk used") : ("unlimited"))
                       }
                     />
