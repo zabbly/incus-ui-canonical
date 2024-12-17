@@ -44,7 +44,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
       return false;
     }
 
-    if (typeof state.disk != "object") {
+    if (state.disk == null || typeof state.disk != "object") {
       return false
     }
 
