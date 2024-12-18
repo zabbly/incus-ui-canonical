@@ -1,5 +1,6 @@
 import { FC, useState } from "react";
 import { useNotify, Button, ActionButton } from "@canonical/react-components";
+import { useSettings } from "context/useSettings";
 import { useQueryClient } from "@tanstack/react-query";
 import { createClusteredPool, createPool } from "api/storage-pools";
 import BaseLayout from "components/BaseLayout";
@@ -8,7 +9,10 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useNavigate, useParams } from "react-router-dom";
 import { queryKeys } from "util/queryKeys";
-import { zfsDriver } from "util/storageOptions";
+import {
+  getSupportedStorageDrivers,
+  zfsDriver,
+} from "util/storageOptions";
 import {
   isPowerflexIncomplete,
   testDuplicateStoragePoolName,
@@ -36,6 +40,7 @@ const CreateStoragePool: FC = () => {
   const [section, setSection] = useState(slugify(MAIN_CONFIGURATION));
   const controllerState = useState<AbortController | null>(null);
   const { data: clusterMembers = [] } = useClusterMembers();
+  const { data: settings } = useSettings();
 
   if (!project) {
     return <>Missing project</>;
@@ -47,13 +52,15 @@ const CreateStoragePool: FC = () => {
       .required("This field is required"),
   });
 
+  const supportedStorageDrivers = getSupportedStorageDrivers(settings);
+
   const formik = useFormik<StoragePoolFormValues>({
     initialValues: {
       isCreating: true,
       readOnly: false,
       name: "",
       description: "",
-      driver: zfsDriver,
+      driver: supportedStorageDrivers.size > 0 ? supportedStorageDrivers.values().next().value : "",
       source: "",
       size: "",
       entityType: "storagePool",
