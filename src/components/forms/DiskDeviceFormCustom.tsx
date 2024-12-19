@@ -19,6 +19,7 @@ import classnames from "classnames";
 import {
   isDiskDeviceMountPointMissing,
   isRootDisk,
+  isSpecialDisk,
 } from "util/instanceValidation";
 import { ensureEditMode } from "util/instanceEdit";
 import { getExistingDeviceNames, isVolumeDevice } from "util/devices";
@@ -36,6 +37,11 @@ interface Props {
 
 const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
+
+  const customVolumes = formik.values.devices
+    .filter((item) => item.type === "disk" && !isRootDisk(item) && !isSpecialDisk(item))
+    .map((device) => device as FormDiskDevice);
+
   const existingDeviceNames = getExistingDeviceNames(formik.values, profiles);
 
   const addDiskDevice = (device: LxdDiskDevice) => {
