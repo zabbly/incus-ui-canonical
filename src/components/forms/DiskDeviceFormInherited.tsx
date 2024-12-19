@@ -10,12 +10,14 @@ import classnames from "classnames";
 import {
   addNoneDevice,
   findNoneDeviceIndex,
+  FormDiskDevice,
   removeDevice,
 } from "util/formDevices";
 import DetachDiskDeviceBtn from "pages/instances/actions/DetachDiskDeviceBtn";
 import { getInheritedDeviceRow } from "components/forms/InheritedDeviceRow";
 import { ensureEditMode } from "util/instanceEdit";
 import { isHostDiskDevice } from "util/devices";
+import { isSpecialDisk } from "util/instanceValidation";
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -85,6 +87,14 @@ const DiskDeviceFormInherited: FC<Props> = ({
           readOnly: readOnly,
           isDeactivated: isNoneDevice,
           disabledReason: formik.values.editRestriction,
+        }),
+      );
+    } else if (isSpecialDisk(item.disk as FormDiskDevice)) {
+      rows.push(
+        getInheritedDeviceRow({
+          label: "Special device",
+          inheritValue: item.disk.source,
+          readOnly: readOnly,
         }),
       );
     } else {
