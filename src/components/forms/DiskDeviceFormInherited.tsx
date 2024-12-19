@@ -15,6 +15,7 @@ import {
 import DetachDiskDeviceBtn from "pages/instances/actions/DetachDiskDeviceBtn";
 import { getInheritedDeviceRow } from "components/forms/InheritedDeviceRow";
 import { ensureEditMode } from "util/instanceEdit";
+import { isSpecialDisk } from "util/instanceValidation";
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -71,27 +72,41 @@ const DiskDeviceFormInherited: FC<Props> = ({ formik, inheritedVolumes }) => {
       }),
     );
 
-    rows.push(
-      getInheritedDeviceRow({
-        label: "Pool / volume",
-        inheritValue: (
-          <>
-            {item.disk.pool} / {item.disk.source}
-          </>
-        ),
-        readOnly: readOnly,
-        isDeactivated: isNoneDevice,
-      }),
-    );
+    if (isSpecialDisk(item.disk)) {
+      rows.push(
+        getInheritedDeviceRow({
+          label: "Source",
+          inheritValue: (
+            <>
+              {item.disk.source}
+            </>
+          ),
+          readOnly: readOnly,
+        }),
+      );
+    } else {
+      rows.push(
+        getInheritedDeviceRow({
+          label: "Pool / volume",
+          inheritValue: (
+            <>
+              {item.disk.pool} / {item.disk.source}
+            </>
+          ),
+          readOnly: readOnly,
+          isDeactivated: isNoneDevice,
+        }),
+      );
 
-    rows.push(
-      getInheritedDeviceRow({
-        label: "Mount point",
-        inheritValue: item.disk.path,
-        readOnly: readOnly,
-        isDeactivated: isNoneDevice,
-      }),
-    );
+      rows.push(
+        getInheritedDeviceRow({
+          label: "Mount point",
+          inheritValue: item.disk.path,
+          readOnly: readOnly,
+          isDeactivated: isNoneDevice,
+        }),
+      );
+    }
   });
 
   return inheritedVolumes.length > 0 ? (
