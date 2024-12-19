@@ -81,3 +81,7 @@ export const isNicDeviceNameMissing = (
 
   return Boolean(hasTouched);
 };
+
+export const isSpecialDisk = (device: FormDevice): device is FormDiskDevice => {
+    return ["agent:config", "cloud-init:config"].includes(device.source);
+};
