@@ -1,4 +1,4 @@
-import type { FormDevice, FormDiskDevice } from "types/formDevice";
+import type { FormDevice, FormDiskDevice, FormSpecialDiskDevice } from "types/formDevice";
 import type { InstanceAndProfileFormikProps } from "types/forms/instanceAndProfileFormProps";
 import type { InstanceAndProfileFormValues } from "types/forms/instanceAndProfile";
 import { getInheritedRootStorage } from "util/configInheritance";
@@ -75,4 +75,12 @@ export const isNicDeviceNameMissing = (
     (formik.touched.devices[index] as FormikTouched<LxdNicDevice>).name;
 
   return Boolean(hasTouched);
+};
+
+export const isSpecialDisk = (device: FormDiskDevice | FormSpecialDiskDevice): device is FormSpecialDiskDevice => {
+  if (!device.source) {
+    return false;
+  }
+
+  return ["agent:config", "cloud-init:config"].includes(device.source);
 };

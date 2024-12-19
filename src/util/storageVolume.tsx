@@ -179,3 +179,17 @@ export const getStorageVolumeFormProps = (
     placeholder: `Enter ${id.replaceAll("_", " ")}`,
   };
 };
+
+export const getSpecialDiskSourceOptions = () => {
+  const options = [
+    {
+      label: "cloud-init:config",
+      value: "cloud-init:config",
+    },
+    {
+      label: "agent:config",
+      value: "agent:config",
+    },
+  ];
+  return options;
+};

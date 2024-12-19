@@ -1,5 +1,11 @@
 import type { FC } from "react";
-import { Button, Icon, Input, Label } from "@canonical/react-components";
+import {
+  Button,
+  Icon,
+  Input,
+  Label,
+  Select,
+} from "@canonical/react-components";
 import type { InstanceAndProfileFormikProps } from "types/forms/instanceAndProfileFormProps";
 import type { EditInstanceFormValues } from "types/forms/instanceAndProfile";
 import CustomVolumeSelectBtn from "pages/storage/CustomVolumeSelectBtn";
@@ -33,7 +39,11 @@ import {
 import { isInstanceCreation } from "util/instanceEdit";
 import { ensureEditMode } from "util/editMode";
 import { isVolumeDevice } from "util/devices";
+import { isSpecialDisk } from "util/instanceValidation";
+import { getExistingDeviceNames, isVolumeDevice } from "util/devices";
+import type { LxdProfile } from "types/profile";
 import { focusField } from "util/formFields";
+import { getSpecialDiskSourceOptions } from "util/storageVolume";
 import AttachDiskDeviceBtn from "pages/storage/AttachDiskDeviceBtn";
 import type { LxdProfile } from "types/profile";
 import type { LxdStorageVolume } from "types/storage";
@@ -47,6 +57,7 @@ interface Props {
 
 const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
+
   const existingDeviceNames = getExistingDeviceNames(formik.values, profiles);
   const isProfile = formik.values.entityType === "profile";
 
@@ -286,11 +297,48 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
           override: "",
         });
 
-      rows.push(
-        isVolumeDevice(item) ? volumeDeviceSource() : hostDeviceSource(),
-      );
+      const specialDiskDeviceSource = () =>
+        getConfigurationRowBase({
+          className: "no-border-top inherited-with-form",
+          configuration: <Label forId={`devices.${index}.source`}>Source</Label>,
+          inherited: readOnly ? (
+            <div className="custom-disk-read-mode">
+              <div className="mono-font custom-disk-value u-truncate">
+                <b>{item.source}</b>
+              </div>
+              {editButton(`devices.${index}.source`)}
+            </div>
+          ) : (
+            <Select
+              id={`devices.${index}.source`}
+              name={`devices.${index}.source`}
+              onBlur={formik.handleBlur}
+              onChange={(e) => {
+                ensureEditMode(formik);
+                void formik.setFieldValue(
+                  `devices.${index}.source`,
+                  e.target.value,
+                );
+              }}
+              value={item.source}
+              options={getSpecialDiskSourceOptions()}
+            />
+          ),
+          override: "",
+        });
 
-      if (!isVolumeDevice(item) || item.path !== undefined) {
+      if (isSpecialDisk(item)) {
+        rows.push(specialDiskDeviceSource());
+      } else if (isVolumeDevice(item)) {
+        rows.push(volumeDeviceSource());
+      } else {
+        rows.push(hostDeviceSource());
+      }
+
+      if (
+        (!isVolumeDevice(item) && !isSpecialDisk(item)) ||
+        item.path !== undefined
+      ) {
         const hasError = isDiskDeviceMountPointMissing(formik, index);
         rows.push(
           getConfigurationRowBase({
