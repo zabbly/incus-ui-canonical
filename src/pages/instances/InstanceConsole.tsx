@@ -21,7 +21,7 @@ import { useInstanceEntitlements } from "util/entitlements/instances";
 import { isInstanceRunning } from "util/instanceStatus";
 import InstanceConsoleShortcuts from "pages/instances/InstanceConsoleShortcuts";
 import { useOperations } from "context/operationsProvider";
-import { getInstanceName, getProjectName } from "util/operations";
+import { getInstanceName, getProjectName, findOperation } from "util/operations";
 
 interface Props {
   instance: LxdInstance;
@@ -100,19 +100,9 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
     );
   }
 
-  const getOperation = (operation: LxdOperation, description: string) => {
-      const projectName = getProjectName(operation);
-      const instanceName = getInstanceName(operation);
-
-      if (projectName == instance.project && instanceName == instance.name && description == operation.description) {
-        return true;
-      }
-      return false;
-  };
-
   useEffect(() => {
     // Check if there are any relevant instance operations.
-    let restartOp = operations.find((operation) => {return getOperation(operation, "Restarting instance");})
+    let restartOp = findOperation(instance, operations, "Restarting instance");
 
     if (restartOp) {
       if (restartOp.status == "Success" && lastOp.current["restart"] != restartOp.created_at && attemptConnection) {
@@ -123,7 +113,7 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
       }
     }
 
-    let startOp = operations.find((operation) => {return getOperation(operation, "Starting instance");})
+    let startOp = findOperation(instance, operations, "Starting instance");
     if (startOp) {
       // Disconect console if start operation was detected.
       setAttemptConnection(false);
@@ -133,7 +123,7 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
       }
     }
 
-    let stopOp = operations.find((operation) => {return getOperation(operation, "Stopping instance");})
+    let stopOp = findOperation(instance, operations, "Stopping instance");
     if (stopOp) {
       // Disconect console if stop operation was detected.
       setAttemptConnection(false);
