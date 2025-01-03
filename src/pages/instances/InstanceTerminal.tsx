@@ -20,6 +20,13 @@ import {
   Notification,
   useNotify,
 } from "@canonical/react-components";
+import { useOperations } from "context/operationsProvider";
+import { LxdOperation } from "types/operation";
+import {
+  getInstanceName,
+  getProjectName,
+  findOperation,
+} from "util/operations";
 import NotificationRow from "components/NotificationRow";
 import { useInstanceEntitlements } from "util/entitlements/instances";
 
@@ -63,10 +70,12 @@ const InstanceTerminal: FC<Props> = ({ instance, refreshInstance }) => {
   const [payload, setPayload] = useState(defaultPayload);
   const [fitAddon] = useState<FitAddon>(new FitAddon());
   const [userInteracted, setUserInteracted] = useState(false);
+  const { operations, isFetching } = useOperations();
   const xtermRef = useRef<Terminal>(null);
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [version, setVersion] = useState(0);
   const { canUpdateInstanceState, canExecInstance } = useInstanceEntitlements();
+  const lastFailureOp = useRef<LxdOperation | null>(null);
 
   usePrompt({
     when: userInteracted,
@@ -123,7 +132,9 @@ const InstanceTerminal: FC<Props> = ({ instance, refreshInstance }) => {
       if (1005 !== event.code) {
         notify.failure("Error", event.reason, getWsErrorMsg(event.code));
       }
+      data?.close();
       setControlWs(null);
+      setDataWs(null);
     };
 
     data.onopen = () => {
@@ -138,7 +149,9 @@ const InstanceTerminal: FC<Props> = ({ instance, refreshInstance }) => {
       if (1005 !== event.code) {
         notify.failure("Error", event.reason, getWsErrorMsg(event.code));
       }
+      control?.close();
       setDataWs(null);
+      setControlWs(null);
       setUserInteracted(false);
     };
 
@@ -171,6 +184,18 @@ const InstanceTerminal: FC<Props> = ({ instance, refreshInstance }) => {
       };
     }
   }, [isBooting, version]);
+
+  useEffect(() => {
+    // Check if there are any relevant instance operations.
+    let op = findOperation(instance, operations, "Executing command");
+
+    if (op) {
+      if (op.status == "Failure" && op.err != "" && (lastFailureOp.current == null || lastFailureOp.current.id != op.id)) {
+        notify.failure("Error", op.status_code, op.err);
+        lastFailureOp.current = op;
+      }
+    }
+  }, [operations]);
 
   useEffect(() => {
     xtermRef.current?.clear();
