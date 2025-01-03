@@ -1,3 +1,4 @@
+import type { LxdInstance } from "types/instance";
 import type { LxdOperation } from "types/operation";
 
 export const getInstanceName = (operation?: LxdOperation): string => {
@@ -67,3 +68,15 @@ export const getProjectName = (operation?: LxdOperation): string => {
       ?.split("&")[0] ?? "default"
   );
 };
+
+export const findOperation = (instance: LxdInstance, operations: LxdOperation[], operation_type: string) => {
+  return operations.find((operation) => {
+    const projectName = getProjectName(operation);
+    const instanceName = getInstanceName(operation);
+
+    if (projectName == instance.project && instanceName == instance.name && operation_type == operation.description) {
+      return true;
+    }
+    return false;
+  });
+}
