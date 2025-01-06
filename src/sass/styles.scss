@@ -94,6 +94,7 @@ $border-thin: 1px solid $color-mid-light !default;
 @import "meter";
 @import "migrate_instance";
 @import "modified_actions";
+@import "network_acl";
 @import "network_detail_list";
 @import "network_detail_overview";
 @import "network_form";
@@ -320,6 +321,7 @@ body {
   border-top: none !important;
 }
 
+.network-acl-rules-table,
 .network-forwards-table {
   .actions {
     max-width: 8rem;
