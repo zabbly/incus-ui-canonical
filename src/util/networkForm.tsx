@@ -1,9 +1,11 @@
 import {
   LxdNetwork,
+  LxdNetworkAcl,
   LxdNetworkBridgeDriver,
   LxdNetworkDnsMode,
 } from "types/network";
 import { NetworkFormValues } from "pages/networks/forms/NetworkForm";
+import { NetworkAclFormValues } from "pages/networks/forms/NetworkAclForm";
 import { getNetworkKey } from "util/networks";
 
 export const toNetworkFormValues = (network: LxdNetwork): NetworkFormValues => {
@@ -50,5 +52,15 @@ export const toNetworkFormValues = (network: LxdNetwork): NetworkFormValues => {
     parent: network.config.parent,
     entityType: "network",
     bareNetwork: network,
+  };
+};
+
+export const toNetworkAclFormValues = (acl: LxdNetworkAcl): NetworkAclFormValues => {
+  return {
+    readOnly: true,
+    isCreating: false,
+    name: acl.name,
+    description: acl.description,
+    entityType: "networkAcl",
   };
 };
