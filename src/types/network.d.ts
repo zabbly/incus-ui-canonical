@@ -121,3 +121,27 @@ export interface LxdNetworkForward {
   location?: string;
   ports: LxdNetworkForwardPort[];
 }
+
+export interface LxdNetworkAclRule {
+  action: string;
+  state: string;
+  description?: string;
+  source?: string;
+  destination?: string;
+  protocol?: string;
+  source_port?: string;
+  destination_port?: string;
+  icmp_type?: string;
+  icmp_code?: string;
+}
+
+export type LxdNetworkAclRuleType = "ingress" | "egress";
+
+export interface LxdNetworkAcl {
+  name: string;
+  description?: string;
+  ingress?: LxdNetworkAclRule[];
+  egress?: LxdNetworkAclRule[];
+  etag?: string;
+  used_by?: string[];
+}

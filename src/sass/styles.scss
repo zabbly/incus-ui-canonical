@@ -47,6 +47,7 @@
 @include vf-p-icon-repository;
 @include vf-p-icon-restart;
 @include vf-p-icon-security;
+@include vf-p-icon-security-tick;
 @include vf-p-icon-settings;
 @include vf-p-icon-single-host;
 @include vf-p-icon-snapshot;
@@ -97,6 +98,7 @@ $border-thin: 1px solid $color-mid-light !default;
 @import "meter";
 @import "migrate_instance";
 @import "modified_actions";
+@import "network_acl";
 @import "network_detail_list";
 @import "network_detail_overview";
 @import "network_form";
@@ -325,6 +327,7 @@ body {
   border-top: none !important;
 }
 
+.network-acl-rules-table,
 .network-forwards-table {
   .actions {
     max-width: 8rem;
