@@ -1,10 +1,12 @@
 import type {
   LxdNetwork,
+  LxdNetworkAcl,
   LxdNetworkBridgeDriver,
   LxdNetworkDnsMode,
   LXDNetworkOnClusterMember,
 } from "types/network";
 import type { NetworkFormValues } from "pages/networks/forms/NetworkForm";
+import type { NetworkAclFormValues } from "pages/networks/forms/NetworkAclForm";
 import { getNetworkKey } from "util/networks";
 import type { ClusterSpecificValues } from "components/ClusterSpecificSelect";
 
@@ -64,5 +66,17 @@ export const toNetworkFormValues = (
     entityType: "network",
     bareNetwork: network,
     editRestriction,
+  };
+};
+
+export const toNetworkAclFormValues = (
+  acl: LxdNetworkAcl,
+): NetworkAclFormValues => {
+  return {
+    readOnly: true,
+    isCreating: false,
+    name: acl.name,
+    description: acl.description,
+    entityType: "networkAcl",
   };
 };

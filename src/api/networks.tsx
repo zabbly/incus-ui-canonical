@@ -5,10 +5,12 @@ import {
 } from "util/helpers";
 import type {
   LxdNetwork,
+  LxdNetworkAcl,
   LXDNetworkOnClusterMember,
-  LxdNetworkState,
+  LxdNetworkState
 } from "types/network";
 import type { LxdApiResponse } from "types/apiResponse";
+import type { LxdClusterMember } from "types/cluster";
 import { areNetworksEqual } from "util/networks";
 import type { ClusterSpecificValues } from "components/ClusterSpecificSelect";
 import type { LxdClusterMember } from "types/cluster";
@@ -335,5 +337,88 @@ export const deleteNetwork = async (
         }
         reject(e);
       });
+  });
+};
+
+export const fetchNetworkAcls = (project: string): Promise<LxdNetworkAcl[]> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls?project=${project}&recursion=1`)
+      .then(handleResponse)
+      .then((data: LxdApiResponse<LxdNetworkAcl[]>) => resolve(data.metadata))
+      .catch(reject);
+  });
+};
+
+export const fetchNetworkAcl = (
+  name: string,
+  project: string,
+): Promise<LxdNetworkAcl> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls/${name}?project=${project}`)
+      .then(handleEtagResponse)
+      .then((data) => resolve(data as LxdNetworkAcl))
+      .catch(reject);
+  });
+};
+
+export const createNetworkAcl = (
+  acl: Partial<LxdNetworkAcl>,
+  project: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls?project=${project}`, {
+      method: "POST",
+      body: JSON.stringify(acl),
+    })
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
+export const updateNetworkAcl = (
+  acl: Partial<LxdNetworkAcl>,
+  project: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls/${acl.name ?? ""}?project=${project}`, {
+      method: "PUT",
+      body: JSON.stringify(acl),
+      headers: {
+        "If-Match": acl.etag ?? "invalid-etag",
+      },
+    })
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
+export const renameNetworkAcl = (
+  oldName: string,
+  newName: string,
+  project: string,
+): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls/${oldName}?project=${project}`, {
+      method: "POST",
+      body: JSON.stringify({
+        name: newName,
+      }),
+    })
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
+export const deleteNetworkAcl = (name: string, project: string): Promise<void> => {
+  return new Promise((resolve, reject) => {
+    fetch(`/1.0/network-acls/${name}?project=${project}`, {
+      method: "DELETE",
+    })
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
   });
 };

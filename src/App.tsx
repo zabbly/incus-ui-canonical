@@ -25,6 +25,10 @@ const CreateInstance = lazy(
   async () => import("pages/instances/CreateInstance"),
 );
 const CreateNetwork = lazy(async () => import("pages/networks/CreateNetwork"));
+const CreateNetworkAcl = lazy(async () => import("pages/networks/CreateNetworkAcl"));
+const CreateNetworkAclRule = lazy(
+  async () => import("pages/networks/CreateNetworkAclRule"),
+);
 const CreateNetworkForward = lazy(
   async () => import("pages/networks/CreateNetworkForward"),
 );
@@ -47,6 +51,8 @@ const InstanceList = lazy(async () => import("pages/instances/InstanceList"));
 const Login = lazy(async () => import("pages/login/Login"));
 const NetworkDetail = lazy(async () => import("pages/networks/NetworkDetail"));
 const NetworkList = lazy(async () => import("./pages/networks/NetworkList"));
+const NetworkAclDetail = lazy(async () => import("pages/networks/NetworkAclDetail"));
+const NetworkAclList = lazy(async () => import("./pages/networks/NetworkAclList"));
 const OperationList = lazy(
   async () => import("pages/operations/OperationList"),
 );
@@ -269,6 +275,54 @@ const App: FC = () => {
           element={
             <ProtectedRoute
               outlet={<ProjectLoader outlet={<EditNetworkForward />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<NetworkAclList />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls/create"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<CreateNetworkAcl />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls/:name"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<NetworkAclDetail />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls/:name/:activeTab"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<NetworkAclDetail />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls/:name/:activeTab/:section"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<NetworkAclDetail />} />}
+            />
+          }
+        />
+        <Route
+          path="/ui/project/:project/network-acls/:acl/rules/create/:type"
+          element={
+            <ProtectedRoute
+              outlet={<ProjectLoader outlet={<CreateNetworkAclRule />} />}
             />
           }
         />

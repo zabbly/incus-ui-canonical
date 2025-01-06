@@ -14,6 +14,7 @@ import type { StorageVolumeFormValues } from "pages/storage/forms/StorageVolumeF
 import type { NetworkFormValues } from "pages/networks/forms/NetworkForm";
 import type { ProjectFormValues } from "pages/projects/CreateProject";
 import { getConfigRowMetadata } from "util/configInheritance";
+import type { NetworkAclFormValues } from "pages/networks/forms/NetworkAclForm";
 import type { StoragePoolFormValues } from "pages/storage/forms/StoragePoolForm";
 import { ensureEditMode } from "util/instanceEdit";
 import { focusField } from "util/formFields";
@@ -23,14 +24,16 @@ export type ConfigurationRowFormikValues =
   | StorageVolumeFormValues
   | NetworkFormValues
   | ProjectFormValues
-  | StoragePoolFormValues;
+  | StoragePoolFormValues
+  | NetworkAclFormValues;
 
 export type ConfigurationRowFormikProps =
   | InstanceAndProfileFormikProps
   | FormikProps<NetworkFormValues>
   | FormikProps<ProjectFormValues>
   | FormikProps<StorageVolumeFormValues>
-  | FormikProps<StoragePoolFormValues>;
+  | FormikProps<StoragePoolFormValues>
+  | FormikProps<NetworkAclFormValues>;
 
 interface Props {
   formik: ConfigurationRowFormikProps;

@@ -17,6 +17,7 @@ export interface ResourceDetail {
 
 export type ResourceType =
   | "instance"
+  | "network"
   | "profile"
   | "snapshot"
   | "image"
