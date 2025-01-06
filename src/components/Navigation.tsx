@@ -221,17 +221,42 @@ const Navigation: FC = () => {
                       </SideNavigationItem>
 
                       <SideNavigationItem>
-                        <NavLink
-                          to={`/ui/project/${projectName}/networks`}
-                          title={`Networks (${projectName})`}
-                          onClick={softToggleMenu}
+                        <NavAccordion
+                          baseUrl={`/ui/project/${projectName}/networks`}
+                          title={`Networking (${projectName})`}
+                          iconName="exposed"
+                          label="Networking"
+                          onOpen={() => toggleAccordionNav("networks")}
+                          open={openNavMenus.includes("networks")}
                         >
-                          <Icon
-                            className="is-light p-side-navigation__icon"
-                            name="exposed"
-                          />{" "}
-                          Networks
-                        </NavLink>
+                          {[
+                            <SideNavigationItem
+                              key={`/ui/project/${projectName}/networks`}
+                            >
+                              <NavLink
+                                to={`/ui/project/${projectName}/networks`}
+                                title={`Networks (${projectName})`}
+                                onClick={softToggleMenu}
+                                className="accordion-nav-secondary"
+                                ignoreUrlMatches={["network-acls"]}
+                              >
+                                Networks
+                              </NavLink>
+                            </SideNavigationItem>,
+                            <SideNavigationItem
+                              key={`/ui/project/${projectName}/network-acls`}
+                            >
+                              <NavLink
+                                to={`/ui/project/${projectName}/network-acls`}
+                                title={`ACL (${projectName})`}
+                                onClick={softToggleMenu}
+                                className="accordion-nav-secondary"
+                              >
+                                ACLs
+                              </NavLink>
+                            </SideNavigationItem>,
+                          ]}
+                        </NavAccordion>
                       </SideNavigationItem>
                       <SideNavigationItem>
                         <NavAccordion
