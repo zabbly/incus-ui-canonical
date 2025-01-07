@@ -209,7 +209,7 @@ const InstanceList: FC = () => {
         (q) =>
           item.name.toLowerCase().includes(q) ||
           item.description.toLowerCase().includes(q) ||
-          item.config["image.description"]?.toLowerCase().includes(q),
+          item.config?.["image.description"]?.toLowerCase().includes(q),
       )
     ) {
       return false;

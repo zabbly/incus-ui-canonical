@@ -107,7 +107,7 @@ export const getInstanceType = (
     (item) => item.value === instance.type,
   )?.label;
 
-  if (instance.config["volatile.container.oci"] === "true") {
+  if (instance.config?.["volatile.container.oci"] === "true") {
     return `${label} (App)`
   }
 
