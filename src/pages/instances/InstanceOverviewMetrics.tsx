@@ -88,7 +88,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">CPU Time(s)</th>
               <td>
-                {state.cpu && state.cpu.usage > 0 ? (
+                {state && state.cpu && state.cpu.usage > 0 ? (
                   <div>
                     {humanCpuUsage(state.cpu.usage)}
                   </div>
@@ -100,7 +100,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">Memory</th>
               <td>
-                {state.memory ? (
+                {state && state.memory ? (
                   <div>
                     <Meter
                       percentage={
