@@ -18,6 +18,15 @@ export const getIpAddresses = (
     .filter((item) => item.family === family);
 };
 
+export const getMACAddresses = (
+  instance: LxdInstance,
+) => {
+  if (!instance.state?.network) return [];
+  return Object.entries(instance.state.network)
+    .filter(([key, _value]) => key !== "lo")
+    .map(([key, value]) => {return { iface: key, hwaddr: value.hwaddr }});
+};
+
 export const networkFormFieldToPayloadName: Record<
   string,
   keyof LxdNetworkConfig
