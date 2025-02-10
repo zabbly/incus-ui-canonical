@@ -9,6 +9,7 @@ import InstanceOverviewProfiles from "./InstanceOverviewProfiles";
 import InstanceOverviewMetrics from "./InstanceOverviewMetrics";
 import InstancePreview from "./InstancePreview";
 import InstanceIps from "pages/instances/InstanceIps";
+import InstanceMAC from "pages/instances/InstanceMAC";
 import { useSettings } from "context/useSettings";
 import NotificationRow from "components/NotificationRow";
 import DeviceListTable from "components/DeviceListTable";
@@ -86,6 +87,12 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
                 <th className="u-text--muted">IPv6</th>
                 <td>
                   <InstanceIps instance={instance} family="inet6" />
+                </td>
+              </tr>
+              <tr>
+                <th className="u-text--muted">MAC address</th>
+                <td>
+                  <InstanceMAC instance={instance} />
                 </td>
               </tr>
               <tr>
