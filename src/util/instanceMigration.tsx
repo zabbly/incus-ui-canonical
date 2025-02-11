@@ -20,15 +20,14 @@ export type MigrationType =
 interface Props {
   instance: LxdInstance;
   type: MigrationType;
-  target: string;
   close: () => void;
+  onSuccess: () => void;
 }
 
 export const useInstanceMigration = ({
   instance,
   close,
   type,
-  target,
 }: Props) => {
   const toastNotify = useToastNotification();
   const instanceLoading = useInstanceLoading();
@@ -36,7 +35,7 @@ export const useInstanceMigration = ({
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const handleSuccess = () => {
+  const handleSuccess = (target: string) => {
     let successMessage: ReactNode = "";
     if (type === "cluster member") {
       successMessage = (
@@ -122,21 +121,23 @@ export const useInstanceMigration = ({
     instanceLoading.setFinish(instance);
   };
 
-  const handleMigrate = () => {
+  const handleMigrate = (targetMember: string, targetPool: string, targetProject: string) => {
+    let target = "";
+    if (type === "cluster member") {
+      target = targetMember;
+    } else if (type === "root storage pool" ) {
+      target = targetPool;
+    } else if (type === "project" ) {
+      target = targetProject;
+    }
     instanceLoading.setLoading(instance, "Migrating");
-    const targetMember = type === "cluster member" ? target : undefined;
-    const targetPool = type === "root storage pool" ? target : undefined;
-    const targetProject = type === "project" ? target : undefined;
-    migrateInstance(
-      instance,
-      targetMember,
-      targetPool,
-      targetProject,
-    )
+    migrateInstance(instance, targetMember, targetPool, targetProject)
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,
-          handleSuccess,
+          () => {
+            handleSuccess(target);
+          },
           (err) => {
             handleFailure(err);
           },
