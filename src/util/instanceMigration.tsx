@@ -15,7 +15,6 @@ export type MigrationType = "cluster member" | "root storage pool" | "";
 type Props = {
   instance: LxdInstance;
   type: MigrationType;
-  target: string;
   onSuccess: () => void;
 };
 
@@ -23,7 +22,6 @@ export const useInstanceMigration = ({
   instance,
   onSuccess,
   type,
-  target,
 }: Props) => {
   const toastNotify = useToastNotification();
   const instanceLoading = useInstanceLoading();
@@ -92,10 +90,9 @@ export const useInstanceMigration = ({
     instanceLoading.setFinish(instance);
   };
 
-  const handleMigrate = () => {
+  const handleMigrate = (targetMember: string, targetPool: string) => {
+    const target = type === "cluster member" ? targetMember : targetPool;
     instanceLoading.setLoading(instance, "Migrating");
-    const targetMember = type === "cluster member" ? target : undefined;
-    const targetPool = type === "root storage pool" ? target : undefined;
     migrateInstance(instance, targetMember, targetPool)
       .then((operation) => {
         eventQueue.set(

@@ -8,7 +8,7 @@ interface Props {
   onSelect: (member: string) => void;
   targetMember: string;
   onCancel: () => void;
-  migrate: (member: string) => void;
+  migrate: () => void;
 }
 
 const InstanceClusterMemberMigration: FC<Props> = ({
@@ -52,7 +52,7 @@ const InstanceClusterMemberMigration: FC<Props> = ({
         <ActionButton
           appearance="positive"
           className="u-no-margin--bottom"
-          onClick={() => migrate(targetMember)}
+          onClick={migrate}
           disabled={!targetMember}
         >
           Migrate
