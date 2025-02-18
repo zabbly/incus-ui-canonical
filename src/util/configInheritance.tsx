@@ -65,6 +65,8 @@ export const getConfigRowMetadata = (
     case "network-acl":
       throw new Error("Network ACLs do not have row metadata");
   }
+
+  return {value: "", source: ""};
 };
 
 const getConfigOptions = () => {
