@@ -102,7 +102,9 @@ const NetworkAclList: FC = () => {
             <Button
               appearance="positive"
               className="u-no-margin--bottom"
-              onClick={() => navigate(`/ui/project/${project}/network-acls/create`)}
+              onClick={() =>
+                navigate(`/ui/project/${project}/network-acls/create`)
+              }
               hasIcon={!isSmallScreen}
             >
               {!isSmallScreen && <Icon name="plus" light />}

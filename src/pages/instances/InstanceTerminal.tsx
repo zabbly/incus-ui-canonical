@@ -19,6 +19,7 @@ import {
   useNotify,
 } from "@canonical/react-components";
 import { useOperations } from "context/operationsProvider";
+import { LxdOperation } from "types/operation";
 import {
   getInstanceName,
   getProjectName,
@@ -67,7 +68,7 @@ const InstanceTerminal: FC<Props> = ({ instance }) => {
   const [userInteracted, setUserInteracted] = useState(false);
   const { operations, isFetching } = useOperations();
   const xtermRef = useRef<Terminal>(null);
-  const lastFailureOp = useRef(null);
+  const lastFailureOp = useRef<LxdOperation | null>(null);
 
   usePrompt({
     when: userInteracted,

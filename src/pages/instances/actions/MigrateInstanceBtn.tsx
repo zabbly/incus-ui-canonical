@@ -8,7 +8,6 @@ import classNames from "classnames";
 
 interface Props {
   instance: LxdInstance;
-  project: string;
   classname?: string;
   onClose?: () => void;
 }

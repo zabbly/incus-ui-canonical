@@ -1,16 +1,11 @@
 import { FC, useState } from "react";
-import {
-  EmptyState,
-  Icon,
-  MainTable,
-  Row,
-} from "@canonical/react-components";
-import { LxdNetworkAcl } from "types/network";
+import { EmptyState, Icon, MainTable, Row } from "@canonical/react-components";
+import { LxdNetworkAcl, LxdNetworkAclRule, LxdNetworkAclRuleType } from "types/network";
 import { useDocs } from "context/useDocs";
 import { Link } from "react-router-dom";
 import ScrollableTable from "components/ScrollableTable";
 import DeleteNetworkAclRuleBtn from "pages/networks/actions/DeleteNetworkAclRuleBtn";
-import NetworkAclRuleDetailPanel from "./NetworkAclRuleDetailPanel.tsx"
+import NetworkAclRuleDetailPanel from "./NetworkAclRuleDetailPanel";
 
 interface Props {
   acl: LxdNetworkAcl;
@@ -22,8 +17,9 @@ const NetworkAclRules: FC<Props> = ({ acl, type, project }) => {
   const docBaseLink = useDocs();
   const [selectedRule, setSelectedRule] = useState(-1);
 
-  const hasRules = acl[type].length > 0;
-  const rules = acl[type];
+  const ruleType: keyof LxdNetworkAcl = type as LxdNetworkAclRuleType;
+  const rules = acl[ruleType] as LxdNetworkAclRule[];
+  const hasRules = rules.length > 0;
 
   const closeDetailPanel = () => setSelectedRule(-1);
 
@@ -36,12 +32,11 @@ const NetworkAclRules: FC<Props> = ({ acl, type, project }) => {
     { "aria-label": "Actions", className: "u-align--right actions" },
   ];
 
-  const rows = rules.map((rule, index) => {
+  const rows = rules.map((rule: LxdNetworkAclRule, index: number) => {
     const openDetailPanel = () => setSelectedRule(index);
 
     return {
-      className:
-        selectedRule === index ? "u-row-selected" : "u-row",
+      className: selectedRule === index ? "u-row-selected" : "u-row",
       columns: [
         {
           content: rule.action,
@@ -141,7 +136,12 @@ const NetworkAclRules: FC<Props> = ({ acl, type, project }) => {
           </EmptyState>
         )}
       </Row>
-      { selectedRule != -1 && <NetworkAclRuleDetailPanel rule={rules[selectedRule]} onClosePanel={closeDetailPanel}/> }
+      {selectedRule != -1 && (
+        <NetworkAclRuleDetailPanel
+          rule={rules[selectedRule]}
+          onClosePanel={closeDetailPanel}
+        />
+      )}
     </>
   );
 };

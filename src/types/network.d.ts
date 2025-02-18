@@ -126,7 +126,7 @@ export interface LxdNetworkAclRule {
   state: string;
   description?: string;
   source?: string;
-  destintion?: string;
+  destination?: string;
   protocol?: string;
   source_port?: string;
   destination_port?: string;
@@ -134,9 +134,13 @@ export interface LxdNetworkAclRule {
   icmp_code?: string;
 }
 
+export type LxdNetworkAclRuleType = "ingress" | "egress";
+
 export interface LxdNetworkAcl {
   name: string;
   description?: string;
   ingress?: LxdNetworkAclRule[];
   egress?: LxdNetworkAclRule[];
+  etag?: string;
+  used_by?: string[];
 }

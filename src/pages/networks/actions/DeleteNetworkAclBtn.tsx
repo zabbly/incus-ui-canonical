@@ -41,7 +41,7 @@ const DeleteNetworkAclBtn: FC<Props> = ({ acl, project }) => {
         navigate(`/ui/project/${project}/network-acls`);
         toastNotify.success(
           <>
-            Network ACL <ResourceLabel bold type="network-acls" value={acl.name} />{" "}
+            Network ACL <ResourceLabel bold type="network-acl" value={acl.name} />{" "}
             deleted.
           </>,
         );

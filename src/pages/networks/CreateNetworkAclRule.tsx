@@ -10,12 +10,13 @@ import NetworkAclRuleForm, {
 } from "pages/networks/forms/NetworkAclRuleForm";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import BaseLayout from "components/BaseLayout";
+import Loader from "components/Loader";
 import { useDocs } from "context/useDocs";
 import HelpLink from "components/HelpLink";
 import FormFooterLayout from "components/forms/FormFooterLayout";
 import { useToastNotification } from "context/toastNotificationProvider";
-import { updateNetworkAcl } from "api/networks";
-import { toNetworkAclFormValues } from "util/networkForm";
+import { fetchNetworkAcl, updateNetworkAcl } from "api/networks";
+import { LxdNetworkAcl, LxdNetworkAclRule, LxdNetworkAclRuleType } from "types/network";
 
 const CreateNetworkAclRule: FC = () => {
   const docBaseLink = useDocs();
@@ -24,16 +25,30 @@ const CreateNetworkAclRule: FC = () => {
   const toastNotify = useToastNotification();
   const queryClient = useQueryClient();
   const [showNotify, setShowNotify] = useState(false);
-  const { acl: aclName, project, type } = useParams<{
+  const {
+    acl: aclName,
+    project,
+    type,
+  } = useParams<{
     acl: string;
     project: string;
     type: string;
   }>();
 
-  const { data: acl } = useQuery({
+  const {
+    data: acl,
+    error,
+    isLoading,
+  } = useQuery({
     queryKey: [queryKeys.projects, project, queryKeys.networkAcls, aclName],
-    queryFn: () => fetchNetworkAcl(aclName, project),
+    queryFn: () => fetchNetworkAcl(aclName as string, project as string),
   });
+
+  if (error) {
+    notify.failure("Loading network ACL failed", error);
+  }
+
+  const ruleType: keyof LxdNetworkAcl = type as LxdNetworkAclRuleType;
 
   const formik = useFormik<NetworkAclRuleFormValues>({
     initialValues: {
@@ -45,28 +60,25 @@ const CreateNetworkAclRule: FC = () => {
     validationSchema: NetworkAclRuleSchema,
     onSubmit: (values) => {
       const rule = toNetworkAclRule(values);
-      const tmpAcl = {...acl, ingress:[...acl.ingress], egress:[...acl.egress]}
-      tmpAcl[type].push(rule);
-      updateNetworkAcl({ ...tmpAcl, etag: tmpAcl.etag }, project)
+      const aclObj = acl as LxdNetworkAcl;
+      const tmpAcl = {
+        ...aclObj,
+        ingress:[...aclObj.ingress as LxdNetworkAclRule[]],
+        egress:[...aclObj.egress as LxdNetworkAclRule[]],
+      };
+      tmpAcl[ruleType].push(rule);
+      updateNetworkAcl({ ...tmpAcl, etag: tmpAcl.etag }, project as string)
         .then(() => {
-          formik.resetForm({
-            values: toNetworkAclFormValues(tmpAcl),
-          });
-
           void queryClient.invalidateQueries({
             queryKey: [
               queryKeys.projects,
               project,
               queryKeys.networkAcls,
-              acl.name,
+              aclObj.name,
             ],
           });
           navigate(`/ui/project/${project}/network-acls/${aclName}/${type}`);
-          toastNotify.success(
-            <>
-              Network ACL rule added.
-            </>,
-          );
+          toastNotify.success(<>Network ACL rule added.</>);
         })
         .catch((e) => {
           notify.failure("Network ACL rule update failed", e);
@@ -75,6 +87,10 @@ const CreateNetworkAclRule: FC = () => {
         .finally(() => formik.setSubmitting(false));
     },
   });
+
+  if (isLoading) {
+    return <Loader text="Loading network ACL..." />;
+  }
 
   return (
     <BaseLayout
@@ -88,7 +104,7 @@ const CreateNetworkAclRule: FC = () => {
       }
       contentClassName="create-network"
     >
-      <NetworkAclRuleForm formik={formik} acl={acl} showNotify={showNotify}/>
+      <NetworkAclRuleForm formik={formik} showNotify={showNotify} />
       <FormFooterLayout>
         <Link
           className="p-button--base"

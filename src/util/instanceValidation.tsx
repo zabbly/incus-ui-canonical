@@ -1,4 +1,4 @@
-import { FormDevice, FormDiskDevice } from "util/formDevices";
+import { FormDevice, FormDiskDevice, FormSpecialDiskDevice } from "util/formDevices";
 import {
   InstanceAndProfileFormikProps,
   InstanceAndProfileFormValues,
@@ -82,6 +82,10 @@ export const isNicDeviceNameMissing = (
   return Boolean(hasTouched);
 };
 
-export const isSpecialDisk = (device: FormDevice): device is FormDiskDevice => {
-    return ["agent:config", "cloud-init:config"].includes(device.source);
+export const isSpecialDisk = (device: FormDiskDevice | FormSpecialDiskDevice): device is FormSpecialDiskDevice => {
+  if (!device.source) {
+    return false;
+  }
+
+  return ["agent:config", "cloud-init:config"].includes(device.source);
 };

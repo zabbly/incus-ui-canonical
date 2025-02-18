@@ -1,5 +1,5 @@
 import { LxdApiResponse } from "types/apiResponse";
-import { LxdInstance } from "types/instance";
+import { LxdInstance, LxdInstanceState } from "types/instance";
 import { LxdProject } from "types/project";
 import { LxdProfile } from "types/profile";
 import { LxdNetwork } from "types/network";
@@ -84,7 +84,7 @@ export const handleSettledResult = (
 
 export const handleEtagResponse = async (response: Response) => {
   const data = (await handleResponse(response)) as LxdApiResponse<
-    LxdInstance | LxdProject | LxdProfile | LxdNetwork | LxdStorageVolume
+    LxdInstance | LxdProject | LxdProfile | LxdNetwork | LxdStorageVolume | LxdInstanceState
   >;
   const result = data.metadata;
   result.etag = response.headers.get("etag")?.replace("W/", "") ?? undefined;

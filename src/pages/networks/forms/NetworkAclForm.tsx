@@ -12,7 +12,6 @@ import YamlForm from "components/forms/YamlForm";
 import NetworkAclFormMain from "pages/networks/forms/NetworkAclFormMain";
 import { slugify } from "util/slugify";
 import { useDocs } from "context/useDocs";
-import { getHandledNetworkConfigKeys, getNetworkKey } from "util/networks";
 import YamlNotification from "components/forms/YamlNotification";
 import { ensureEditMode } from "util/instanceEdit";
 
@@ -26,8 +25,9 @@ export interface NetworkAclFormValues {
   entityType: "networkAcl";
 }
 
-export const toNetworkAcl = (values: NetworkAclFormValues): Partial<LxdNetworkAcl> => {
-
+export const toNetworkAcl = (
+  values: NetworkAclFormValues,
+): Partial<LxdNetworkAcl> => {
   return {
     name: values.name,
     description: values.description,
@@ -37,7 +37,6 @@ export const toNetworkAcl = (values: NetworkAclFormValues): Partial<LxdNetworkAc
 interface Props {
   formik: FormikProps<NetworkAclFormValues>;
   getYaml: () => string;
-  project: string;
   section: string;
   setSection: (section: string) => void;
   version?: number;
@@ -46,7 +45,6 @@ interface Props {
 const NetworkAclForm: FC<Props> = ({
   formik,
   getYaml,
-  project,
   section,
   setSection,
   version = 0,
@@ -65,19 +63,12 @@ const NetworkAclForm: FC<Props> = ({
       {/* hidden submit to enable enter key in inputs */}
       <Input type="submit" hidden value="Hidden input" />
       {section !== slugify(YAML_CONFIGURATION) && (
-        <NetworkAclFormMenu
-          active={section}
-          setActive={setSection}
-          formik={formik}
-        />
+        <NetworkAclFormMenu active={section} setActive={setSection} />
       )}
       <Row className="form-contents" key={section}>
         <Col size={12}>
           {section === slugify(MAIN_CONFIGURATION) && (
-            <NetworkAclFormMain
-              formik={formik}
-              project={project}
-            />
+            <NetworkAclFormMain formik={formik} />
           )}
           {section === slugify(YAML_CONFIGURATION) && (
             <YamlForm

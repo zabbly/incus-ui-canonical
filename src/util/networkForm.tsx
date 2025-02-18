@@ -55,7 +55,9 @@ export const toNetworkFormValues = (network: LxdNetwork): NetworkFormValues => {
   };
 };
 
-export const toNetworkAclFormValues = (acl: LxdNetworkAcl): NetworkAclFormValues => {
+export const toNetworkAclFormValues = (
+  acl: LxdNetworkAcl,
+): NetworkAclFormValues => {
   return {
     readOnly: true,
     isCreating: false,

@@ -27,7 +27,7 @@ import FormSubmitBtn from "components/forms/FormSubmitBtn";
 import ResourceLink from "components/ResourceLink";
 
 interface Props {
-  network: LxdNetworkAcl;
+  acl: LxdNetworkAcl;
   project: string;
 }
 
@@ -53,7 +53,7 @@ const EditNetworkAcl: FC<Props> = ({ acl, project }) => {
       .required("Network ACL name is required"),
   });
 
-  const formik = useFormik<NetworkFormValues>({
+  const formik = useFormik<NetworkAclFormValues>({
     initialValues: toNetworkAclFormValues(acl),
     validationSchema: NetworkAclSchema,
     enableReinitialize: true,
@@ -111,7 +111,6 @@ const EditNetworkAcl: FC<Props> = ({ acl, project }) => {
       <NetworkAclForm
         formik={formik}
         getYaml={getYaml}
-        project={project}
         section={section ?? slugify(MAIN_CONFIGURATION)}
         setSection={setSection}
         version={version}

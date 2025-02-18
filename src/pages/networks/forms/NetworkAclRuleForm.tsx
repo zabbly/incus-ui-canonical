@@ -3,15 +3,13 @@ import {
   Col,
   Form,
   Input,
-  Label,
-  Notification,
   Row,
   Select,
   useNotify,
 } from "@canonical/react-components";
 import { FormikProps } from "formik/dist/types";
 import * as Yup from "yup";
-import { LxdNetworkAcl } from "types/network";
+import { LxdNetworkAclRule } from "types/network";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import useEventListener from "@use-it/event-listener";
 import NotificationRow from "components/NotificationRow";
@@ -30,12 +28,11 @@ export const toNetworkAclRule = (
     source_port: values.sourcePort,
     destination_port: values.destinationPort,
     icmp_type: values.icmpType,
-    icmp_ode: values.icmpCode,
+    icmp_code: values.icmpCode,
   };
 };
 
-export const NetworkAclRuleSchema = Yup.object().shape({
-});
+export const NetworkAclRuleSchema = Yup.object().shape({});
 
 export interface NetworkAclRuleFormValues {
   readOnly: boolean;
@@ -54,12 +51,11 @@ export interface NetworkAclRuleFormValues {
 }
 
 interface Props {
-  formik: FormikProps<NetworkAclFormValues>;
-  acl?: LxdNetworkAcl;
+  formik: FormikProps<NetworkAclRuleFormValues>;
   showNotify: boolean;
 }
 
-const NetworkAclRuleForm: FC<Props> = ({ formik, acl, showNotify }) => {
+const NetworkAclRuleForm: FC<Props> = ({ formik, showNotify }) => {
   const notify = useNotify();
   const divNotifyRef = useRef<HTMLDivElement | null>(null);
 
@@ -69,7 +65,7 @@ const NetworkAclRuleForm: FC<Props> = ({ formik, acl, showNotify }) => {
   useEffect(updateFormHeight, [notify.notification?.message]);
   useEventListener("resize", updateFormHeight);
   useEffect(() => {
-      divNotifyRef.current?.scrollIntoView({ behavior: "smooth" });
+    divNotifyRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [showNotify]);
 
   return (
@@ -104,7 +100,7 @@ const NetworkAclRuleForm: FC<Props> = ({ formik, acl, showNotify }) => {
                   value: "drop",
                 },
               ]}
-              onChange={ formik.handleChange }
+              onChange={formik.handleChange}
               label="Action"
               help="Action to take for matching traffic"
               required
@@ -126,7 +122,7 @@ const NetworkAclRuleForm: FC<Props> = ({ formik, acl, showNotify }) => {
                   value: "logged",
                 },
               ]}
-              onChange={ formik.handleChange }
+              onChange={formik.handleChange}
               label="State"
               help="State of the rule"
               required
@@ -175,7 +171,7 @@ const NetworkAclRuleForm: FC<Props> = ({ formik, acl, showNotify }) => {
                   value: "udp",
                 },
               ]}
-              onChange={ formik.handleChange }
+              onChange={formik.handleChange}
               label="Protocol"
               disabled={formik.values.readOnly || !formik.values.isCreating}
             />

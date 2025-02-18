@@ -37,8 +37,11 @@ const CreateNetworkAcl: FC = () => {
 
   const NetworkAclSchema = Yup.object().shape({
     name: Yup.string()
-      .test("deduplicate", "A network ACL with this name already exists", (value) =>
-        checkDuplicateName(value, project, controllerState, "network-acls"),
+      .test(
+        "deduplicate",
+        "A network ACL with this name already exists",
+        (value) =>
+          checkDuplicateName(value, project, controllerState, "network-acls"),
       )
       .required("Network ACL name is required"),
   });
@@ -96,7 +99,6 @@ const CreateNetworkAcl: FC = () => {
       <NetworkAclForm
         formik={formik}
         getYaml={getYaml}
-        project={project}
         section={section}
         setSection={updateSection}
       />
@@ -122,9 +124,7 @@ const CreateNetworkAcl: FC = () => {
         <ActionButton
           appearance="positive"
           loading={formik.isSubmitting}
-          disabled={
-            !formik.isValid || !formik.values.name
-          }
+          disabled={!formik.isValid || !formik.values.name}
           onClick={() => void formik.submitForm()}
         >
           Create
