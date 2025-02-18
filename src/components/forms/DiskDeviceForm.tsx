@@ -31,7 +31,11 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
     queryFn: () => fetchProfiles(project),
   });
 
-  const showSpecialDisk = (formik.values.entityType == "instance" && formik.values.instanceType == "virtual-machine") || formik.values.entityType == "profile" ? true : false;
+  const showSpecialDisk =
+   (formik.values.entityType == "instance" &&
+   formik.values.instanceType == "virtual-machine") ||
+   formik.values.entityType == "profile"
+   ? true : false;
 
   if (profileError) {
     notify.failure("Loading profiles failed", profileError);

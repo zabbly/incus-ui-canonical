@@ -230,7 +230,7 @@ export const createNetworkAcl = (
 };
 
 export const updateNetworkAcl = (
-  acl: Partial<LxdNetworkAcl> & Required<Pick<LxdNetworkAcl, "config">>,
+  acl: Partial<LxdNetworkAcl>,
   project: string,
 ): Promise<void> => {
   return new Promise((resolve, reject) => {

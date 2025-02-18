@@ -1,15 +1,18 @@
 import { FC } from "react";
-import { Button, Icon, useNotify } from "@canonical/react-components";
+import { Button, Icon } from "@canonical/react-components";
 import SidePanel from "components/SidePanel";
+import { LxdNetworkAclRule } from "types/network";
 
 interface Props {
-  rule: Object;
+  rule: LxdNetworkAclRule;
   onClosePanel: () => void;
 }
 
 const NetworkAclRuleDetailPanel: FC<Props> = ({ rule, onClosePanel }) => {
   return (
     <SidePanel
+      loading={false}
+      hasError={false}
       className="u-hide--medium u-hide--small"
       width="narrow"
       pinned
@@ -36,63 +39,43 @@ const NetworkAclRuleDetailPanel: FC<Props> = ({ rule, onClosePanel }) => {
             <tbody>
               <tr>
                 <th className="u-text--muted">Action</th>
-                <td>
-                  { rule.action }
-                </td>
+                <td>{rule.action}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">State</th>
-                <td>
-                  { rule.state }
-                </td>
+                <td>{rule.state}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Description</th>
-                <td>
-                  { rule.description }
-                </td>
+                <td>{rule.description}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Source</th>
-                <td>
-                  { rule.source }
-                </td>
+                <td>{rule.source}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Destination</th>
-                <td>
-                  { rule.destination }
-                </td>
+                <td>{rule.destination}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Protocol</th>
-                <td>
-                  { rule.protocol }
-                </td>
+                <td>{rule.protocol}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Source port</th>
-                <td>
-                  { rule.source_port }
-                </td>
+                <td>{rule.source_port}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">Destination port</th>
-                <td>
-                  { rule.destination_port }
-                </td>
+                <td>{rule.destination_port}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">ICMP type</th>
-                <td>
-                  { rule.icmp_type }
-                </td>
+                <td>{rule.icmp_type}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">ICMP code</th>
-                <td>
-                  { rule.icmp_code }
-                </td>
+                <td>{rule.icmp_code}</td>
               </tr>
             </tbody>
           </table>

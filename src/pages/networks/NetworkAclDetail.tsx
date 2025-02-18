@@ -67,12 +67,16 @@ const NetworkAclDetail: FC = () => {
         )}
         {activeTab === "ingress" && (
           <div role="tabpanel" aria-labelledby="ingress">
-            {acl && <NetworkAclRules acl={acl} type="ingress" project={project} />}
+            {acl && (
+              <NetworkAclRules acl={acl} type="ingress" project={project} />
+            )}
           </div>
         )}
         {activeTab === "egress" && (
           <div role="tabpanel" aria-labelledby="egress">
-            {acl && <NetworkAclRules acl={acl} type="egress" project={project} />}
+            {acl && (
+              <NetworkAclRules acl={acl} type="egress" project={project} />
+            )}
           </div>
         )}
       </Row>

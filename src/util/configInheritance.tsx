@@ -61,6 +61,8 @@ export const getConfigRowMetadata = (
     case "storagePool":
       return getStoragePoolRowMetadata(values, name);
   }
+
+  return {value: "", source: ""};
 };
 
 const getConfigOptions = () => {

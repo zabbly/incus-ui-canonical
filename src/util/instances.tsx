@@ -9,6 +9,7 @@ import {
 import * as Yup from "yup";
 import InstanceLinkChip from "pages/instances/InstanceLinkChip";
 import { InstanceIconType } from "components/ResourceIcon";
+import { LxdInstance } from "types/instance";
 import { instanceCreationTypes } from "util/instanceOptions";
 
 export const instanceLinkFromOperation = (args: {
@@ -95,5 +96,5 @@ export const getInstanceType = (
     return `${label} (App)`
   }
 
-  return label;
+  return label ? label : "";
 };

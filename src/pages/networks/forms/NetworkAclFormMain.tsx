@@ -8,10 +8,9 @@ import { ensureEditMode } from "util/instanceEdit";
 
 interface Props {
   formik: FormikProps<NetworkAclFormValues>;
-  project: string;
 }
 
-const NetworkAclFormMain: FC<Props> = ({ formik, project }) => {
+const NetworkAclFormMain: FC<Props> = ({ formik }) => {
   const getFormProps = (id: "name" | "description") => {
     return {
       id: id,

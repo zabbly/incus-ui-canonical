@@ -15,6 +15,7 @@ interface LxdInstanceMemory {
   swap_usage_peak: number;
   usage: number;
   usage_peak: number;
+  total: number;
 }
 
 interface LxdInstanceNetworkAddress {
@@ -55,6 +56,7 @@ interface LxdInstanceState {
   pid: number;
   processes: number;
   status: string;
+  etag?: string;
 }
 
 interface LxdInstanceSnapshot {

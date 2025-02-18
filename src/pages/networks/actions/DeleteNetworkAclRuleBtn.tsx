@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { LxdNetworkAcl } from "types/network";
+import { LxdNetworkAcl, LxdNetworkAclRule, LxdNetworkAclRuleType } from "types/network";
 import { queryKeys } from "util/queryKeys";
 import { updateNetworkAcl } from "api/networks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -14,20 +14,28 @@ interface Props {
   acl: LxdNetworkAcl;
   project: string;
   index: number;
-  type: number;
+  type: string;
   onDelete: () => void;
 }
 
-const DeleteNetworkAclRuleBtn: FC<Props> = ({ acl, project, index, type, onDelete }) => {
+const DeleteNetworkAclRuleBtn: FC<Props> = ({
+  acl,
+  project,
+  index,
+  type,
+  onDelete,
+}) => {
   const queryClient = useQueryClient();
   const notify = useNotify();
   const toastNotify = useToastNotification();
   const [isLoading, setLoading] = useState(false);
 
+  const ruleType: keyof LxdNetworkAcl = type as LxdNetworkAclRuleType;
+
   const handleDelete = () => {
     onDelete();
     setLoading(true);
-    acl[type].splice(index, 1);
+    (acl[ruleType] as LxdNetworkAclRule[]).splice(index, 1);
     updateNetworkAcl({ ...acl, etag: acl.etag }, project)
       .then(() => {
         void queryClient.invalidateQueries({
@@ -39,15 +47,11 @@ const DeleteNetworkAclRuleBtn: FC<Props> = ({ acl, project, index, type, onDelet
           ],
         });
         setLoading(false);
-        toastNotify.success(
-          <>
-            Network ACL rule deleted.
-          </>,
-        );
+        toastNotify.success(<>Network ACL rule deleted.</>);
       })
       .catch((e) => {
         notify.failure("Network ACL rule deletion failed", e);
-      })
+      });
   };
 
   return (
@@ -60,7 +64,8 @@ const DeleteNetworkAclRuleBtn: FC<Props> = ({ acl, project, index, type, onDelet
         confirmButtonLabel: "Delete",
         children: (
           <p>
-            Are you sure you want to delete selected network ACL rule?<br />
+            Are you sure you want to delete selected network ACL rule?
+            <br />
           </p>
         ),
         onConfirm: handleDelete,

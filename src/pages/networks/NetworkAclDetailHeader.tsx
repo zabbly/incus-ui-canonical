@@ -79,9 +79,7 @@ const NetworkAclDetailHeader: FC<Props> = ({ name, acl, project }) => {
       renameDisabledReason={
         isUsed ? "Can not rename, network ACL is currently in use." : undefined
       }
-      controls={
-        acl && <DeleteNetworkAclBtn acl={acl} project={project} />
-      }
+      controls={acl && <DeleteNetworkAclBtn acl={acl} project={project} />}
       isLoaded={Boolean(acl)}
       formik={formik}
     />

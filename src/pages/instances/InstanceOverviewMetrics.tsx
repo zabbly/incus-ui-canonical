@@ -9,6 +9,7 @@ import Loader from "components/Loader";
 import { LxdInstance, LxdInstanceState } from "types/instance";
 import { useAuth } from "context/auth";
 import { isRootDisk } from "util/instanceValidation";
+import { FormDevice } from "util/formDevices";
 
 interface Props {
   instance: LxdInstance;
@@ -31,7 +32,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
 
   const getRootDiskName = (intsance: LxdInstance) => {
     for (let key in instance.expanded_devices) {
-      if (isRootDisk(instance.expanded_devices[key])) {
+      if (isRootDisk(instance.expanded_devices[key] as FormDevice)) {
         return key;
       }
     }
@@ -39,7 +40,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
     return "";
   };
 
-  const hasRootDisk = (instance: LxdInstance, state: LxdInstanceState) => {
+  const hasRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
     if (!state) {
       return false;
     }
@@ -56,8 +57,8 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
     return false;
   };
 
-  const getRootDisk = (instance: LxdInstance, state: LxdInstanceState) => {
-    if (!hasRootDisk(instance, state)) {
+  const getRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
+    if (!state || !hasRootDisk(instance, state)) {
       return null;
     }
 
@@ -125,7 +126,7 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
             <tr className="metric-row">
               <th className="u-text--muted">Disk</th>
               <td>
-                {hasRootDisk(instance, state) ? (
+                {rootDisk ? (
                   <div>
                     <Meter
                       percentage={

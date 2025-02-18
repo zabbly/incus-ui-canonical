@@ -10,6 +10,7 @@ import classnames from "classnames";
 import {
   addNoneDevice,
   findNoneDeviceIndex,
+  FormDiskDevice,
   removeDevice,
 } from "util/formDevices";
 import DetachDiskDeviceBtn from "pages/instances/actions/DetachDiskDeviceBtn";
@@ -72,7 +73,7 @@ const DiskDeviceFormInherited: FC<Props> = ({ formik, inheritedVolumes }) => {
       }),
     );
 
-    if (isSpecialDisk(item.disk)) {
+    if (isSpecialDisk(item.disk as FormDiskDevice)) {
       rows.push(
         getInheritedDeviceRow({
           label: "Source",
