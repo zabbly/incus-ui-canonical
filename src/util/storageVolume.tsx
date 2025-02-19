@@ -144,3 +144,17 @@ export const generateLinkForVolumeDetail = (
 export const hasVolumeDetailPage = (volume: LxdStorageVolume): boolean => {
   return generateLinkForVolumeDetail(volume, "").includes("/storage/pool/");
 };
+
+export const getSpecialDiskSourceOptions = () => {
+  const options = [
+    {
+      label: "cloud-init:config",
+      value: "cloud-init:config",
+    },
+    {
+      label: "agent:config",
+      value: "agent:config",
+    },
+  ];
+  return options;
+};

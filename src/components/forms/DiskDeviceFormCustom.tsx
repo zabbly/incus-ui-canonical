@@ -1,5 +1,11 @@
 import { FC } from "react";
-import { Button, Icon, Input, Label } from "@canonical/react-components";
+import {
+  Button,
+  Icon,
+  Input,
+  Label,
+  Select,
+} from "@canonical/react-components";
 import { InstanceAndProfileFormikProps } from "./instanceAndProfileFormValues";
 import { EditInstanceFormValues } from "pages/instances/EditInstance";
 import CustomVolumeSelectBtn from "pages/storage/CustomVolumeSelectBtn";
@@ -25,6 +31,7 @@ import { ensureEditMode } from "util/instanceEdit";
 import { getExistingDeviceNames, isVolumeDevice } from "util/devices";
 import { LxdProfile } from "types/profile";
 import { focusField } from "util/formFields";
+import { getSpecialDiskSourceOptions } from "util/storageVolume";
 import AttachDiskDeviceBtn from "pages/storage/AttachDiskDeviceBtn";
 import { LxdDiskDevice } from "types/device";
 import { LxdStorageVolume } from "types/storage";
@@ -37,10 +44,6 @@ interface Props {
 
 const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
-
-  const customVolumes = formik.values.devices
-    .filter((item) => item.type === "disk" && !isRootDisk(item) && !isSpecialDisk(item))
-    .map((device) => device as FormDiskDevice);
 
   const existingDeviceNames = getExistingDeviceNames(formik.values, profiles);
 
@@ -200,9 +203,48 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
         override: "",
       });
 
-    rows.push(isVolumeDevice(item) ? volumeDeviceSource() : hostDeviceSource());
+    const specialDiskDeviceSource = () =>
+      getConfigurationRowBase({
+        className: "no-border-top inherited-with-form",
+        configuration: <Label forId={`devices.${index}.source`}>Source</Label>,
+        inherited: readOnly ? (
+          <div className="custom-disk-read-mode">
+            <div className="mono-font custom-disk-value u-truncate">
+              <b>{item.source}</b>
+            </div>
+            {editButton(`devices.${index}.source`)}
+          </div>
+        ) : (
+          <Select
+            id={`devices.${index}.source`}
+            name={`devices.${index}.source`}
+            onBlur={formik.handleBlur}
+            onChange={(e) => {
+              ensureEditMode(formik);
+              void formik.setFieldValue(
+                `devices.${index}.source`,
+                e.target.value,
+              );
+            }}
+            value={item.source}
+            options={getSpecialDiskSourceOptions()}
+          />
+        ),
+        override: "",
+      });
 
-    if (!isVolumeDevice(item) || item.path !== undefined) {
+    if (isSpecialDisk(item)) {
+      rows.push(specialDiskDeviceSource());
+    } else if (isVolumeDevice(item)) {
+      rows.push(volumeDeviceSource());
+    } else {
+      rows.push(hostDeviceSource());
+    }
+
+    if (
+      (!isVolumeDevice(item) && !isSpecialDisk(item)) ||
+      item.path !== undefined
+    ) {
       const hasError = isDiskDeviceMountPointMissing(formik, index);
       rows.push(
         getConfigurationRowBase({

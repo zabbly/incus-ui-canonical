@@ -6,9 +6,14 @@ import { InstanceAndProfileFormikProps } from "components/forms/instanceAndProfi
 import CustomVolumeModal from "./CustomVolumeModal";
 import { LxdDiskDevice } from "types/device";
 import HostPathDeviceModal from "./HostPathDeviceModal";
+import SpecialDiskModal from "./SpecialDiskModal";
 import { LxdStorageVolume } from "types/storage";
 
-type DiskDeviceType = "custom volume" | "host path" | "choose type";
+type DiskDeviceType =
+  | "custom volume"
+  | "host path"
+  | "special device"
+  | "choose type";
 
 interface Props {
   close: () => void;
@@ -24,6 +29,13 @@ const AttachDiskDeviceModal: FC<Props> = ({
   onFinish,
 }) => {
   const [type, setType] = useState<DiskDeviceType>("choose type");
+
+  const showSpecialDisk =
+    (formik.values.entityType == "instance" &&
+      formik.values.instanceType == "virtual-machine") ||
+    formik.values.entityType == "profile"
+      ? true
+      : false;
 
   const handleEscKey = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape") {
@@ -52,7 +64,11 @@ const AttachDiskDeviceModal: FC<Props> = ({
     ) : (
       <BackLink
         title={
-          type === "host path" ? "Mount host path" : "Attach custom volume"
+          type === "host path"
+            ? "Mount host path"
+            : type === "custom volume"
+              ? "Attach custom volume"
+              : "Attach special disk"
         }
         onClick={handleGoBack}
         linkText="Choose disk type"
@@ -79,6 +95,13 @@ const AttachDiskDeviceModal: FC<Props> = ({
               title="Mount host path"
               onClick={() => setType("host path")}
             />
+            {showSpecialDisk && (
+              <FormLink
+                icon="file"
+                title="Special disk device"
+                onClick={() => setType("special device")}
+              />
+            )}
           </div>
         </Modal>
       )}
@@ -96,6 +119,16 @@ const AttachDiskDeviceModal: FC<Props> = ({
 
       {type === "host path" && (
         <HostPathDeviceModal
+          formik={formik}
+          onFinish={onFinish}
+          onCancel={handleGoBack}
+          onClose={close}
+          title={modalTitle}
+        />
+      )}
+
+      {type === "special device" && (
+        <SpecialDiskModal
           formik={formik}
           onFinish={onFinish}
           onCancel={handleGoBack}

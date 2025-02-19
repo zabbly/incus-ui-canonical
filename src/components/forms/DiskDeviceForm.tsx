@@ -10,7 +10,6 @@ import { getInheritedDiskDevices } from "util/configInheritance";
 import DiskDeviceFormRoot from "./DiskDeviceFormRoot";
 import DiskDeviceFormInherited from "./DiskDeviceFormInherited";
 import DiskDeviceFormCustom from "./DiskDeviceFormCustom";
-import DiskDeviceFormSpecial from "./DiskDeviceFormSpecial";
 import classnames from "classnames";
 import ScrollableForm from "components/ScrollableForm";
 
@@ -30,12 +29,6 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
     queryKey: [queryKeys.profiles],
     queryFn: () => fetchProfiles(project),
   });
-
-  const showSpecialDisk =
-   (formik.values.entityType == "instance" &&
-   formik.values.instanceType == "virtual-machine") ||
-   formik.values.entityType == "profile"
-   ? true : false;
 
   if (profileError) {
     notify.failure("Loading profiles failed", profileError);
@@ -74,11 +67,6 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
           formik={formik}
           inheritedDiskDevices={inheritedDiskDevices}
         />
-        {showSpecialDisk && (<DiskDeviceFormSpecial
-          formik={formik}
-          project={project}
-          profiles={profiles}
-        />)}
         <DiskDeviceFormCustom
           formik={formik}
           project={project}
