@@ -47,13 +47,18 @@ export const fetchInstance = async (
 export const fetchInstances = async (
   project: string | null,
   isFineGrained: boolean | null,
+  filter?: string,
 ): Promise<LxdInstance[]> => {
   const entitlements = withEntitlementsQuery(
     isFineGrained,
     instanceEntitlements,
   );
   const projectParam = project ? `project=${project}` : "all-projects=true";
-  return fetch(`/1.0/instances?${projectParam}&recursion=2${entitlements}`)
+  let url = `/1.0/instances?project=${project}&recursion=2${entitlements}`;
+  if (filter) {
+    url += `&filter=${filter}`;
+  }
+  return fetch(url)
     .then(handleResponse)
     .then((data: LxdApiResponse<LxdInstance[]>) => {
       return data.metadata;
@@ -413,9 +418,13 @@ export const createInstanceBackup = async (
     });
 };
 
-export const fetchInstancePreview = (instance: LxdInstance): Promise<string> => {
+export const fetchInstancePreview = (
+  instance: LxdInstance,
+): Promise<string> => {
   return new Promise((resolve, reject) => {
-    fetch(`/1.0/instances/${instance.name}/console?project=${instance.project}&type=vga`)
+    fetch(
+      `/1.0/instances/${instance.name}/console?project=${instance.project}&type=vga`,
+    )
       .then(handleBlobResponse)
       .then((data) => resolve(URL.createObjectURL(data)))
       .catch(reject);
