@@ -51,13 +51,18 @@ export const fetchInstance = async (
 export const fetchInstances = async (
   project: string,
   isFineGrained: boolean | null,
+  filter?: string,
 ): Promise<LxdInstance[]> => {
   const entitlements = withEntitlementsQuery(
     isFineGrained,
     instanceEntitlements,
   );
   return new Promise((resolve, reject) => {
-    fetch(`/1.0/instances?project=${project}&recursion=2${entitlements}`)
+    let url = `/1.0/instances?project=${project}&recursion=2${entitlements}`;
+    if (filter) {
+      url += `&filter=${filter}`;
+    }
+    fetch(url)
       .then(handleResponse)
       .then((data: LxdApiResponse<LxdInstance[]>) => {
         resolve(data.metadata);
@@ -134,7 +139,8 @@ export const migrateInstance = async (
       method: "POST",
       body: JSON.stringify({
         migration: true,
-        live: instance.type === "virtual-machine" && instance.status === "Running",
+        live:
+          instance.type === "virtual-machine" && instance.status === "Running",
         pool,
         project: targetProject,
       }),
@@ -457,9 +463,13 @@ export const createInstanceBackup = async (
   });
 };
 
-export const fetchInstancePreview = (instance: LxdInstance): Promise<string> => {
+export const fetchInstancePreview = (
+  instance: LxdInstance,
+): Promise<string> => {
   return new Promise((resolve, reject) => {
-    fetch(`/1.0/instances/${instance.name}/console?project=${instance.project}&type=vga`)
+    fetch(
+      `/1.0/instances/${instance.name}/console?project=${instance.project}&type=vga`,
+    )
       .then(handleBlobResponse)
       .then((data) => resolve(URL.createObjectURL(data)))
       .catch(reject);
