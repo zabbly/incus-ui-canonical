@@ -27,7 +27,12 @@ import InstanceBulkActions from "pages/instances/actions/InstanceBulkActions";
 import { getIpAddresses } from "util/networks";
 import InstanceBulkDelete from "pages/instances/actions/InstanceBulkDelete";
 import InstanceSearchFilter from "./InstanceSearchFilter";
-import { InstanceFilters, enrichStatuses } from "util/instanceFilter";
+import {
+  encodeServerFilters,
+  getServerSupportedFilters,
+  parseFilters,
+  showInstance,
+} from "util/instanceFilter";
 import { isWidthBelow } from "util/helpers";
 import { fetchOperations } from "api/operations";
 import CancelOperationBtn from "pages/operations/actions/CancelOperationBtn";
@@ -53,7 +58,6 @@ import SelectedTableNotification from "components/SelectedTableNotification";
 import CustomLayout from "components/CustomLayout";
 import HelpLink from "components/HelpLink";
 import { useDocs } from "context/useDocs";
-import { LxdInstanceStatus } from "types/instance";
 import useSortTableData from "util/useSortTableData";
 import PageHeader from "components/PageHeader";
 import InstanceDetailPanel from "./InstanceDetailPanel";
@@ -82,21 +86,9 @@ const InstanceList: FC = () => {
   const { project } = useParams<{ project: string }>();
   const [createButtonLabel, _setCreateButtonLabel] =
     useState<string>("Create instance");
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { data: settings } = useSettings();
   const isClustered = isClusteredServer(settings);
-
-  const filters: InstanceFilters = {
-    queries: searchParams.getAll("query"),
-    statuses: enrichStatuses(
-      searchParams.getAll("status") as LxdInstanceStatus[],
-    ),
-    types: searchParams
-      .getAll("type")
-      .map((value) => (value === "VM" ? "virtual-machine" : "container")),
-    profiles: searchParams.getAll("profile"),
-    clusterMembers: searchParams.getAll("member"),
-  };
   const [userHidden, setUserHidden] = useState<string[]>(loadHidden());
   const [sizeHidden, setSizeHidden] = useState<string[]>([]);
   const [selectedNames, setSelectedNames] = useState<string[]>([]);
@@ -107,13 +99,20 @@ const InstanceList: FC = () => {
     return <>Missing project</>;
   }
 
+  const filterQuery =
+    searchParams.get("filter") != null ? searchParams.get("filter") : "";
+  const [serverFilters, clientFilters] = getServerSupportedFilters(
+    parseFilters(filterQuery || ""),
+  );
+
   const {
     data: instances = [],
     error,
     isLoading,
+    refetch,
   } = useQuery({
     queryKey: [queryKeys.instances, project],
-    queryFn: () => fetchInstances(project),
+    queryFn: () => fetchInstances(project, encodeServerFilters(serverFilters)),
   });
 
   if (error) {
@@ -130,12 +129,12 @@ const InstanceList: FC = () => {
     saveHidden(columns);
   };
 
-  const { data: operationList } = useQuery({
+  const { data: operationList, error: operationError } = useQuery({
     queryKey: [queryKeys.operations, project],
     queryFn: () => fetchOperations(project),
   });
 
-  if (error) {
+  if (operationError) {
     notify.failure("Loading operations failed", error);
   }
 
@@ -160,42 +159,15 @@ const InstanceList: FC = () => {
       return true;
     });
 
+  const onSearch = (filter: string) => {
+    setSearchParams("filter=" + filter);
+    setTimeout(() => {
+      void refetch();
+    }, 0);
+  };
+
   const filteredInstances = instances.filter((item) => {
-    if (creationNames.includes(item.name)) {
-      return false;
-    }
-    if (
-      !filters.queries.every(
-        (q) =>
-          item.name.toLowerCase().includes(q) ||
-          item.description.toLowerCase().includes(q) ||
-          item.config?.["image.description"]?.toLowerCase().includes(q),
-      )
-    ) {
-      return false;
-    }
-    if (
-      filters.statuses.length > 0 &&
-      !filters.statuses.includes(item.status)
-    ) {
-      return false;
-    }
-    if (filters.types.length > 0 && !filters.types.includes(item.type)) {
-      return false;
-    }
-    if (
-      filters.profiles.length > 0 &&
-      !filters.profiles.every((profile) => item.profiles.includes(profile))
-    ) {
-      return false;
-    }
-    if (
-      filters.clusterMembers.length > 0 &&
-      !filters.clusterMembers.includes(item.location)
-    ) {
-      return false;
-    }
-    return true;
+    return showInstance(item, clientFilters);
   });
 
   useEffect(() => {
@@ -365,13 +337,7 @@ const InstanceList: FC = () => {
             onClick: openSummary,
           },
           {
-            content: (
-              <>
-                {
-                  getInstanceType(instance)
-                }
-              </>
-            ),
+            content: <>{getInstanceType(instance)}</>,
             role: "cell",
             "aria-label": TYPE,
             onClick: openSummary,
@@ -518,7 +484,10 @@ const InstanceList: FC = () => {
   ]);
 
   const hasInstances =
-    isLoading || instances.length > 0 || creationOperations.length > 0;
+    isLoading ||
+    instances.length > 0 ||
+    creationOperations.length > 0 ||
+    filterQuery;
   const selectedInstances = instances.filter((instance) =>
     selectedNames.includes(instance.name),
   );
@@ -546,7 +515,7 @@ const InstanceList: FC = () => {
               </PageHeader.Title>
               {hasInstances && selectedNames.length === 0 && (
                 <PageHeader.Search>
-                  <InstanceSearchFilter key={project} instances={instances} />
+                  <InstanceSearchFilter onSearch={onSearch} />
                 </PageHeader.Search>
               )}
               {selectedNames.length > 0 && (
