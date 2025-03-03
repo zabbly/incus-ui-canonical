@@ -8,6 +8,7 @@ import type { LxdInstance } from "types/instance";
 
 export const useInstances = (
   project: string | null,
+  filter?: string,
 ): UseQueryResult<LxdInstance[]> => {
   const { isFineGrained } = useAuth();
   const { hasInstanceStateSelectiveRecursion } = useSupportedFeatures();
@@ -19,6 +20,7 @@ export const useInstances = (
         project,
         isFineGrained,
         hasInstanceStateSelectiveRecursion,
+        filter,
       ),
     enabled: isFineGrained !== null,
   });

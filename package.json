@@ -40,6 +40,7 @@
     "@xterm/xterm": "6.0.0",
     "axios": "1.15.0",
     "formik": "2.4.9",
+    "ip-address": "^10.0.1",
     "js-yaml": "4.1.1",
     "lodash.isequal": "4.5.0",
     "node-forge": "1.4.0",
