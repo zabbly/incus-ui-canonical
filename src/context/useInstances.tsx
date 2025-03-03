@@ -7,11 +7,12 @@ import type { LxdInstance } from "types/instance";
 
 export const useInstances = (
   project: string | null,
+  filter?: string,
 ): UseQueryResult<LxdInstance[]> => {
   const { isFineGrained } = useAuth();
   return useQuery({
     queryKey: [queryKeys.instances, project],
-    queryFn: async () => fetchInstances(project, isFineGrained),
+    queryFn: async () => fetchInstances(project, isFineGrained, filter),
     enabled: isFineGrained !== null,
   });
 };

@@ -49,9 +49,11 @@ export const fetchInstance = async (
 export const fetchInstances = async (
   project: string | null,
   isFineGrained: boolean | null,
+  filter?: string,
 ): Promise<LxdInstance[]> => {
   const params = new URLSearchParams();
   params.set("recursion", "2");
+  params.set("filter", filter);
   if (project) {
     params.set("project", project);
   } else {
