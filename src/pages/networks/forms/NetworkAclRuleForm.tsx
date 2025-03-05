@@ -111,7 +111,7 @@ const NetworkAclRuleForm: FC<Props> = ({ formik, showNotify }) => {
               options={[
                 {
                   label: "enabled",
-                  value: "enaled",
+                  value: "enabled",
                 },
                 {
                   label: "disabled",
