@@ -20,6 +20,7 @@ import AutoExpandingTextArea from "components/AutoExpandingTextArea";
 import ScrollableForm from "components/ScrollableForm";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
 import UploadInstanceFileBtn from "../actions/UploadInstanceFileBtn";
+import UseOCIBtn from "../actions/UseOCIBtn";
 import SshKeyForm from "components/forms/SshKeyForm";
 
 interface Props {
@@ -103,6 +104,7 @@ const InstanceCreateDetailsForm: FC<Props> = ({
                   <UseCustomIsoBtn onSelect={onSelectImage} />
                 )}
                 <UploadInstanceFileBtn name={formik.values.name} />
+                <UseOCIBtn onSelect={onSelectImage} />
               </>
             )}
           </div>
