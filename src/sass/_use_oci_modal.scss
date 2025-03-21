@@ -1,0 +1,9 @@
+.use-oci-modal {
+  @include large {
+    .p-modal__dialog {
+      margin: auto;
+      position: absolute;
+      width: 35rem;
+    }
+  }
+}
