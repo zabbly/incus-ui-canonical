@@ -61,6 +61,7 @@ export interface RemoteImage {
     }
   >;
   server?: string;
+  protocol?: string;
   volume?: LxdStorageVolume;
   type?: LxdImageType;
   fingerprint?: string;
