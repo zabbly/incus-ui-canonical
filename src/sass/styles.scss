@@ -143,6 +143,7 @@ $border-thin: 1px solid $colors--theme--border-low-contrast !default;
 @import "upload_instance_modal";
 @import "upper_controls_bar";
 @import "warnings_table";
+@import "use_oci_modal";
 
 body {
   // needed for notification list expanding animation
