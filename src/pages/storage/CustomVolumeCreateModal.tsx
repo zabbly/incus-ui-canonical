@@ -129,7 +129,11 @@ const CustomVolumeCreateModal: FC<Props> = ({
   return (
     <>
       <div className="volume-create-form">
-        <StorageVolumeFormMain formik={formik} poolError={poolError} />
+        <StorageVolumeFormMain
+          formik={formik}
+          poolError={poolError}
+          showClusterMember={false}
+        />
       </div>
       <footer className="p-modal__footer">
         <Button

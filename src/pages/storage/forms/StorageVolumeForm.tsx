@@ -32,6 +32,7 @@ import type {
   LxdStorageVolumeContentType,
   LxdStorageVolumeType,
 } from "types/storage";
+import { hasMemberLocalVolumes } from "util/hasMemberLocalVolumes";
 import { slugify } from "util/slugify";
 import { driversWithFilesystemSupport } from "util/storageOptions";
 import { getUnhandledKeyValues } from "util/formFields";
@@ -46,6 +47,7 @@ export interface StorageVolumeFormValues {
   size?: string;
   content_type: LxdStorageVolumeContentType;
   volumeType: LxdStorageVolumeType;
+  clusterMember?: string;
   security_shifted?: string;
   security_unmapped?: string;
   snapshots_expiry?: string;
@@ -142,6 +144,7 @@ interface Props {
 const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
   const notify = useNotify();
   const { project } = useParams<{ project: string }>();
+  const { data: settings } = useSettings();
 
   if (!project) {
     return <>Missing project</>;
@@ -149,7 +152,6 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
 
   const { data: clusterMembers = [] } = useClusterMembers();
   const { data: pools = [], error } = useStoragePools();
-  const { data: settings } = useSettings();
 
   if (error) {
     notify.failure("Loading storage pools failed", error);
@@ -161,8 +163,8 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
   useEffect(updateFormHeight, [notify.notification?.message]);
   useListener(window, updateFormHeight, "resize", true);
 
-  const poolDriver =
-    pools.find((item) => item.name === formik.values.pool)?.driver ?? "";
+  const selectedPool = pools.find((item) => item.name === formik.values.pool);
+  const poolDriver = selectedPool?.driver ?? "";
 
   if (pools.length > 0) {
     const invalidFields: (keyof StorageVolumeFormValues)[] = [];
@@ -177,6 +179,14 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
         formik.setFieldValue(field, undefined);
       }
     }
+  }
+
+  const showClusterMember = selectedPool
+    ? hasMemberLocalVolumes(selectedPool, pools, settings)
+    : false;
+
+  if (!showClusterMember && formik.values.clusterMember) {
+    void formik.setFieldValue("clusterMember", undefined);
   }
 
   return (
@@ -198,6 +208,7 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
               clusterMembers={clusterMembers}
               pools={pools}
               settings={settings}
+              showClusterMember={showClusterMember}
             />
           )}
           {section === slugify(SNAPSHOTS) && (

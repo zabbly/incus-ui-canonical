@@ -188,6 +188,45 @@ export const createStorageVolume = async (
     });
 };
 
+export const copyCustomVolumeToTarget = (
+  project: string,
+  volume: Partial<LxdStorageVolume>,
+  target: string,
+): Promise<LxdOperationResponse> => {
+  const params = new URLSearchParams();
+  params.set("project", project);
+  addTarget(params, target);
+
+  return new Promise((resolve, reject) => {
+    fetch(
+      `/1.0/storage-pools/${encodeURIComponent(volume.pool)}/volumes?${params.toString()}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: volume.name,
+          type: "custom",
+          content_type: volume.content_type,
+          source: {
+            name: volume.name,
+            type: "copy",
+            pool: volume.pool,
+            volume_only: false,
+            refresh: false,
+            refresh_exclude_older: false,
+            location: volume.location,
+          },
+        }),
+      },
+    )
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
 export const updateStorageVolume = async (
   pool: string,
   project: string,

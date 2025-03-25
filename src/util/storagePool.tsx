@@ -2,6 +2,8 @@ import type { AbortControllerState } from "util/helpers";
 import { checkDuplicateName } from "util/helpers";
 import type { AnyObject, TestFunction } from "yup";
 import type { LxdConfigOptionsKeys } from "types/config";
+import type { LxdSettings } from "types/server";
+import type { LxdStoragePool } from "types/storage";
 import type { FormikProps } from "formik";
 import type { StoragePoolFormValues } from "pages/storage/forms/StoragePoolForm";
 import {
@@ -182,4 +184,18 @@ export const isAlletraIncomplete = (
       !formik.values.alletra_user_password ||
       !formik.values.alletra_cpg)
   );
+};
+
+export const isLocalPool = (
+  pool: LxdStoragePool | undefined,
+  settings: LxdSettings | undefined,
+) => {
+  const driverDetails = settings?.environment?.storage_supported_drivers.find(
+    (driver) => driver.Name === pool?.driver,
+  );
+
+  if (!driverDetails) {
+    return false;
+  }
+  return !driverDetails.Remote;
 };
