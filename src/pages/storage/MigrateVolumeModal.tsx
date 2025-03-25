@@ -1,17 +1,40 @@
 import type { FC, KeyboardEvent } from "react";
 import { useState } from "react";
-import { ActionButton, Button, Modal } from "@canonical/react-components";
+import { Modal } from "@canonical/react-components";
+import { useQuery } from "@tanstack/react-query";
+import { fetchStoragePool } from "api/storage-pools";
+import { useSettings } from "context/useSettings";
+import { isClusteredServer } from "util/settings";
+import BackLink from "components/BackLink";
+import FormLink from "components/FormLink";
+import Loader from "components/Loader";
+import CustomVolumeClusterMemberMigration from "./CustomVolumeClusterMemberMigration";
+import CustomVolumeStoragePoolMigration from "./CustomVolumeStoragePoolMigration";
 import type { LxdStorageVolume } from "types/storage";
-import StoragePoolSelectTable from "./StoragePoolSelectTable";
+import { isLocalPool } from "util/storagePool";
+import { queryKeys } from "util/queryKeys";
 
 interface Props {
   close: () => void;
-  migrate: (target: string) => void;
+  migrate: (
+    targetPool: string | undefined,
+    targetMember: string | undefined,
+  ) => void;
   storageVolume: LxdStorageVolume;
 }
 
 const MigrateVolumeModal: FC<Props> = ({ close, migrate, storageVolume }) => {
-  const [selectedPool, setSelectedPool] = useState("");
+  const { data: settings } = useSettings();
+  const { data: pool, isLoading } = useQuery({
+    queryKey: [queryKeys.storage, storageVolume.pool],
+    queryFn: () => fetchStoragePool(storageVolume.pool),
+  });
+
+  const allowChooseMigrationType =
+    isClusteredServer(settings) && isLocalPool(pool, settings);
+
+  const [type, setType] = useState("");
+  const [target, setTarget] = useState("");
 
   const handleEscKey = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape") {
@@ -19,26 +42,46 @@ const MigrateVolumeModal: FC<Props> = ({ close, migrate, storageVolume }) => {
     }
   };
 
-  const handleCancel = () => {
-    if (selectedPool) {
-      setSelectedPool("");
+  const handleGoBack = () => {
+    // if incus is not clustered, we close the modal
+    if (!allowChooseMigrationType) {
+      close();
       return;
     }
 
-    close();
+    // if target is set, we are on the confirmation stage
+    if (target) {
+      setTarget("");
+      return;
+    }
+
+    // if type is set, we are on migration target selection stage
+    if (type) {
+      setType("");
+      return;
+    }
   };
 
-  const modalTitle = selectedPool
-    ? "Confirm migration"
-    : `Choose storage pool for volume ${storageVolume.name}`;
+  const selectStepTitle = (
+    <>
+      Choose {type} for custom volume <strong>{storageVolume.name}</strong>
+    </>
+  );
 
-  const summary = (
-    <div className="migrate-instance-summary">
-      <p>
-        This will migrate volume <strong>{storageVolume.name}</strong> to
-        storage pool <b>{selectedPool}</b>.
-      </p>
-    </div>
+  const modalTitle = !type ? (
+    "Choose migration method"
+  ) : (
+    <>
+      {allowChooseMigrationType && (
+        <BackLink
+          title={target ? "Confirm migration" : selectStepTitle}
+          onClick={handleGoBack}
+          linkText={target ? `Choose ${type}` : "Choose migration method"}
+        />
+      )}
+      {!allowChooseMigrationType &&
+        (target ? "Confirm migration" : selectStepTitle)}
+    </>
   );
 
   return (
@@ -46,40 +89,42 @@ const MigrateVolumeModal: FC<Props> = ({ close, migrate, storageVolume }) => {
       close={close}
       className="migrate-instance-modal"
       title={modalTitle}
-      buttonRow={
-        <div id="migrate-instance-actions">
-          <Button
-            className="u-no-margin--bottom"
-            type="button"
-            aria-label="cancel migrate"
-            appearance="base"
-            onClick={handleCancel}
-          >
-            Cancel
-          </Button>
-          <ActionButton
-            appearance="positive"
-            className="u-no-margin--bottom"
-            onClick={() => {
-              migrate(selectedPool);
-            }}
-            disabled={!selectedPool}
-          >
-            Migrate
-          </ActionButton>
-        </div>
-      }
       onKeyDown={handleEscKey}
     >
-      {selectedPool ? (
-        summary
-      ) : (
-        <StoragePoolSelectTable
-          onSelect={setSelectedPool}
-          disablePool={{
-            name: storageVolume.pool,
-            reason: "Volume is already in this pool",
-          }}
+      {isLoading && <Loader />}
+      {!isLoading && allowChooseMigrationType && !type && (
+        <div className="choose-migration-type">
+          <FormLink
+            icon="cluster-host"
+            title="Migrate custom volume to a different cluster member"
+            onClick={() => setType("cluster member")}
+          />
+          <FormLink
+            icon="switcher-dashboard"
+            title="Migrate custom volume to a different pool"
+            onClick={() => setType("storage pool")}
+          />
+        </div>
+      )}
+
+      {!isLoading && type === "cluster member" && (
+        <CustomVolumeClusterMemberMigration
+          storageVolume={storageVolume}
+          targetMember={target}
+          onSelect={setTarget}
+          close={handleGoBack}
+          migrate={migrate}
+        />
+      )}
+
+      {/* If incus is not clustered, we always show storage pool migration table */}
+      {!isLoading && (type === "storage pool" || !allowChooseMigrationType) && (
+        <CustomVolumeStoragePoolMigration
+          storageVolume={storageVolume}
+          targetPool={target}
+          onSelect={setTarget}
+          close={handleGoBack}
+          migrate={migrate}
         />
       )}
     </Modal>

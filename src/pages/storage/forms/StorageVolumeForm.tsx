@@ -1,6 +1,7 @@
 import type { FC, ReactNode } from "react";
 import { useEffect } from "react";
 import { Col, Form, Input, Row, useNotify } from "@canonical/react-components";
+import { useSettings } from "context/useSettings";
 import { useParams } from "react-router-dom";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import useEventListener from "util/useEventListener";
@@ -28,6 +29,7 @@ import type {
 } from "types/storage";
 import { slugify } from "util/slugify";
 import { driversWithFilesystemSupport } from "util/storageOptions";
+import { isLocalPool } from "util/storagePool";
 import { getUnhandledKeyValues } from "util/formFields";
 import { useStoragePools } from "context/useStoragePools";
 
@@ -38,6 +40,7 @@ export interface StorageVolumeFormValues {
   size?: string;
   content_type: LxdStorageVolumeContentType;
   volumeType: LxdStorageVolumeType;
+  clusterMember?: string;
   security_shifted?: string;
   security_unmapped?: string;
   snapshots_expiry?: string;
@@ -133,6 +136,7 @@ interface Props {
 const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
   const notify = useNotify();
   const { project } = useParams<{ project: string }>();
+  const { data: settings } = useSettings();
 
   if (!project) {
     return <>Missing project</>;
@@ -150,8 +154,8 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
   useEffect(updateFormHeight, [notify.notification?.message]);
   useEventListener("resize", updateFormHeight);
 
-  const poolDriver =
-    pools.find((item) => item.name === formik.values.pool)?.driver ?? "";
+  const selectedPool = pools.find((item) => item.name === formik.values.pool);
+  const poolDriver = selectedPool?.driver ?? "";
 
   if (pools.length > 0) {
     const invalidFields: (keyof StorageVolumeFormValues)[] = [];
@@ -168,6 +172,14 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
     }
   }
 
+  const showClusterMember = selectedPool
+    ? isLocalPool(selectedPool, settings)
+    : false;
+
+  if (!showClusterMember && formik.values.clusterMember) {
+    void formik.setFieldValue("clusterMember", undefined);
+  }
+
   return (
     <Form onSubmit={formik.handleSubmit} className="form">
       {/* hidden submit to enable enter key in inputs */}
@@ -182,7 +194,10 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
       <Row className="form-contents">
         <Col size={12}>
           {section === slugify(MAIN_CONFIGURATION) && (
-            <StorageVolumeFormMain formik={formik} />
+            <StorageVolumeFormMain
+              formik={formik}
+              showClusterMember={showClusterMember}
+            />
           )}
           {section === slugify(SNAPSHOTS) && (
             <StorageVolumeFormSnapshots formik={formik} />
