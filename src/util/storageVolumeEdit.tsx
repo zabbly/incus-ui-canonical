@@ -11,6 +11,7 @@ export const getStorageVolumeEditValues = (
     size: volume.config.size ?? "GiB",
     content_type: volume.content_type,
     volumeType: volume.type,
+    clusterMember: volume.location,
     security_shifted: volume.config["security.shifted"],
     security_unmapped: volume.config["security.unmapped"],
     snapshots_expiry: volume.config["snapshots.expiry"],

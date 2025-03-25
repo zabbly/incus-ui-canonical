@@ -9,6 +9,7 @@ import ConfigurationTable from "components/ConfigurationTable";
 import { getConfigurationRow } from "components/ConfigurationRow";
 import DiskSizeSelector from "components/forms/DiskSizeSelector";
 import { optionTrueFalse } from "util/instanceOptions";
+import ClusterMemberSelector from "pages/cluster/ClusterMemberSelector";
 import StoragePoolSelector from "pages/storage/StoragePoolSelector";
 import ScrollableForm from "components/ScrollableForm";
 import { ensureEditMode } from "util/instanceEdit";
@@ -16,9 +17,18 @@ import { ensureEditMode } from "util/instanceEdit";
 interface Props {
   formik: FormikProps<StorageVolumeFormValues>;
   poolError?: string;
+  showClusterMember: boolean;
 }
 
-const StorageVolumeFormMain: FC<Props> = ({ formik, poolError }) => {
+const StorageVolumeFormMain: FC<Props> = ({
+  formik,
+  poolError,
+  showClusterMember,
+}) => {
+  const setMember = formik.values.isCreating
+    ? (member: string) => void formik.setFieldValue("clusterMember", member)
+    : undefined;
+
   return (
     <ScrollableForm>
       <Row>
@@ -98,6 +108,16 @@ const StorageVolumeFormMain: FC<Props> = ({ formik, poolError }) => {
             }}
             disabled={!formik.values.isCreating}
           />
+          {showClusterMember && (
+            <ClusterMemberSelector
+              {...getFormProps(formik, "clusterMember")}
+              id="clusterMember"
+              label="Cluster member"
+              value={formik.values.clusterMember}
+              setMember={setMember}
+              disabled={!formik.values.isCreating}
+            />
+          )}
         </Col>
       </Row>
       {formik.values.content_type === "filesystem" && (

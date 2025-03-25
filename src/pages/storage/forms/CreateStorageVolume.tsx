@@ -58,7 +58,7 @@ const CreateStorageVolume: FC = () => {
     validationSchema: StorageVolumeSchema,
     onSubmit: (values) => {
       const volume = volumeFormToPayload(values, project);
-      createStorageVolume(values.pool, project, volume)
+      createStorageVolume(values.pool, project, volume, values.clusterMember)
         .then(() => {
           void queryClient.invalidateQueries({
             queryKey: [queryKeys.storage],

@@ -313,6 +313,38 @@ export const createStorageVolume = (
   });
 };
 
+export const copyCustomVolumeToTarget = (
+  project: string,
+  volume: Partial<LxdStorageVolume>,
+  target: string,
+): Promise<LxdOperationResponse> => {
+  return new Promise((resolve, reject) => {
+    fetch(
+      `/1.0/storage-pools/${volume.pool}/volumes?project=${project}&target=${target}`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          name: volume.name,
+          type: "custom",
+          content_type: volume.content_type,
+          source: {
+            name: volume.name,
+            type: "copy",
+            pool: volume.pool,
+            volume_only: false,
+            refresh: false,
+            refresh_exclude_older: false,
+            location: volume.location,
+          },
+        }),
+      },
+    )
+      .then(handleResponse)
+      .then(resolve)
+      .catch(reject);
+  });
+};
+
 export const updateStorageVolume = (
   pool: string,
   project: string,
@@ -341,10 +373,12 @@ export const deleteStorageVolume = (
   volume: string,
   pool: string,
   project: string,
+  target?: string,
 ): Promise<void> => {
+  const targetParam = target ? `&target=${target}` : "";
   return new Promise((resolve, reject) => {
     fetch(
-      `/1.0/storage-pools/${pool}/volumes/custom/${volume}?project=${project}`,
+      `/1.0/storage-pools/${pool}/volumes/custom/${volume}?project=${project}${targetParam}`,
       {
         method: "DELETE",
       },

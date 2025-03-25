@@ -1,6 +1,8 @@
 import { AbortControllerState, checkDuplicateName } from "util/helpers";
 import { AnyObject, TestFunction } from "yup";
 import { LxdConfigOptionsKeys } from "types/config";
+import { LxdSettings } from "types/server";
+import { LxdStoragePool } from "types/storage";
 import { FormikProps } from "formik";
 import { StoragePoolFormValues } from "pages/storage/forms/StoragePoolForm";
 import { powerFlex } from "util/storageOptions";
@@ -93,4 +95,18 @@ export const isPowerflexIncomplete = (
       !formik.values.powerflex_gateway ||
       !formik.values.powerflex_user_password)
   );
+};
+
+export const isLocalPool = (
+  pool: LxdStoragePool | undefined,
+  settings: LxdSettings | undefined,
+) => {
+  const driverDetails = settings?.environment?.storage_supported_drivers.find(
+    (driver) => driver.Name === pool?.driver,
+  );
+
+  if (!driverDetails) {
+    return false;
+  }
+  return !driverDetails.Remote;
 };
