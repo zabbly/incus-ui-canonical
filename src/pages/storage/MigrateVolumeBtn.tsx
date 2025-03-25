@@ -8,6 +8,11 @@ import { useEventQueue } from "context/eventQueue";
 import { useToastNotification } from "context/toastNotificationProvider";
 import type { LxdStorageVolume } from "types/storage";
 import MigrateVolumeModal from "./MigrateVolumeModal";
+import {
+  copyCustomVolumeToTarget,
+  deleteStorageVolume,
+  migrateStorageVolume,
+} from "api/storage-volumes";
 import { useNavigate } from "react-router-dom";
 import ResourceLabel from "components/ResourceLabel";
 import ResourceLink from "components/ResourceLink";
@@ -37,7 +42,7 @@ const MigrateVolumeBtn: FC<Props> = ({
   const [isVolumeLoading, setVolumeLoading] = useState(false);
   const { canEditVolume } = useStorageVolumeEntitlements();
 
-  const handleSuccess = (
+  const handleStoragePoolMigrationSuccess = (
     newTarget: string,
     storageVolume: LxdStorageVolume,
   ) => {
@@ -70,14 +75,30 @@ const MigrateVolumeBtn: FC<Props> = ({
     }
   };
 
+  const handleClusterMemberMigrationSuccess = (
+    volume: LxdStorageVolume,
+    newTarget: string,
+  ) => {
+    const volumeUrl = `/ui/project/${volume.project}/storage/pool/${volume.pool}/volumes/${volume.type}/${volume.name}`;
+
+    const volumeLink = (
+      <ResourceLink type="volume" value={volume.name} to={volumeUrl} />
+    );
+    toastNotify.success(
+      <>
+        Volume {volumeLink} successfully migrated to {newTarget}
+      </>,
+    );
+  };
+
   const notifyFailure = (
     e: unknown,
     volumeName: string,
-    targetPool: string,
+    failureMsg: string,
   ) => {
     setVolumeLoading(false);
     toastNotify.failure(
-      `Migration failed for volume ${volumeName} to pool ${targetPool}`,
+      failureMsg,
       e,
       <VolumeLinkChip volume={volume} />,
     );
@@ -85,10 +106,10 @@ const MigrateVolumeBtn: FC<Props> = ({
 
   const handleFailure = (
     msg: string,
-    storageVolume: string,
-    targetPool: string,
+    volume: string,
+    failureMsg: string,
   ) => {
-    notifyFailure(new Error(msg), storageVolume, targetPool);
+    notifyFailure(new Error(msg), volume, failureMsg);
   };
 
   const handleFinish = () => {
@@ -98,17 +119,28 @@ const MigrateVolumeBtn: FC<Props> = ({
     setVolumeLoading(false);
   };
 
-  const handleMigrate = (targetPool: string) => {
+  const handleMigrate = (
+    targetPool: string | undefined,
+    targetMember: string | undefined,
+  ) => {
+    if (targetPool) {
+      handleStoragePoolMigration(targetPool);
+    } else if (targetMember) {
+      handleClusterMemberMigration(targetMember);
+    }
+  };
+
+  const handleStoragePoolMigration = (targetPool: string) => {
     setVolumeLoading(true);
     migrateStorageVolume(volume, targetPool, volume.project, volume.location)
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,
           () => {
-            handleSuccess(targetPool, volume);
+            handleStoragePoolMigrationSuccess(targetPool, volume);
           },
           (err) => {
-            handleFailure(err, volume.name, targetPool);
+            handleFailure(err, volume.name, failureMsg);
           },
           handleFinish,
         );
@@ -132,10 +164,61 @@ const MigrateVolumeBtn: FC<Props> = ({
         });
       })
       .catch((e) => {
-        notifyFailure(e, volume.name, targetPool);
+        notifyFailure(e, volume.name, failureMsg);
       })
       .finally(() => {
         handleClose();
+      });
+  };
+
+  const handleOldVolumeDeletion = (
+    oldVolume: LxdStorageVolume,
+    newTarget: string,
+  ) => {
+    deleteStorageVolume(
+      oldVolume.name,
+      oldVolume.pool,
+      oldVolume.project,
+      oldVolume.location,
+    )
+      .then(() => {
+        handleClusterMemberMigrationSuccess(oldVolume, newTarget);
+      })
+      .catch((e) => {
+        notifyFailure(
+          e,
+          volume.name,
+          `Migration failed for volume ${oldVolume.name} to target ${newTarget}`,
+        );
+      });
+  };
+
+  const handleClusterMemberMigration = (targetMember: string) => {
+    setVolumeLoading(true);
+    const failureMsg = `Migration failed for volume ${volume.name} to target ${targetMember}`;
+    copyCustomVolumeToTarget(volume.project, volume, targetMember)
+      .then((operation) => {
+        eventQueue.set(
+          operation.metadata.id,
+          () => handleOldVolumeDeletion(volume, targetMember),
+          (err) => handleFailure(err, volume.name, failureMsg),
+          handleFinish,
+        );
+        const volumeLink = (
+          <ResourceLabel bold type="volume" value={volume.name} />
+        );
+        toastNotify.info(
+          <>
+            Migration started for volume {volumeLink} to {targetMember}
+          </>,
+        );
+        void queryClient.invalidateQueries({
+          queryKey: [queryKeys.storage, volume.name, project],
+        });
+        handleClose();
+      })
+      .catch((e) => {
+        notifyFailure(e, volume.name, failureMsg);
       });
   };
 
