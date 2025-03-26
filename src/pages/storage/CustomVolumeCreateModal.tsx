@@ -15,6 +15,7 @@ import useEventListener from "util/useEventListener";
 import { testDuplicateStorageVolumeName } from "util/storageVolume";
 import { LxdStorageVolume } from "types/storage";
 import { useSettings } from "context/useSettings";
+import { isLocalPool } from "util/storagePool";
 
 interface Props {
   project: string;
@@ -48,17 +49,6 @@ const CustomVolumeCreateModal: FC<Props> = ({
       .required("This field is required"),
   });
 
-  const isLocalPool = (poolName: string) => {
-    const pool = pools.find((pool) => pool.name === poolName);
-    const driverDetails = settings?.environment?.storage_supported_drivers.find(
-      (driver) => driver.Name === pool?.driver,
-    );
-    if (!driverDetails) {
-      return false;
-    }
-    return !driverDetails.Remote;
-  };
-
   const formik = useFormik<StorageVolumeFormValues>({
     initialValues: {
       content_type: "filesystem",
@@ -74,7 +64,8 @@ const CustomVolumeCreateModal: FC<Props> = ({
     validationSchema: StorageVolumeSchema,
     onSubmit: (values) => {
       const volume = volumeFormToPayload(values, project);
-      const target = isLocalPool(values.pool) ? instanceLocation : undefined;
+      const pool = pools.find((pool) => pool.name === values.pool);
+      const target = isLocalPool(pool, settings) ? instanceLocation : undefined;
 
       createStorageVolume(values.pool, project, volume, target)
         .then(() => {
@@ -94,8 +85,8 @@ const CustomVolumeCreateModal: FC<Props> = ({
     },
   });
 
-  const validPool =
-    !isLocalPool(formik.values.pool) || instanceLocation !== "any";
+  const pool = pools.find((pool) => pool.name === formik.values.pool);
+  const validPool = !isLocalPool(pool, settings) || instanceLocation !== "any";
   const poolError = validPool
     ? undefined
     : "Please select a remote storage pool, or set a cluster member for the instance";
@@ -109,7 +100,11 @@ const CustomVolumeCreateModal: FC<Props> = ({
   return (
     <>
       <div className="volume-create-form">
-        <StorageVolumeFormMain formik={formik} poolError={poolError} />
+        <StorageVolumeFormMain
+          formik={formik}
+          poolError={poolError}
+          showClusterMember={false}
+        />
       </div>
       <footer className="p-modal__footer">
         <Button
