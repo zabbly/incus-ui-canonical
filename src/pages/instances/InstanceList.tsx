@@ -103,6 +103,7 @@ const InstanceList: FC = () => {
     searchParams.get("filter") != null ? searchParams.get("filter") : "";
   const [serverFilters, clientFilters] = getServerSupportedFilters(
     parseFilters(filterQuery || ""),
+    ["ipv4", "ipv6"],
   );
 
   const {
