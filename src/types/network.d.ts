@@ -90,7 +90,7 @@ export interface LxdNetworkState {
     vlan_default: number;
     vlan_filtering: boolean;
   };
-  counters: {
+  counters?: {
     bytes_received: number;
     bytes_sent: number;
     packets_received: number;

@@ -111,20 +111,26 @@ const NetworkDetailOverview: FC<Props> = ({ network }) => {
           {!isNetworkStateError && (
             <table>
               <tbody>
-                <tr className="list-wrapper">
-                  <th className="u-text--muted">RX</th>
-                  <td>
-                    {humanFileSize(networkState?.counters.bytes_received ?? 0)}{" "}
-                    ({networkState?.counters.packets_received ?? 0} packets)
-                  </td>
-                </tr>
-                <tr className="list-wrapper">
-                  <th className="u-text--muted">TX</th>
-                  <td>
-                    {humanFileSize(networkState?.counters.bytes_sent ?? 0)} (
-                    {networkState?.counters.packets_sent ?? 0} packets)
-                  </td>
-                </tr>
+                {networkState?.counters && (
+                  <>
+                    <tr className="list-wrapper">
+                      <th className="u-text--muted">RX</th>
+                      <td>
+                        {humanFileSize(
+                          networkState?.counters.bytes_received ?? 0,
+                        )}{" "}
+                        ({networkState?.counters.packets_received ?? 0} packets)
+                      </td>
+                    </tr>
+                    <tr className="list-wrapper">
+                      <th className="u-text--muted">TX</th>
+                      <td>
+                        {humanFileSize(networkState?.counters.bytes_sent ?? 0)}{" "}
+                        ({networkState?.counters.packets_sent ?? 0} packets)
+                      </td>
+                    </tr>
+                  </>
+                )}
                 <tr className="list-wrapper">
                   <th className="u-text--muted">MAC address</th>
                   <td>{networkState?.hwaddr ?? "-"}</td>
