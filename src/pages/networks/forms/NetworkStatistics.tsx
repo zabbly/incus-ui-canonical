@@ -47,15 +47,15 @@ const NetworkStatistics: FC<Props> = ({ formik, project }) => {
       <div className="general-field">
         <div className="general-field-label">RX</div>
         <div className="general-field-content">
-          {humanFileSize(networkState?.counters.bytes_received ?? 0)} (
-          {networkState?.counters.packets_received ?? 0} packets)
+          {humanFileSize(networkState?.counters?.bytes_received ?? 0)} (
+          {networkState?.counters?.packets_received ?? 0} packets)
         </div>
       </div>
       <div className="general-field">
         <div className="general-field-label">TX</div>
         <div className="general-field-content">
-          {humanFileSize(networkState?.counters.bytes_sent ?? 0)} (
-          {networkState?.counters.packets_sent ?? 0} packets)
+          {humanFileSize(networkState?.counters?.bytes_sent ?? 0)} (
+          {networkState?.counters?.packets_sent ?? 0} packets)
         </div>
       </div>
       {isManagedNetwork && (
