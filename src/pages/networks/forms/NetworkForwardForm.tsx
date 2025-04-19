@@ -14,11 +14,14 @@ import {
 } from "@canonical/react-components";
 import type { FormikProps } from "formik/dist/types";
 import * as Yup from "yup";
+import { useSettings } from "context/useSettings";
 import type { LxdNetwork, LxdNetworkForward } from "types/network";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import useEventListener from "util/useEventListener";
 import { testValidIp, testValidPort } from "util/networks";
+import { isClusteredServer } from "util/settings";
 import NotificationRow from "components/NotificationRow";
+import ClusterMemberSelector from "pages/cluster/ClusterMemberSelector";
 import type { NetworkForwardPortFormValues } from "pages/networks/forms/NetworkForwardFormPorts";
 import NetworkForwardFormPorts from "pages/networks/forms/NetworkForwardFormPorts";
 import ScrollableForm from "components/ScrollableForm";
@@ -39,6 +42,7 @@ export const toNetworkForward = (
       target_address: port.targetAddress?.toString(),
       target_port: port.targetPort?.toString(),
     })),
+    location: values.location,
   };
 };
 
@@ -67,6 +71,7 @@ export interface NetworkForwardFormValues {
   defaultTargetAddress?: string;
   description?: string;
   ports: NetworkForwardPortFormValues[];
+  location?: string;
 }
 
 interface Props {
@@ -77,12 +82,18 @@ interface Props {
 
 const NetworkForwardForm: FC<Props> = ({ formik, isEdit, network }) => {
   const notify = useNotify();
+  const { data: settings } = useSettings();
+  const isClustered = isClusteredServer(settings);
 
   const updateFormHeight = () => {
     updateMaxHeight("form-contents", "p-bottom-controls");
   };
   useEffect(updateFormHeight, [notify.notification?.message]);
   useEventListener("resize", updateFormHeight);
+
+  const setMember = !isEdit
+    ? (member: string) => void formik.setFieldValue("location", member)
+    : undefined;
 
   const addPort = () => {
     formik.setFieldValue("ports", [
@@ -202,6 +213,16 @@ const NetworkForwardForm: FC<Props> = ({ formik, isEdit, network }) => {
               placeholder="Enter description"
               stacked
             />
+            {isClustered && (
+              <ClusterMemberSelector
+                {...formik.getFieldProps("location")}
+                id="location"
+                label="Cluster member"
+                setMember={setMember}
+                disabled={isEdit}
+                stacked
+              />
+            )}
             {formik.values.ports.length > 0 && (
               <NetworkForwardFormPorts formik={formik} network={network} />
             )}
