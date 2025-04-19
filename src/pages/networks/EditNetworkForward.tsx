@@ -70,6 +70,7 @@ const EditNetworkForward: FC = () => {
           targetAddress: port.target_address,
           targetPort: port.target_port,
         })) ?? [],
+      location: forward?.location,
     },
     enableReinitialize: true,
     validationSchema: NetworkForwardSchema,
