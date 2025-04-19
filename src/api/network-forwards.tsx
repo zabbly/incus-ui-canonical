@@ -36,8 +36,9 @@ export const createNetworkForward = (
   forward: Partial<LxdNetworkForward>,
   project: string,
 ): Promise<void> => {
+  const target = forward.location ? `&target=${forward.location}` : "";
   return new Promise((resolve, reject) => {
-    fetch(`/1.0/networks/${network}/forwards?project=${project}`, {
+    fetch(`/1.0/networks/${network}/forwards?project=${project}${target}`, {
       method: "POST",
       body: JSON.stringify(forward),
     })
@@ -52,9 +53,10 @@ export const updateNetworkForward = (
   forward: Partial<LxdNetworkForward>,
   project: string,
 ): Promise<void> => {
+  const target = forward.location ? `&target=${forward.location}` : "";
   return new Promise((resolve, reject) => {
     fetch(
-      `/1.0/networks/${network}/forwards/${forward.listen_address}?project=${project}`,
+      `/1.0/networks/${network}/forwards/${forward.listen_address}?project=${project}${target}`,
       {
         method: "PUT",
         body: JSON.stringify(forward),
@@ -71,9 +73,10 @@ export const deleteNetworkForward = (
   forward: LxdNetworkForward,
   project: string,
 ): Promise<void> => {
+  const target = forward.location ? `&target=${forward.location}` : "";
   return new Promise((resolve, reject) => {
     fetch(
-      `/1.0/networks/${network.name}/forwards/${forward.listen_address}?project=${project}`,
+      `/1.0/networks/${network.name}/forwards/${forward.listen_address}?project=${project}${target}`,
       {
         method: "DELETE",
       },
