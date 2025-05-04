@@ -37,7 +37,7 @@ const StoragePoolSelector: FC<Props> = ({
   });
 
   const supportedStorageDrivers = getSupportedStorageDrivers(settings);
-  const poolsWithSupportedDriver = pools.filter((pool) =>
+  const poolsWithSupportedDriver = pools?.filter((pool) =>
     supportedStorageDrivers.has(pool.driver),
   );
 
