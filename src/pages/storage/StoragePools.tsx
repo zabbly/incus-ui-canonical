@@ -76,7 +76,7 @@ const StoragePools: FC = () => {
     { "aria-label": "Actions", className: "u-align--right actions" },
   ];
 
-  const rows = pools.map((pool) => {
+  const rows = pools?.map((pool) => {
     const volumes =
       pool.used_by?.filter((url) => !url.startsWith("/1.0/profiles")) ?? [];
     const currentProjectVolumeCount = volumes.filter((url) =>
