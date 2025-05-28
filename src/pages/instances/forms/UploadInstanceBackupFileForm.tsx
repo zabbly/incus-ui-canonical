@@ -142,6 +142,7 @@ const UploadInstanceBackupFileForm: FC<Props> = ({
         project?.name || "",
         instanceNameAbort,
       ).optional(),
+      pool: Yup.string().required(),
     }),
     onSubmit: handleUpload,
   });

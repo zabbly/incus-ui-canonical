@@ -32,7 +32,9 @@ export const fetchStoragePools = (): Promise<LxdStoragePool[]> => {
   return new Promise((resolve, reject) => {
     fetch(`/1.0/storage-pools?recursion=1`)
       .then(handleResponse)
-      .then((data: LxdApiResponse<LxdStoragePool[]>) => resolve(data.metadata))
+      .then((data: LxdApiResponse<LxdStoragePool[]>) =>
+        resolve(data.metadata ?? []),
+      )
       .catch(reject);
   });
 };
