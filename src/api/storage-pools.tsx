@@ -45,7 +45,7 @@ export const fetchStoragePools = async (
   return fetch(`/1.0/storage-pools?${params.toString()}`)
     .then(handleResponse)
     .then((data: LxdApiResponse<LxdStoragePool[]>) => {
-      return data.metadata;
+      return data.metadata ?? [];
     });
 };
 
