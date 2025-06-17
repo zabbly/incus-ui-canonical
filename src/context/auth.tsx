@@ -46,32 +46,9 @@ export const AuthProvider: FC<ProviderProps> = ({ children }) => {
     settingsError,
   } = useSupportedFeatures();
 
-  const {
-    data: currentIdentity,
-    isLoading: isIdentityLoading,
-    error: identityError,
-  } = useQuery({
-    queryKey: [queryKeys.currentIdentity],
-    queryFn: fetchCurrentIdentity,
-    retry: false, // avoid retry for older versions of lxd less than 5.21 due to missing endpoint
-    enabled:
-      !isSettingsLoading &&
-      settings &&
-      settings.auth !== "untrusted" &&
-      settings.auth_user_method !== "unix" &&
-      !settingsError &&
-      settings.api_extensions?.includes("access_management_tls"),
-  });
-
   const isFineGrained = () => {
     if (isSettingsLoading) {
       return null;
-    }
-    if (settings?.auth_user_method === "unix") {
-      return false;
-    }
-    if (hasEntitiesWithEntitlements) {
-      return currentIdentity?.fine_grained ?? null;
     }
     return false;
   };
@@ -100,23 +77,17 @@ export const AuthProvider: FC<ProviderProps> = ({ children }) => {
     isFineGrained() !== true &&
     (certificate?.restricted ?? defaultProject !== "default");
 
-  const serverEntitlements = (currentIdentity?.effective_permissions || [])
-    .filter((permission) => permission.entity_type === "server")
-    .map((permission) => permission.entitlement);
-
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated: (settings && settings.auth !== "untrusted") ?? false,
         isOidc: settings?.auth_user_method === "oidc",
         isAuthLoading:
-          isSettingsLoading || isIdentityLoading || isProjectsLoading,
-        authError: settingsError ?? identityError,
+          isSettingsLoading || isProjectsLoading,
         isRestricted,
         defaultProject,
         hasNoProjects: projects.length === 0 && !isProjectsLoading,
         isFineGrained: isFineGrained(),
-        serverEntitlements,
       }}
     >
       {children}
