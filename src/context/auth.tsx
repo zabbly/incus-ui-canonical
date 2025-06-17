@@ -39,19 +39,9 @@ export const AuthProvider: FC<ProviderProps> = ({ children }) => {
   const { hasEntitiesWithEntitlements, isSettingsLoading, settings } =
     useSupportedFeatures();
 
-  const { data: currentIdentity, isLoading: isIdentityLoading } = useQuery({
-    queryKey: [queryKeys.currentIdentity],
-    queryFn: fetchCurrentIdentity,
-    retry: false, // avoid retry for older versions of lxd less than 5.21 due to missing endpoint
-    enabled: !isSettingsLoading && settings && settings.auth !== "untrusted",
-  });
-
   const isFineGrained = () => {
     if (isSettingsLoading) {
       return null;
-    }
-    if (hasEntitiesWithEntitlements) {
-      return currentIdentity?.fine_grained ?? null;
     }
     return false;
   };
@@ -83,22 +73,17 @@ export const AuthProvider: FC<ProviderProps> = ({ children }) => {
     isFineGrained() !== true &&
     (certificate?.restricted ?? defaultProject !== "default");
 
-  const serverEntitlements = (currentIdentity?.effective_permissions || [])
-    .filter((permission) => permission.entity_type === "server")
-    .map((permission) => permission.entitlement);
-
   return (
     <AuthContext.Provider
       value={{
         isAuthenticated: (settings && settings.auth !== "untrusted") ?? false,
         isOidc: settings?.auth_user_method === "oidc",
         isAuthLoading:
-          isSettingsLoading || isIdentityLoading || isProjectsLoading,
+          isSettingsLoading || isProjectsLoading,
         isRestricted,
         defaultProject,
         hasNoProjects: projects.length === 0 && !isProjectsLoading,
         isFineGrained: isFineGrained(),
-        serverEntitlements,
       }}
     >
       {children}
