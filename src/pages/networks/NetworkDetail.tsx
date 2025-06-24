@@ -45,11 +45,11 @@ const NetworkDetail: FC = () => {
 
   const getTabs = () => {
     const type = network?.type ?? "";
-    if (type === "physical" || !isManagedNetwork) {
-      return ["Configuration"];
+    if ((type === "bridge" || type === "ovn") && isManagedNetwork) {
+      return ["Configuration", "Forwards"];
     }
 
-    return ["Configuration", "Forwards"];
+    return ["Configuration"];
   };
 
   return (
