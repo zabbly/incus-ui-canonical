@@ -4,6 +4,7 @@ import { configDescriptionToHtml } from "util/config";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDocObjects } from "api/server";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
+import { cleanDescription } from "util/config";
 
 interface Props {
   description?: string;
@@ -24,7 +25,7 @@ const ConfigFieldDescription: FC<Props> = ({ description, className }) => {
       className={className}
       dangerouslySetInnerHTML={{
         __html: configDescriptionToHtml(
-          description,
+          cleanDescription(description),
           docBaseLink,
           objectsInvTxt.data,
         ),
