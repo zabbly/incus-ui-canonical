@@ -49,7 +49,7 @@ const CpuLimitSelector: FC<Props> = ({
           step="1"
           placeholder="Number of exposed cores"
           onChange={(e) => {
-            setCpuLimit({ ...cpuLimit, dynamicValue: +e.target.value });
+            setCpuLimit({ ...cpuLimit, dynamicValue: e.target.value });
           }}
           value={cpuLimit.dynamicValue ?? ""}
           help={help}
