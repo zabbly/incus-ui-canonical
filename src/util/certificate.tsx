@@ -33,7 +33,16 @@ const generateCert = (password: string) => {
   const cert = forge.pki.createCertificate();
   cert.publicKey = keys.publicKey;
 
-  cert.serialNumber = "01" + getRandomBytes(20).toString().substring(0, 30);
+  // Generate a positive serial number
+  let serialBytes = getRandomBytes(16);
+  if (serialBytes[0] >= 128) {
+    serialBytes[0] &= 0x7F; // Ensure the first bit is not set (make it positive)
+  }
+  const serialHex = Array.from(serialBytes)
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+  cert.serialNumber = serialHex;
+
   cert.validity.notBefore = new Date();
   cert.validity.notAfter = new Date(
     Date.now() + 1000 * 60 * 60 * 24 * validDays,
@@ -45,7 +54,7 @@ const generateCert = (password: string) => {
   const crt = forge.pki.certificateToPem(cert);
 
   const asn1 = forge.pkcs12.toPkcs12Asn1(keys.privateKey, [cert], password, {
-    algorithm: "3des", // would like to use aes, but macOS keychain only supports 3des
+    algorithm: "3des", // Required for macOS Keychain support
     generateLocalKeyId: true,
     friendlyName: "Incus-UI",
   });
@@ -57,3 +66,4 @@ const generateCert = (password: string) => {
     pfx: pfx,
   };
 };
+
