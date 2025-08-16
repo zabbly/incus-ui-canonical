@@ -239,6 +239,10 @@ const getInstanceProfileProjectDefaults = (
     }
   }
 
+  if (configKey.startsWith("cloud-init.")) {
+    return { value: "", source: "LXD", configField };
+  }
+
   const lxdDefault = getLxdDefault(configField);
 
   return { value: lxdDefault, source: "LXD", configField };
