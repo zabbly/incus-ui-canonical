@@ -1,0 +1,31 @@
+.network-load-balancers-form {
+  .form-contents > div,
+  .content-details {
+    margin-left: 0;
+    max-width: 67rem !important;
+  }
+
+  .load-balancer-ports {
+    .listen-port,
+    .protocol,
+    .target-backend {
+      width: 15rem;
+    }
+
+    @media screen and (width <= 1337px) {
+      .listen-port,
+      .protocol,
+      .target-backend {
+        width: 13rem;
+      }
+    }
+
+    @media screen and (width <= 1190px) {
+      .listen-port,
+      .protocol,
+      .target-backend {
+        width: 8rem;
+      }
+    }
+  }
+}
