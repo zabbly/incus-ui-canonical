@@ -12,9 +12,11 @@ import {
 } from "@canonical/react-components";
 import TabLinks from "components/TabLinks";
 import NetworkForwards from "pages/networks/NetworkForwards";
+import NetworkLoadBalancers from "pages/networks/NetworkLoadBalancers";
 import { useNetwork } from "context/useNetworks";
 import NetworkLeases from "pages/networks/NetworkLeases";
 import {
+  ovnType,
   typesWithForwards,
   typesWithLeases,
   typesWithLocalPeerings,
@@ -95,6 +97,7 @@ const NetworkDetail: FC = () => {
   const tabs = [
     "Configuration",
     getTabLink("Forwards", hasForwards, "forwards"),
+    getTabLink("Load balancers", hasForwards, "load-balancers"),
     getTabLink("Leases", hasLeases, "leases"),
     getTabLink("Local peerings", isPeeringSupported, "local-peerings"),
   ];
@@ -126,6 +129,13 @@ const NetworkDetail: FC = () => {
             <div role="tabpanel" aria-labelledby="forwards">
               {network && (
                 <NetworkForwards network={network} project={project} />
+              )}
+            </div>
+          )}
+          {activeTab === "load-balancers" && (
+            <div role="tabpanel" aria-labelledby="load-balancers">
+              {network && (
+                <NetworkLoadBalancers network={network} project={project} />
               )}
             </div>
           )}
