@@ -12,9 +12,10 @@ import {
 } from "@canonical/react-components";
 import TabLinks from "components/TabLinks";
 import NetworkForwards from "pages/networks/NetworkForwards";
+import NetworkLoadBalancers from "pages/networks/NetworkLoadBalancers";
 import { useNetwork } from "context/useNetworks";
 import NetworkLeases from "pages/networks/NetworkLeases";
-import { typesWithForwards } from "util/networks";
+import { ovnType, typesWithForwards } from "util/networks";
 
 const NetworkDetail: FC = () => {
   const notify = useNotify();
@@ -54,6 +55,10 @@ const NetworkDetail: FC = () => {
       return ["Configuration"];
     }
 
+    if (network?.type === ovnType) {
+      return ["Configuration", "Forwards", "Load balancers", "Leases"];
+    }
+
     return ["Configuration", "Forwards", "Leases"];
   };
 
@@ -79,6 +84,13 @@ const NetworkDetail: FC = () => {
         {activeTab === "forwards" && (
           <div role="tabpanel" aria-labelledby="forwards">
             {network && <NetworkForwards network={network} project={project} />}
+          </div>
+        )}
+        {activeTab === "load-balancers" && (
+          <div role="tabpanel" aria-labelledby="load-balancers">
+            {network && (
+              <NetworkLoadBalancers network={network} project={project} />
+            )}
           </div>
         )}
         {activeTab === "leases" && (

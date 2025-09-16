@@ -131,6 +131,28 @@ export interface LxdNetworkForward {
   ports: LxdNetworkForwardPort[];
 }
 
+export interface LxdNetworkLoadBalancerBackend {
+  name: string;
+  description?: string;
+  target_address: string;
+  target_port?: string;
+}
+
+export interface LxdNetworkLoadBalancerPort {
+  description?: string;
+  listen_port: string;
+  protocol: "tcp" | "udp";
+  target_backend: string[];
+}
+
+export interface LxdNetworkLoadBalancer {
+  listen_address: string;
+  description?: string;
+  location?: string;
+  backends: LxdNetworkLoadBalancerBackend[];
+  ports: LxdNetworkLoadBalancerPort[];
+}
+
 export interface LxdNetworkAclRule {
   action: "allow" | "reject" | "drop";
   description?: string;

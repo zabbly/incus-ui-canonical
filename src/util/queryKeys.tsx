@@ -33,4 +33,5 @@ export const queryKeys = {
   permissions: "permissions",
   currentIdentity: "currentIdentity",
   instancePreview: "instancePreview",
+  loadBalancers: "load-balancers",
 };
