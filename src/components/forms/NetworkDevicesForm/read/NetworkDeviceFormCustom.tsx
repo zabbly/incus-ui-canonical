@@ -13,14 +13,14 @@ interface Props {
   formik: InstanceAndProfileFormikProps;
   inheritedNetworkDevices: InheritedNetwork[];
   project: string;
-  managedNetworks: LxdNetwork[];
+  networkList: LxdNetwork[];
 }
 
 const NetworkDeviceFormCustom: FC<Props> = ({
   formik,
   inheritedNetworkDevices,
   project,
-  managedNetworks,
+  networkList,
 }) => {
   const devices = formik.values.devices.filter((formDevice) => {
     const isNic =
@@ -43,7 +43,7 @@ const NetworkDeviceFormCustom: FC<Props> = ({
 
     return getNetworkDeviceRows({
       project,
-      managedNetworks,
+      networkList,
       device: typedDevice,
       hasChanges: isDeviceModified(formik, deviceName),
       showIpAddresses: formik.values.entityType === "instance",

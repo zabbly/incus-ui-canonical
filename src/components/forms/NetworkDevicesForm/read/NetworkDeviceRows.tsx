@@ -38,7 +38,7 @@ const getNetworkDeviceIpAddress = ({
 
 export const getNetworkDeviceRows = ({
   project,
-  managedNetworks,
+  networkList,
   device,
   showIpAddresses,
   isDetached,
@@ -47,7 +47,7 @@ export const getNetworkDeviceRows = ({
   sourceProfile,
 }: {
   project: string;
-  managedNetworks: LxdNetwork[];
+  networkList: LxdNetwork[];
   device: LxdNicDevice | CustomNetworkDevice | null;
   showIpAddresses?: boolean;
   isDetached?: boolean;
@@ -108,7 +108,7 @@ export const getNetworkDeviceRows = ({
     return rows;
   }
 
-  const network = managedNetworks.find((t) => t.name === device.network);
+  const network = networkList.find((t) => t.name === (device.network || device.parent));
 
   if (network) {
     rows.push(
@@ -118,7 +118,7 @@ export const getNetworkDeviceRows = ({
         inherited: (
           <div>
             <NetworkRichChip
-              networkName={device.network}
+              networkName={device.network || device.parent}
               projectName={project || "default"}
               className={classnames({
                 "u-text--line-through": isDetached,

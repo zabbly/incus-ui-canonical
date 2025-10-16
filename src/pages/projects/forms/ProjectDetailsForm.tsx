@@ -22,6 +22,7 @@ import NetworkSelector from "./NetworkSelector";
 import { useNetworks } from "context/useNetworks";
 import type { ProjectDetailsFormValues } from "types/forms/project";
 import ProfileRichChip from "pages/profiles/ProfileRichChip";
+import { bridgeType } from "util/networks";
 
 export const projectDetailPayload = (
   values: ProjectDetailsFormValues,
@@ -74,7 +75,9 @@ const ProjectDetailsForm: FC<Props> = ({ formik, project, isEdit }) => {
     useSupportedFeatures();
 
   const { data: networks = [] } = useNetworks(project?.name || "default");
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
   const isDefaultProject = formik.values.name === "default";
   const isNonEmpty = project ? !isProjectEmpty(project) : false;
   const hadFeaturesNetworkZones =
@@ -183,7 +186,7 @@ const ProjectDetailsForm: FC<Props> = ({ formik, project, isEdit }) => {
               hasNoneOption
               label="Default instance network"
               disabled={hasNoProfiles || hasIsolatedNetworks}
-              networkList={managedNetworks}
+              networkList={filteredNetworks}
             />
           )}
           <div

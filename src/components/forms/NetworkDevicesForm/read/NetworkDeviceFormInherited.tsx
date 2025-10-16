@@ -17,14 +17,14 @@ interface Props {
   formik: InstanceAndProfileFormikProps;
   inheritedNetworkDevices: InheritedNetwork[];
   project: string;
-  managedNetworks: LxdNetwork[];
+  networkList: LxdNetwork[];
 }
 
 const NetworkDeviceFormInherited: FC<Props> = ({
   formik,
   inheritedNetworkDevices,
   project,
-  managedNetworks,
+  networkList,
 }) => {
   if (inheritedNetworkDevices.length === 0) return null;
 
@@ -77,7 +77,7 @@ const NetworkDeviceFormInherited: FC<Props> = ({
 
     return getNetworkDeviceRows({
       project,
-      managedNetworks,
+      networkList,
       device: effectiveDevice,
       isDetached: !!isDetached,
       hasChanges: deviceModified || hasOverrideBeenRemoved,

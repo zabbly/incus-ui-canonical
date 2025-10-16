@@ -9,6 +9,7 @@ import NetworkDeviceFormInherited from "components/forms/NetworkDevicesForm/read
 import NetworkDeviceFormCustom from "components/forms/NetworkDevicesForm/read/NetworkDeviceFormCustom";
 import ScrollableForm from "components/ScrollableForm";
 import usePanelParams from "util/usePanelParams";
+import { bridgeType } from "util/networks";
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -45,7 +46,9 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
     return <Spinner className="u-loader" text="Loading..." />;
   }
 
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
 
   const inheritedNetworks = getInheritedNetworks(formik.values, profiles);
 
@@ -56,13 +59,13 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
           formik={formik}
           inheritedNetworkDevices={inheritedNetworks}
           project={project}
-          managedNetworks={managedNetworks}
+          networkList={filteredNetworks}
         />
         <NetworkDeviceFormCustom
           formik={formik}
           inheritedNetworkDevices={inheritedNetworks}
           project={project}
-          managedNetworks={managedNetworks}
+          networkList={filteredNetworks}
         />
         <Button
           onClick={panelParams.openCreateNetworkDevice}

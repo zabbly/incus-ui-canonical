@@ -85,6 +85,21 @@ export const formDeviceToPayload = (devices: FormDevice[]) => {
           [name]: item.bare,
         };
       }
+      if (item.type === "nic") {
+        if (item.parent && item.parent != "") {
+          delete item.network;
+          return {
+            ...obj,
+            [name]: item,
+          };
+        }
+        delete item.parent;
+        delete item.nictype;
+        return {
+          ...obj,
+          [name]: item,
+        };
+      }
       if (item.type === "disk") {
         const { bare, ...rest } = item;
         item = { ...bare, ...rest };
