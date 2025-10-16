@@ -8,6 +8,7 @@ import NetworkDeviceContent from "./NetworkDeviceContent";
 import { getIndex } from "util/devices";
 import type { InheritedNetwork } from "util/configInheritance";
 import type { EditInstanceFormValues } from "pages/instances/EditInstance";
+import { bridgeType } from "util/networks";
 
 interface Props {
   project: string;
@@ -26,7 +27,9 @@ const NetworkDevice: FC<Props> = ({
 }) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
   const { data: networks = [] } = useNetworks(project);
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
   const index = getIndex(device?.name || "", formik);
 
   return (
@@ -39,7 +42,7 @@ const NetworkDevice: FC<Props> = ({
             device={device}
             formik={formik}
             index={index}
-            managedNetworks={managedNetworks}
+            filteredNetworks={filteredNetworks}
             network={network}
           />
         )}

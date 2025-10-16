@@ -14,7 +14,7 @@ interface Props {
   formik: InstanceAndProfileFormikProps;
   device: LxdNicDevice | LxdNoneDevice;
   index: number;
-  managedNetworks: LxdNetwork[];
+  filteredNetworks: LxdNetwork[];
   network?: LxdNetwork;
 }
 
@@ -24,7 +24,7 @@ const NetworkDeviceContent: FC<Props> = ({
   formik,
   device,
   index,
-  managedNetworks,
+  filteredNetworks,
   network,
 }) => {
   if (isNoneDevice(device)) {
@@ -35,14 +35,16 @@ const NetworkDeviceContent: FC<Props> = ({
     );
   }
 
+  const deviceValue = device.network || device.parent;
+
   if (readOnly) {
     return (
       <>
         <div>Network</div>
         <ResourceLink
           type="network"
-          value={device.network}
-          to={`/ui/project/${encodeURIComponent(project ?? "")}/network/${encodeURIComponent(device.network)}`}
+          value={deviceValue}
+          to={`/ui/project/${encodeURIComponent(project ?? "")}/network/${encodeURIComponent(deviceValue)}`}
         />
         <NetworkDeviceAcls
           project={project}
@@ -57,11 +59,23 @@ const NetworkDeviceContent: FC<Props> = ({
   return (
     <>
       <NetworkSelector
-        value={device.network}
+        value={deviceValue}
         setValue={(value) => {
           formik.setFieldValue(`devices.${index}.network`, value);
 
-          const selectedNetwork = managedNetworks.find((t) => t.name === value);
+          const selectedNetwork = filteredNetworks.find(
+            (t) => t.name === value,
+          );
+
+          let nicType = "";
+          let parent = "";
+          if (selectedNetwork.managed == false) {
+            nicType = "bridged";
+            parent = value;
+          }
+
+          formik.setFieldValue(`devices.${index}.nictype`, nicType);
+          formik.setFieldValue(`devices.${index}.parent`, parent);
 
           if (selectedNetwork && !supportsNicDeviceAcls(selectedNetwork)) {
             formik.setFieldValue(
@@ -72,7 +86,7 @@ const NetworkDeviceContent: FC<Props> = ({
         }}
         id={`devices.${index}.network`}
         name={`devices.${index}.network`}
-        managedNetworks={managedNetworks}
+        filteredNetworks={filteredNetworks}
       />
       <NetworkDeviceAcls
         project={project}

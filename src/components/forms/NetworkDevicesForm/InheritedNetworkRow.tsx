@@ -13,14 +13,14 @@ import { isNoneDevice } from "util/devices";
 interface Props {
   device: InheritedNetwork;
   project: string;
-  managedNetworks: LxdNetwork[];
+  filteredNetworks: LxdNetwork[];
   formik: InstanceAndProfileFormikProps;
 }
 
 export const getInheritedNetworkRow = ({
   device,
   project,
-  managedNetworks,
+  filteredNetworks,
   formik,
 }: Props): MainTableRow => {
   const overrideDevice = formik.values.devices.find(
@@ -29,8 +29,11 @@ export const getInheritedNetworkRow = ({
   const isOverridden = overrideDevice !== undefined;
   const isDetached = overrideDevice && isNoneDevice(overrideDevice);
 
-  const overrideNetwork = managedNetworks.find(
-    (t) => t.name === (overrideDevice as LxdNicDevice)?.network,
+  const overrideNetwork = filteredNetworks.find(
+    (t) =>
+      t.name ===
+      ((overrideDevice as LxdNicDevice)?.network ||
+        (overrideDevice as LxdNicDevice)?.parent),
   );
 
   return getConfigurationRowBase({
@@ -79,8 +82,9 @@ export const getInheritedNetworkRow = ({
         />
         <ReadOnlyAclsList
           project={project}
-          network={managedNetworks.find(
-            (t) => t.name === device.network?.network,
+          network={filteredNetworks.find(
+            (t) =>
+              t.name === (device.network?.network || device.network?.parent),
           )}
           device={device.network}
           isOverridden={isOverridden}

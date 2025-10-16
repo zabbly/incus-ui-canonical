@@ -27,6 +27,7 @@ import { useNetworks } from "context/useNetworks";
 import { useProfiles } from "context/useProfiles";
 import NetworkDevice from "components/forms/NetworkDevicesForm/NetworkDevice";
 import { getInheritedNetworkRow } from "components/forms/NetworkDevicesForm/InheritedNetworkRow";
+import { bridgeType } from "util/networks";
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -62,16 +63,29 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
     return <Spinner className="u-loader" text="Loading..." />;
   }
 
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
 
   const existingDeviceNames = getExistingDeviceNames(formik.values, profiles);
 
   const onAttachNetwork = () => {
     ensureEditMode(formik);
+    const isManaged = filteredNetworks[0]?.managed ?? false;
+
+    let network = filteredNetworks[0]?.name ?? "";
+    let parent = "";
+
+    if (!isManaged) {
+      network = "";
+      parent = filteredNetworks[0]?.name ?? "";
+    }
+
     const index = addNicDevice({
       formik,
       deviceName: deduplicateName("eth", 1, existingDeviceNames),
-      deviceNetworkName: managedNetworks[0]?.name ?? "",
+      deviceNetworkName: network,
+      deviceParentName: parent,
     });
 
     focusNicDevice(index - 1);
@@ -89,7 +103,7 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
           getInheritedNetworkRow({
             device: item,
             project,
-            managedNetworks,
+            filteredNetworks,
             formik,
           }),
         ),
@@ -147,10 +161,11 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
                   formik={formik}
                   project={project}
                   device={device}
-                  network={managedNetworks.find(
+                  network={filteredNetworks.find(
                     (t) =>
                       t.name ===
-                      (formik.values.devices[index] as LxdNicDevice).network,
+                      ((formik.values.devices[index] as LxdNicDevice).network ||
+                        (formik.values.devices[index] as LxdNicDevice).parent),
                   )}
                 />
               ),

@@ -22,6 +22,7 @@ import StoragePoolSelector from "pages/storage/StoragePoolSelector";
 import ResourceLink from "components/ResourceLink";
 import NetworkSelector from "./NetworkSelector";
 import { useNetworks } from "context/useNetworks";
+import { bridgeType } from "util/networks";
 
 export interface ProjectDetailsFormValues {
   name: string;
@@ -91,7 +92,9 @@ const ProjectDetailsForm: FC<Props> = ({ formik, project, isEdit }) => {
     useSupportedFeatures();
 
   const { data: networks = [] } = useNetworks(project?.name || "default");
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
 
   const figureFeatures = () => {
     if (
@@ -198,7 +201,7 @@ const ProjectDetailsForm: FC<Props> = ({ formik, project, isEdit }) => {
             hasNoneOption
             label="Default profile network"
             disabled={hasNoProfiles || hasIsolatedNetworks || isEdit}
-            managedNetworks={managedNetworks}
+            filteredNetworks={filteredNetworks}
             help={
               isEdit ? (
                 <>
