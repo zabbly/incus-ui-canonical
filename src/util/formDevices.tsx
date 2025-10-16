@@ -97,6 +97,21 @@ export const formDeviceToPayload = (devices: FormDevice[]) => {
           [name]: item.bare,
         };
       }
+      if (item.type === "nic") {
+        if (item.parent && item.parent != "") {
+          delete item.network;
+          return {
+            ...obj,
+            [name]: item,
+          };
+        }
+        delete item.parent;
+        delete item.nictype;
+        return {
+          ...obj,
+          [name]: item,
+        };
+      }
       if (item.type === "disk") {
         const { bare, ...rest } = item;
         item = { ...bare, ...rest };
@@ -118,7 +133,8 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
     const isCustomNetwork =
       item.type === "nic" &&
       Object.keys(item).some(
-        (key) => !["type", "name", "network"].includes(key),
+        (key) =>
+          !["type", "name", "network", "parent", "nictype"].includes(key),
       );
 
     if (isCustomNetwork) {
@@ -139,6 +155,15 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
 
     switch (item.type) {
       case "nic":
+        if (item.parent && item.parent != "") {
+          return {
+            name: key,
+            parent: item.parent,
+            nictype: item.nictype,
+            type: "nic",
+          };
+        }
+
         return {
           name: key,
           network: item.network,

@@ -23,6 +23,7 @@ import { focusField } from "util/formFields";
 import { useNetworks } from "context/useNetworks";
 import { useProfiles } from "context/useProfiles";
 import NetworkSelector from "pages/projects/forms/NetworkSelector";
+import { bridgeType } from "util/networks";
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -58,7 +59,9 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
     return <Loader />;
   }
 
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
 
   const focusNetwork = (id: number) => {
     focusField(`devices.${id}.name`);
@@ -74,11 +77,23 @@ const NetworkDevicesForm: FC<Props> = ({ formik, project }) => {
 
   const addNetwork = () => {
     const copy = [...formik.values.devices];
-    copy.push({
-      type: "nic",
-      name: deduplicateName("eth", 1, existingDeviceNames),
-      network: managedNetworks[0]?.name ?? "",
-    });
+    const isManaged = filteredNetworks[0]?.managed ?? false;
+
+    if (!isManaged) {
+      copy.push({
+        type: "nic",
+        name: deduplicateName("eth", 1, existingDeviceNames),
+        parent: filteredNetworks[0]?.name ?? "",
+        nictype: "bridged",
+      });
+    } else {
+      copy.push({
+        type: "nic",
+        name: deduplicateName("eth", 1, existingDeviceNames),
+        network: filteredNetworks[0]?.name ?? "",
+      });
+    }
+
     formik.setFieldValue("devices", copy);
 
     focusNetwork(copy.length - 1);
@@ -171,21 +186,44 @@ or remove the originating item"
                   <div>
                     {readOnly ? (
                       <div>
-                        {(formik.values.devices[index] as LxdNicDevice).network}
+                        {(formik.values.devices[index] as LxdNicDevice)
+                          .network ||
+                          (formik.values.devices[index] as LxdNicDevice).parent}
                       </div>
                     ) : (
                       <NetworkSelector
                         value={
-                          (formik.values.devices[index] as LxdNicDevice).network
+                          (formik.values.devices[index] as LxdNicDevice)
+                            .network ||
+                          (formik.values.devices[index] as LxdNicDevice).parent
                         }
                         project={project}
                         onBlur={formik.handleBlur}
-                        setValue={(value) =>
-                          void formik.setFieldValue(
+                        setValue={(value) => {
+                          const selectedNetwork = filteredNetworks.find(
+                            (n) => n.name === value,
+                          );
+                          formik.setFieldValue(
                             `devices.${index}.network`,
                             value,
-                          )
-                        }
+                          );
+
+                          let nicType = "";
+                          let parent = "";
+                          if (selectedNetwork.managed == false) {
+                            nicType = "bridged";
+                            parent = value;
+                          }
+
+                          formik.setFieldValue(
+                            `devices.${index}.nictype`,
+                            nicType,
+                          );
+                          formik.setFieldValue(
+                            `devices.${index}.parent`,
+                            parent,
+                          );
+                        }}
                         id={`devices.${index}.network`}
                         name={`devices.${index}.network`}
                       />
