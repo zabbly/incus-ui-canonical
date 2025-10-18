@@ -2,6 +2,7 @@ import { Select } from "@canonical/react-components";
 import type { SelectProps } from "@canonical/react-components";
 import type { FC } from "react";
 import { useNetworks } from "context/useNetworks";
+import { bridgeType } from "util/networks";
 
 interface Props {
   value: string;
@@ -21,10 +22,12 @@ const NetworkSelector: FC<Props & SelectProps> = ({
 }) => {
   const { data: networks = [] } = useNetworks(project);
 
-  const managedNetworks = networks.filter((network) => network.managed);
+  const filteredNetworks = networks.filter(
+    (network) => network.managed || network.type == bridgeType,
+  );
 
   const getNetworkOptions = () => {
-    const options = managedNetworks.map((network) => {
+    const options = filteredNetworks.map((network) => {
       return {
         label: network.name,
         value: network.name,
