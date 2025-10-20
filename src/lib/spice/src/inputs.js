@@ -206,41 +206,18 @@ function send_key(sc, keyCode)
     sc.inputs.send_msg(msg);
 }
 
-function sendCtrlAltDel(sc)
+function sendKey(sc, code, modifiers = [])
 {
-    if (sc && sc.inputs && sc.inputs.state === "ready"){
-        update_modifier(true, KeyNames.KEY_LCtrl, sc);
-        update_modifier(true, KeyNames.KEY_Alt, sc);
-        send_key(sc, KeyNames.KEY_KP_Decimal);
-        const release = () => {
-            update_modifier(false, KeyNames.KEY_LCtrl, sc);
-            update_modifier(false, KeyNames.KEY_Alt, sc);
-        }
-        setTimeout(release, 100);
-    }
-}
-
-function sendAltF4(sc)
-{
-    if (sc && sc.inputs && sc.inputs.state === "ready"){
-        update_modifier(true, KeyNames.KEY_Alt, sc);
-        send_key(sc, KeyNames.KEY_F4);
-        const release = () => {
-            update_modifier(false, KeyNames.KEY_Alt, sc);
-        }
-        setTimeout(release, 100);
-    }
-}
-
-function sendAltTab(sc)
-{
-    if (sc && sc.inputs && sc.inputs.state === "ready"){
-        update_modifier(true, KeyNames.KEY_Alt, sc);
-        send_key(sc, KeyNames.KEY_Tab);
-        const release = () => {
-            update_modifier(false, KeyNames.KEY_Alt, sc);
-        }
-        setTimeout(release, 100);
+    if (sc && sc.inputs && sc.inputs.state === "ready" && code) {
+        modifiers.forEach(m => {
+            update_modifier(true, m, sc);
+        });
+        send_key(sc, code);
+        modifiers.forEach(m => {
+            if (get_modifier_state(m) == false) {
+                update_modifier(false, m, sc);
+            }
+        });
     }
 }
 
@@ -261,6 +238,21 @@ function update_modifier(state, code, sc)
     }
 
     sc.inputs.send_msg(msg);
+}
+
+function get_modifier_state(m)
+{
+    if (m === KeyNames.KEY_ShiftL || m === KeyNames.KEY_ShiftR) {
+        return Shift_state;
+    } else if (m === KeyNames.KEY_LCtrl || m === KeyNames.KEY_RCtrl) {
+        return Ctrl_state;
+    } else if (m === KeyNames.KEY_Alt) {
+        return Alt_state;
+    } else if (m === 0xE0B5) {
+        return Meta_state;
+    }
+
+    return false;
 }
 
 function check_and_update_modifiers(e, code, sc)
@@ -328,7 +320,5 @@ export {
   handle_mousewheel,
   handle_keydown,
   handle_keyup,
-  sendCtrlAltDel,
-  sendAltTab,
-  sendAltF4,
+  sendKey,
 };
