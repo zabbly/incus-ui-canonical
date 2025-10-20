@@ -15,7 +15,8 @@ import type { LxdInstance } from "types/instance";
 import { LxdOperation } from "types/operation";
 import InstanceTextConsole from "./InstanceTextConsole";
 import { useInstanceStart } from "util/instanceStart";
-import { sendAltF4, sendAltTab, sendCtrlAltDel } from "lib/spice/src/inputs.js";
+import { sendKey } from "lib/spice/src/inputs.js";
+import { KeyNames } from "lib/spice/src/atKeynames.js";
 import AttachIsoBtn from "pages/instances/actions/AttachIsoBtn";
 import NotificationRow from "components/NotificationRow";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
@@ -182,19 +183,43 @@ const InstanceConsole: FC<Props> = ({ instance }) => {
                   {
                     children: "Send Ctrl + Alt + Del",
                     onClick: () => {
-                      sendCtrlAltDel(window.spice_connection);
+                      sendKey(window.spice_connection, KeyNames.KEY_KP_Decimal, [ KeyNames.KEY_LCtrl, KeyNames.KEY_Alt ]);
                     },
                   },
                   {
                     children: "Send Alt + TAB",
                     onClick: () => {
-                      sendAltTab(window.spice_connection);
+                      sendKey(window.spice_connection, KeyNames.KEY_Tab, [ KeyNames.KEY_Alt ]);
                     },
                   },
                   {
                     children: "Send Alt + F4",
                     onClick: () => {
-                      sendAltF4(window.spice_connection);
+                      sendKey(window.spice_connection, KeyNames.KEY_F4, [ KeyNames.KEY_Alt]);
+                    },
+                  },
+                  {
+                    children: "Send Ctrl + Alt + F1",
+                    onClick: () => {
+                      sendKey(window.spice_connection, KeyNames.KEY_F1, [ KeyNames.KEY_LCtrl, KeyNames.KEY_Alt ]);
+                    },
+                  },
+                  {
+                    children: "Send Ctrl + Alt + F2",
+                    onClick: () => {
+                      sendKey(window.spice_connection, KeyNames.KEY_F2, [ KeyNames.KEY_LCtrl, KeyNames.KEY_Alt]);
+                    },
+                  },
+                  {
+                    children: "Send Ctrl + Alt + F3",
+                    onClick: () => {
+                      sendKey(window.spice_connection, KeyNames.KEY_F3, [ KeyNames.KEY_LCtrl, KeyNames.KEY_Alt]);
+                    },
+                  },
+                  {
+                    children: "Send Ctrl + Alt + F4",
+                    onClick: () => {
+                      sendKey(window.spice_connection, KeyNames.KEY_F4, [ KeyNames.KEY_LCtrl, KeyNames.KEY_Alt]);
                     },
                   },
                 ]}

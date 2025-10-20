@@ -24,7 +24,7 @@ import { SpiceCursorConn } from './cursor.js';
 import { SpiceConn } from './spiceconn.js';
 import { DEBUG } from './utils.js';
 import { SpiceFileXferTask } from './filexfer.js';
-import { SpiceInputsConn, sendCtrlAltDel } from './inputs.js';
+import { SpiceInputsConn } from './inputs.js';
 import { SpiceDisplayConn } from './display.js';
 import { SpicePlaybackConn } from './playback.js';
 import { SpicePortConn } from './port.js';
@@ -515,5 +515,4 @@ export {
   handle_file_drop,
   resize_helper,
   handle_resize,
-  sendCtrlAltDel,
 };
