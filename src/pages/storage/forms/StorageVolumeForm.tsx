@@ -1,7 +1,6 @@
 import type { FC, ReactNode } from "react";
 import { useEffect } from "react";
 import { Col, Form, Input, Row, useNotify } from "@canonical/react-components";
-import { useSettings } from "context/useSettings";
 import { useParams } from "react-router-dom";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import useEventListener from "util/useEventListener";

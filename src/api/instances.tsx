@@ -1,5 +1,4 @@
 import {
-  continueOrFinish,
   handleBlobResponse,
   handleEtagResponse,
   handleResponse,
