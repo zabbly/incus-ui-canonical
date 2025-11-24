@@ -6,7 +6,6 @@ import StoragePoolSelector from "../StoragePoolSelector";
 import DiskSizeSelector from "components/forms/DiskSizeSelector";
 import { useStorageBucketEntitlements } from "util/entitlements/storage-buckets";
 import type { LxdStorageBucket } from "types/storage";
-import { cephObject, storageDriverLabels } from "util/storageOptions";
 
 export interface StorageBucketFormValues {
   name: string;
@@ -49,22 +48,14 @@ const StorageBucketForm: FC<Props> = ({ formik, bucket }) => {
       <StoragePoolSelector
         value={formik.values.pool}
         setValue={(value) => void formik.setFieldValue("pool", value)}
-        invalidDrivers={Object.keys(storageDriverLabels).filter((key) => {
-          return key !== cephObject;
-        })}
+        invalidDrivers={[]}
         selectProps={{
           id: "bucket-create-pool",
           label: "Storage pool",
           disabled: !!bucketEditRestriction || isEditing,
           help: isEditing
             ? "Storage bucket pool can't be changed"
-            : formik.errors.pool
-              ? null
-              : "Pool must have a Ceph Object driver",
-          error: formik.errors.pool,
-          onBlur: formik.handleBlur,
-          takeFocus: true,
-          required: true,
+            : "",
         }}
       />
 
