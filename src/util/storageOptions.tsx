@@ -25,7 +25,7 @@ export const storageDriverLabels: { [key: string]: string } = {
   [lvmClusterDriver]: "LVM Cluster",
 };
 
-const bucketCompatibleDrivers = [cephObject];
+const bucketCompatibleDrivers = [dirDriver, btrfsDriver, lvmDriver, zfsDriver];
 
 export const isBucketCompatibleDriver = (driver: string): boolean => {
   return bucketCompatibleDrivers.includes(driver);
