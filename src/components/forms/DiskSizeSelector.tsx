@@ -54,7 +54,11 @@ const DiskSizeSelector: FC<Props> = ({
           step="Any"
           placeholder="Enter value"
           onChange={(e) => {
-            setMemoryLimit(e.target.value + limit.unit);
+            if (e.target.value) {
+              setMemoryLimit(e.target.value + limit.unit);
+            } else {
+              setMemoryLimit("");
+            }
           }}
           value={value?.match(/^\d/) ? limit.value : ""}
           disabled={disabled}
