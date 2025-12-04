@@ -110,7 +110,7 @@ export const getSnapshotsPerVolume = (volumes: LxdStorageVolume[]) => {
   for (const volume of volumes) {
     if (isSnapshot(volume)) {
       const { volumeName, snapshotName } = splitVolumeSnapshotName(volume.name);
-      const key = `${volumeName}-${volume.location}`;
+      const key = `${volumeName}-${volume.pool}-${volume.location}`;
       if (!snapshotPerVolumeLookup[key]) {
         snapshotPerVolumeLookup[key] = [];
       }
