@@ -172,11 +172,11 @@ const OtherDeviceForm: FC<Props> = ({ formik, project }) => {
     }
     const device = formik.values.devices[index];
 
-    const type = device.type === "usb" ? "unix-usb" : device.type;
-    const id = `device-${type}` as "server";
+    const type = ["unix-char", "unix-block"].includes(device.type) ? "unix-char-block" : device.type;
+    const id = `${type}` as "server";
 
-    const rawOptions = configOptions?.configs[id];
-    const configFields = rawOptions ? toConfigFields(rawOptions) : [];
+    const rawOptions = configOptions?.configs.devices[id];
+    const configFields = rawOptions ? toConfigFields({"device" : rawOptions}) : [];
 
     customRows.push(
       getConfigurationRowBase({
