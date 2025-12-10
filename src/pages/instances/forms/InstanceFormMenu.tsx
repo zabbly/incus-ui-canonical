@@ -26,6 +26,7 @@ export const MIGRATION = "Migration";
 export const SNAPSHOTS = "Snapshots";
 export const BOOT = "Boot";
 export const CLOUD_INIT = "Cloud init";
+export const USER_PROPERTIES = "User properties";
 export const YAML_CONFIGURATION = "YAML configuration";
 
 interface Props {
@@ -159,6 +160,14 @@ const InstanceFormMenu: FC<Props> = ({
               formik,
               "cloud_init_",
               "cloud_init_ssh_keys",
+            )}
+          />
+          <MenuItem
+            label={USER_PROPERTIES}
+            {...menuItemProps}
+            isBold={hasPrefixValue(
+              formik,
+              "user.",
             )}
           />
         </ul>

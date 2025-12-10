@@ -38,6 +38,7 @@ import InstanceFormMenu, {
   RESOURCE_LIMITS,
   SECURITY_POLICIES,
   SNAPSHOTS,
+  USER_PROPERTIES,
   YAML_CONFIGURATION,
 } from "pages/instances/forms/InstanceFormMenu";
 import { updateMaxHeight } from "util/updateMaxHeight";
@@ -53,6 +54,7 @@ import { slugify } from "util/slugify";
 import { useEventQueue } from "context/eventQueue";
 import { hasDiskError, hasNetworkError } from "util/instanceValidation";
 import MigrationForm from "components/forms/MigrationForm";
+import UserPropertiesForm from "components/forms/UserPropertiesForm";
 import GPUDeviceForm from "components/forms/GPUDeviceForm";
 import OtherDeviceForm from "components/forms/OtherDeviceForm";
 import YamlSwitch from "components/forms/YamlSwitch";
@@ -268,6 +270,10 @@ const EditInstance: FC<Props> = ({ instance }) => {
                 formik={formik}
                 project={project}
               />
+            )}
+
+            {section === slugify(USER_PROPERTIES) && (
+              <UserPropertiesForm formik={formik} />
             )}
 
             {isYamlSection && (

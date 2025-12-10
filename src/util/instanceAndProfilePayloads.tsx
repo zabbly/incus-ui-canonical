@@ -29,6 +29,9 @@ import type { CpuLimit, MemoryLimit } from "types/limits";
 import { CPU_LIMIT_TYPE } from "types/limits";
 import { parseCpuLimit, parseMemoryLimit } from "util/limits";
 import { parseSshKeys } from "util/instanceEdit";
+import { userPropertiesFromConfig } from "components/forms/UserPropertiesForm";
+
+export const userPropPrefix = "user.";
 
 export const getInstancePayload = (
   instance: LxdInstance,
@@ -57,6 +60,7 @@ export const getInstancePayload = (
       ...cloudInitPayload(values),
       ...sshKeyPayload(values),
       ...getUnhandledKeyValues(instance.config, handledConfigKeys),
+      ...userPropertiesPayload(instance.config, values),
     },
     ...getUnhandledKeyValues(instance, handledKeys),
   };
@@ -244,6 +248,23 @@ export const sshKeyPayload = (values: SshKeyFormValues) => {
   return result;
 };
 
+export const userPropertiesPayload = (
+  config: Record<string, string>,
+  values: InstanceAndProfileFormValues,
+) => {
+  const result = Object.fromEntries(
+    Object.entries(config)
+      .filter(([k]) => k.startsWith(userPropPrefix))
+      .map(([k]) => [k, undefined]),
+  );
+
+  const userProperties = values.userProperties as UserPropertyFormValues[];
+  userProperties.forEach((item: UserPropertyFormValues) => {
+    result[item.name] = item.value;
+  });
+  return result;
+};
+
 export const getUnhandledKeyValues = (
   item:
     | LxdConfigPair
@@ -385,6 +406,14 @@ export const getProfileEditValues = (
 const getEditValues = (
   item: LxdProfile | LxdInstance,
 ): Omit<EditProfileFormValues, "entityType" | "readOnly"> => {
+  const userProperties = userPropertiesFromConfig(item.config).map(
+    ([key, value]) => ({
+      name: key as string,
+      value: value as string,
+      nameEditable: false,
+    }),
+  ) as UserPropertyFormValues[];
+
   return {
     name: item.name,
     description: item.description,
@@ -436,5 +465,6 @@ const getEditValues = (
     cloud_init_user_data: item.config["cloud-init.user-data"],
     cloud_init_vendor_data: item.config["cloud-init.vendor-data"],
     cloud_init_ssh_keys: parseSshKeys(item),
+    userProperties: userProperties,
   };
 };

@@ -3,6 +3,7 @@ import type {
   ConfigurationRowFormikProps,
 } from "types/forms/configurationRow";
 
+import type { UserPropertyFormValues } from "components/forms/UserPropertiesForm";
 import type { FormDevice } from "types/formDevice";
 import type { FormDeviceValues } from "types/forms/instanceAndProfile";
 import type { ResourceLimitsFormValues } from "types/forms/instanceAndProfile";
@@ -23,6 +24,7 @@ const getPrimitiveFieldChanges = (
     "devices",
     "barePool",
     "editRestriction",
+    "userProperties",
   ]);
 
   for (const key in formik.values) {
@@ -193,11 +195,52 @@ const getDeviceChanges = (formik: ConfigurationRowFormikProps): number => {
   return addCount + removeCount + changeCount;
 };
 
+const getUserPropertiesChanges = (
+  formik: ConfigurationRowFormikProps,
+): number => {
+  let changeCount = 0;
+
+  if (!Object.hasOwn(formik.values, "userProperties")) {
+    return 0;
+  }
+
+  const initProperties = formik.initialValues
+    .userProperties as UserPropertyFormValues[];
+  const properties = formik.values.userProperties as UserPropertyFormValues[];
+
+  const initNames = initProperties.map((item) => item.name);
+  const names = properties.map((item) => item.name);
+
+  let addCount = 0;
+  let removeCount = 0;
+
+  initNames.forEach((init, initIndex) => {
+    const valueIndex = names.indexOf(init);
+    if (valueIndex === -1) {
+      removeCount++;
+    } else {
+      if (properties[valueIndex].value != initProperties[initIndex].value) {
+        changeCount += 1;
+      }
+    }
+  });
+
+  names.forEach((name) => {
+    const oldIndex = initNames.indexOf(name);
+    if (oldIndex === -1) {
+      addCount++;
+    }
+  });
+
+  return addCount + removeCount + changeCount;
+};
+
 export const getFormChangeCount = (formik: ConfigurationRowFormikProps) => {
   return (
     getPrimitiveFieldChanges(formik) +
     getProfileChanges(formik) +
     getLimitChanges(formik) +
-    getDeviceChanges(formik)
+    getDeviceChanges(formik) +
+    getUserPropertiesChanges(formik)
   );
 };

@@ -2,6 +2,7 @@ import type { InstanceIconType } from "types/instance";
 import type { RemoteImage } from "types/image";
 import type { CpuLimit, MemoryLimit } from "types/limits";
 import type { FormDevice } from "types/formDevice";
+import type { UserPropertyFormValues } from "components/forms/UserPropertiesForm";
 
 export interface BootFormValues {
   boot_autostart?: string;
@@ -49,6 +50,7 @@ export interface InstanceEditDetailsFormValues {
   isCreating: boolean;
   readOnly: boolean;
   editRestriction?: string;
+  userProperties: UserPropertyFormValues[];
 }
 
 export interface InstanceRestrictionFormValues {
