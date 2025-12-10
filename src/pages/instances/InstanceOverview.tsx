@@ -7,6 +7,7 @@ import { instanceCreationTypes } from "util/instanceOptions";
 import useEventListener from "util/useEventListener";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import InstanceOverviewProfiles from "./InstanceOverviewProfiles";
+import InstanceOverviewUserProperties from "./InstanceOverviewUserProperties";
 import InstanceOverviewMetrics from "./InstanceOverviewMetrics";
 import InstancePreview from "./InstancePreview";
 import InstanceIps from "pages/instances/InstanceIps";
@@ -129,10 +130,9 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
             <h2 className="p-heading--5">Preview</h2>
           </Col>
           <Col size={4}>
-            <InstancePreview instance={instance} onFailure={onFailure}/>
+            <InstancePreview instance={instance} onFailure={onFailure} />
           </Col>
-          <Col size={3}>
-          </Col>
+          <Col size={3}></Col>
         </Row>
       )}
       <Row className="usage">
@@ -172,6 +172,14 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
         </Col>
         <Col size={7}>
           <InstanceOverviewProfiles instance={instance} onFailure={onFailure} />
+        </Col>
+      </Row>
+      <Row className="user-properties">
+        <Col size={3}>
+          <h2 className="p-heading--5">User properties</h2>
+        </Col>
+        <Col size={7}>
+          <InstanceOverviewUserProperties instance={instance} />
         </Col>
       </Row>
     </div>
