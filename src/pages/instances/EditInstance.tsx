@@ -40,6 +40,7 @@ import InstanceFormMenu, {
   RESOURCE_LIMITS,
   SECURITY_POLICIES,
   SNAPSHOTS,
+  USER_PROPERTIES,
   YAML_CONFIGURATION,
 } from "pages/instances/forms/InstanceFormMenu";
 import { updateMaxHeight } from "util/updateMaxHeight";
@@ -57,6 +58,7 @@ import { hasDiskError, hasNetworkError } from "util/instanceValidation";
 import FormFooterLayout from "components/forms/FormFooterLayout";
 import type { MigrationFormValues } from "components/forms/MigrationForm";
 import MigrationForm from "components/forms/MigrationForm";
+import UserPropertiesForm from "components/forms/UserPropertiesForm";
 import GPUDeviceForm from "components/forms/GPUDeviceForm";
 import OtherDeviceForm from "components/forms/OtherDeviceForm";
 import YamlSwitch from "components/forms/YamlSwitch";
@@ -66,6 +68,7 @@ import FormSubmitBtn from "components/forms/FormSubmitBtn";
 import InstanceLinkChip from "./InstanceLinkChip";
 import type { BootFormValues } from "components/forms/BootForm";
 import BootForm from "components/forms/BootForm";
+import type { UserPropertyFormValues } from "components/forms/UserPropertiesForm";
 import { useInstanceEntitlements } from "util/entitlements/instances";
 import InstanceProfilesWarning from "./InstanceProfilesWarning";
 import { useProfiles } from "context/useProfiles";
@@ -81,6 +84,7 @@ export interface InstanceEditDetailsFormValues {
   isCreating: boolean;
   readOnly: boolean;
   editRestriction?: string;
+  userProperties: UserPropertyFormValues[];
 }
 
 export type EditInstanceFormValues = InstanceEditDetailsFormValues &
@@ -265,6 +269,10 @@ const EditInstance: FC<Props> = ({ instance }) => {
 
             {section === slugify(CLOUD_INIT) && (
               <CloudInitForm key={`yaml-form-${version}`} formik={formik} />
+            )}
+
+            {section === slugify(USER_PROPERTIES) && (
+              <UserPropertiesForm formik={formik} />
             )}
 
             {section === slugify(YAML_CONFIGURATION) && (

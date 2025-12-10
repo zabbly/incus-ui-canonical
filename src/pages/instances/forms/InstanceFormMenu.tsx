@@ -17,6 +17,7 @@ export const MIGRATION = "Migration";
 export const SNAPSHOTS = "Snapshots";
 export const BOOT = "Boot";
 export const CLOUD_INIT = "Cloud init";
+export const USER_PROPERTIES = "User properties";
 export const YAML_CONFIGURATION = "YAML configuration";
 
 interface Props {
@@ -101,6 +102,7 @@ const InstanceFormMenu: FC<Props> = ({
           <MenuItem label={MIGRATION} {...menuItemProps} />
           <MenuItem label={BOOT} {...menuItemProps} />
           <MenuItem label={CLOUD_INIT} {...menuItemProps} />
+          <MenuItem label={USER_PROPERTIES} {...menuItemProps} />
         </ul>
       </nav>
     </div>

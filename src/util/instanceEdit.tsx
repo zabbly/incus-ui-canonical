@@ -8,6 +8,10 @@ import { resourceLimitsPayload } from "components/forms/ResourceLimitsForm";
 import { securityPoliciesPayload } from "components/forms/SecurityPoliciesForm";
 import { snapshotsPayload } from "components/forms/InstanceSnapshotsForm";
 import { cloudInitPayload } from "components/forms/CloudInitForm";
+import {
+  userPropertiesFromConfig,
+  userPropertiesPayload,
+} from "components/forms/UserPropertiesForm";
 import { getUnhandledKeyValues } from "util/formFields";
 import type { EditInstanceFormValues } from "pages/instances/EditInstance";
 import * as Yup from "yup";
@@ -21,6 +25,14 @@ import { sshKeyPayload } from "components/forms/SshKeyForm";
 const getEditValues = (
   item: LxdProfile | LxdInstance,
 ): Omit<EditProfileFormValues, "entityType" | "readOnly"> => {
+  const userProperties = userPropertiesFromConfig(item.config).map(
+    ([key, value]) => ({
+      name: key as string,
+      value: value as string,
+      nameEditable: false,
+    }),
+  ) as UserPropertyFormValues[];
+
   return {
     name: item.name,
     description: item.description,
@@ -69,6 +81,7 @@ const getEditValues = (
     cloud_init_user_data: item.config["cloud-init.user-data"],
     cloud_init_vendor_data: item.config["cloud-init.vendor-data"],
     cloud_init_ssh_keys: parseSshKeys(item),
+    userProperties: userProperties,
   };
 };
 
@@ -143,6 +156,7 @@ export const getInstancePayload = (
       ...cloudInitPayload(values),
       ...sshKeyPayload(values),
       ...getUnhandledKeyValues(instance.config, handledConfigKeys),
+      ...userPropertiesPayload(instance.config, values),
     },
     ...getUnhandledKeyValues(instance, handledKeys),
   };
