@@ -25,7 +25,6 @@ import StorageVolumesFilter, {
 import StorageVolumeSize from "pages/storage/StorageVolumeSize";
 import {
   figureCollapsedScreen,
-  getSnapshotsPerVolume,
   getVolumeId,
   hasVolumeDetailPage,
   isSnapshot,
@@ -227,12 +226,11 @@ const StorageVolumes: FC = () => {
     return true;
   });
 
-  const snapshotsPerVolume = getSnapshotsPerVolume(volumes);
   const rows = filteredVolumes.map((volume) => {
     const id = getVolumeId(volume);
     const volumeType = renderVolumeType(volume);
     const contentType = renderContentType(volume);
-    const snapshotCount = snapshotsPerVolume[id]?.length ?? 0;
+    const snapshotCount = volume?.snapshots?.length ?? 0;
     const canSelect = hasVolumeDetailPage(volume);
 
     return {

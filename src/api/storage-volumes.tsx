@@ -27,7 +27,7 @@ export const fetchStorageVolumes = async (
   isFineGrained: boolean | null,
 ): Promise<LxdStorageVolume[]> => {
   const params = new URLSearchParams();
-  params.set("recursion", "1");
+  params.set("recursion", "2");
   params.set("project", project);
   addEntitlements(params, isFineGrained, volumeEntitlements);
 
