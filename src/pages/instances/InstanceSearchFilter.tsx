@@ -1,7 +1,6 @@
 import type { FC } from "react";
-import { memo, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { SearchBox } from "@canonical/react-components";
-import { useSearchParams } from "react-router-dom";
 
 export const QUERY = "query";
 export const STATUS = "status";
@@ -10,20 +9,17 @@ export const PROFILE = "profile";
 export const CLUSTER_MEMBER = "member";
 export const PROJECT = "project";
 
-const QUERY_PARAMS = [QUERY, STATUS, TYPE, PROFILE, CLUSTER_MEMBER, PROJECT];
-
 interface Props {
+  initialQuery: string;
   onSearch: (filter: string) => void;
 }
 
-const InstanceSearchFilter: FC<Props> = ({ onSearch }) => {
-  const [searchParams] = useSearchParams();
-  const filterQuery =
-    searchParams.get("filter") != null ? searchParams.get("filter") : "";
+const InstanceSearchFilter: FC<Props> = ({ onSearch, initialQuery }) => {
+  const [query, setQuery] = useState<string>(initialQuery);
 
-  const [query, setQuery] = useState<string>(
-    decodeURIComponent(filterQuery || ""),
-  );
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
@@ -50,6 +46,7 @@ const InstanceSearchFilter: FC<Props> = ({ onSearch }) => {
         placeholder="Search"
         value={query}
         aria-label="Search"
+        externallyControlled={true}
       />
     </>
   );
