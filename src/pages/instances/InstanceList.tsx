@@ -77,7 +77,6 @@ import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesy
 import { useInstances } from "context/useInstances";
 import { useProjectEntitlements } from "util/entitlements/projects";
 import { useCurrentProject } from "context/useCurrentProject";
-import { useIsClustered } from "context/useIsClustered";
 import { useProject } from "context/useProjects";
 import InstanceClusterMemberChip from "pages/instances/InstanceClusterMemberChip";
 import InstanceProjectChip from "pages/instances/InstanceProjectChip";
@@ -136,6 +135,12 @@ const InstanceList: FC = () => {
     parseFilters(filterQuery || ""),
     ["ipv4", "ipv6"],
   );
+
+  useEffect(() => {
+    setTimeout(() => {
+      void refetch();
+    }, 10);
+  }, [filterQuery]);
 
   const {
     data: instances = [],
@@ -206,7 +211,7 @@ const InstanceList: FC = () => {
     setSearchParams("filter=" + filter);
     setTimeout(() => {
       void refetch();
-    }, 1);
+    }, 10);
   };
 
   const filteredInstances = instances.filter((item) => {
@@ -631,7 +636,10 @@ const InstanceList: FC = () => {
               </PageHeader.Title>
               {hasInstances && selectedNames.length === 0 && (
                 <PageHeader.Search>
-                  <InstanceSearchFilter onSearch={onSearch} />
+                  <InstanceSearchFilter
+                    onSearch={onSearch}
+                    initialQuery={filterQuery}
+                  />
                 </PageHeader.Search>
               )}
               {selectedNames.length > 0 && (

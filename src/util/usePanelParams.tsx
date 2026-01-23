@@ -66,6 +66,11 @@ const usePanelParams = (): PanelHelper => {
 
   const setPanelParams = (panel: string, args: ParamMap = {}) => {
     const newParams = new URLSearchParams();
+
+    if (params.get("filter")) {
+      newParams.set("filter", params.get("filter"));
+    }
+
     newParams.set("panel", panel);
     for (const [key, value] of Object.entries(args)) {
       if (value) {
