@@ -9,11 +9,7 @@ import { setTitle } from "util/title";
 import NoMatch from "components/NoMatch";
 import { logout } from "util/helpers";
 import lazy from "util/lazyWithRetry";
-import {
-  applyTheme,
-  loadTheme,
-  Spinner,
-} from "@canonical/react-components";
+import { applyTheme, loadTheme, Spinner } from "@canonical/react-components";
 import { ALL_PROJECTS } from "util/loginProject";
 
 const CertificateAdd = lazy(async () => import("pages/login/CertificateAdd"));
@@ -54,6 +50,7 @@ const EditNetworkLoadBalancer = lazy(
   async () => import("pages/networks/EditNetworkLoadBalancer"),
 );
 const ImageList = lazy(async () => import("pages/images/ImageList"));
+const IncusOS = lazy(async () => import("pages/os/IncusOS"));
 const InstanceDetail = lazy(
   async () => import("pages/instances/InstanceDetail"),
 );
@@ -518,6 +515,18 @@ const App: FC = () => {
         <Route
           path="/ui/settings"
           element={<ProtectedRoute outlet={<Settings />} />}
+        />
+        <Route
+          path="/ui/os"
+          element={<ProtectedRoute outlet={<IncusOS />} />}
+        />
+        <Route
+          path="/ui/os/:activeTab/"
+          element={<ProtectedRoute outlet={<IncusOS />} />}
+        />
+        <Route
+          path="/ui/os/:activeTab/:itemName"
+          element={<ProtectedRoute outlet={<IncusOS />} />}
         />
         <Route path="/ui/login" element={<Login />} />
         <Route

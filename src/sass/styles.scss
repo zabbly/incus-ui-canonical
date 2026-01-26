@@ -18,6 +18,7 @@
 @include vf-p-icon-connected;
 @include vf-p-icon-containers;
 @include vf-p-icon-copy-to-clipboard;
+@include vf-p-icon-desktop;
 @include vf-p-icon-disconnect;
 @include vf-p-icon-edit;
 @include vf-p-icon-export;
@@ -92,6 +93,7 @@ $border-thin: 1px solid $colors--theme--border-low-contrast !default;
 @import "font";
 @import "forms";
 @import "images";
+@import "incusos_overview";
 @import "instance_detail_console";
 @import "instance_detail_overview";
 @import "instance_detail_page";

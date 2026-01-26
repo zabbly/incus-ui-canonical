@@ -32,6 +32,7 @@ import { useSettings } from "context/useSettings";
 import type { LxdProject } from "types/project";
 import { useIsScreenBelow } from "context/useIsScreenBelow";
 import { useIsClustered } from "context/useIsClustered";
+import { useIncusOS } from "context/useIncusOS";
 import { getReportBugURL } from "util/reportBug";
 import DocLink from "components/DocLink";
 
@@ -105,6 +106,7 @@ const Navigation: FC = () => {
   const hasOidc = settings?.auth_methods?.includes("oidc");
   const navigate = useNavigate();
   const isClustered = useIsClustered();
+  const isIncusOS = useIncusOS();
 
   useEffect(() => {
     const isAllProjects = isAllProjectsFromUrl || !canViewProject;
@@ -615,6 +617,29 @@ const Navigation: FC = () => {
                             name="settings"
                           />{" "}
                           Settings
+                        </NavLink>
+                      </SideNavigationItem>
+                    </>
+                  )}
+                  {isAuthenticated && isIncusOS && (
+                    <>
+                      <hr
+                        className={classnames("navigation-hr", {
+                          "is-light": isLight,
+                        })}
+                      />
+                      <SideNavigationItem>
+                        <NavLink
+                          to="/ui/os"
+                          title="OS"
+                          onClick={softToggleMenu}
+                          ignoreUrlMatches={["operations"]}
+                        >
+                          <Icon
+                            className="is-light p-side-navigation__icon"
+                            name="desktop"
+                          />{" "}
+                          OS
                         </NavLink>
                       </SideNavigationItem>
                     </>
