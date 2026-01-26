@@ -1,0 +1,35 @@
+.incusos-overview-tab {
+  overflow: auto;
+
+  .row {
+    margin-top: $spv--x-large;
+  }
+
+  .general {
+    table {
+      margin-bottom: $spv--large;
+    }
+  }
+
+  .general {
+    tr {
+      border: none;
+    }
+
+    td,
+    th {
+      padding-bottom: $spv--x-small;
+      padding-left: 0;
+      padding-top: $spv--x-small;
+    }
+
+    th {
+      width: 30%;
+    }
+
+    td:first-of-type,
+    th:first-of-type {
+      padding-top: $spv--small;
+    }
+  }
+}

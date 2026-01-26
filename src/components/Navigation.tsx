@@ -8,6 +8,7 @@ import {
   SideNavigationItem,
   useListener,
 } from "@canonical/react-components";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "context/auth";
 import classnames from "classnames";
 import Logo from "./Logo";
@@ -26,13 +27,15 @@ import { useSupportedFeatures } from "context/useSupportedFeatures";
 import type { AccordionNavMenu } from "./NavAccordion";
 import NavAccordion from "./NavAccordion";
 import type { Location } from "react-router-dom";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { isIncusOS } from "api/os";
 import { useLoggedInUser } from "context/useLoggedInUser";
 import { useSettings } from "context/useSettings";
 import { useIsScreenBelow } from "context/useIsScreenBelow";
 import { useIsClustered } from "context/useIsClustered";
 import { getReportBugURL } from "util/reportBug";
 import { AUTH_METHOD, authIcon } from "util/authentication";
+import { queryKeys } from "util/queryKeys";
 import DocLink from "components/DocLink";
 import AuthenticationTlsStepper from "./AuthenticationTlsStepper";
 import { ALL_PROJECTS } from "util/projects";
@@ -102,7 +105,11 @@ const Navigation: FC = () => {
   const navigate = useNavigate();
   const isClustered = useIsClustered();
   const isOidc = authMethod === AUTH_METHOD.OIDC;
-  const isBearerToken = authMethod === AUTH_METHOD.BEARER;
+
+  const { data: isRunningIncusOS = false } = useQuery({
+    queryKey: [queryKeys.osCheck],
+    queryFn: async () => isIncusOS(),
+  });
 
   useEffect(() => {
     const isAllProjects = isAllProjectsFromUrl || !canViewProject;
@@ -677,6 +684,29 @@ const Navigation: FC = () => {
                       </SideNavigationItem>
                     </>
                   )}
+                  {isAuthenticated && isRunningIncusOS && (
+                    <>
+                      <hr
+                        className={classnames("navigation-hr", {
+                          "is-light": isLight,
+                        })}
+                      />
+                      <SideNavigationItem>
+                        <NavLink
+                          to="/ui/os"
+                          title="OS"
+                          onClick={softToggleMenu}
+                          ignoreUrlMatches={["operations"]}
+                        >
+                          <Icon
+                            className="is-light p-side-navigation__icon"
+                            name="desktop"
+                          />{" "}
+                          OS
+                        </NavLink>
+                      </SideNavigationItem>
+                    </>
+                  )}
                   {!isAuthenticated && (onGenerate || onTrustToken) && (
                     <div
                       className={classnames("login-navigation", {
@@ -779,7 +809,7 @@ const Navigation: FC = () => {
                       Report a bug
                     </a>
                   </SideNavigationItem>
-                  {(isOidc || isBearerToken) && (
+                  {isOidc && (
                     <SideNavigationItem>
                       <a
                         className="p-side-navigation__link"
