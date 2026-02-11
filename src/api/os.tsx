@@ -56,8 +56,21 @@ export const fetchSystemUpdate = async (
     });
 };
 
-export const fetchDebugLogs = async (target: string): Promise<IncusOSLog[]> => {
-  return fetch(prepareOSURL("/os/1.0/debug/log", target))
+export const fetchDebugLogs = async (
+  target: string,
+  limit: number,
+): Promise<IncusOSLog[]> => {
+  const url = new URL("/os/1.0/debug/log", window.location.origin);
+
+  if (target) {
+    url.searchParams.set("target", target);
+  }
+
+  if (limit > 0) {
+    url.searchParams.set("entries", limit);
+  }
+
+  return fetch(url.pathname + url.search)
     .then(handleResponse)
     .then((data: LxdApiResponse<IncusOSLog[]>) => {
       return data.metadata;

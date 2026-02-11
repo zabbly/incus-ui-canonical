@@ -37,9 +37,11 @@ interface Props {
 }
 
 const OSLogs: FC<Props> = ({ target }) => {
+  const entriesLimit = 200;
+
   const { data: logs, isLoading } = useQuery({
     queryKey: [queryKeys.osDebugLogs, target],
-    queryFn: async () => fetchDebugLogs(target),
+    queryFn: async () => fetchDebugLogs(target, entriesLimit),
   });
 
   return (
