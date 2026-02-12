@@ -1,8 +1,13 @@
 import type { FC } from "react";
 import { useEffect, useState } from "react";
-import { useToastNotification } from "@canonical/react-components";
+import {
+  Spinner,
+  useNotify,
+  useToastNotification,
+} from "@canonical/react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOSNetwork, updateOSNetwork } from "api/os";
+import NotificationRow from "components/NotificationRow";
 import OSYamlEditor from "components/forms/OSYamlEditor";
 import type { YamlFormValues } from "components/forms/YamlForm";
 import { queryKeys } from "util/queryKeys";
@@ -14,10 +19,15 @@ interface Props {
 
 const OSNetwork: FC<Props> = ({ target }) => {
   const toastNotify = useToastNotification();
+  const notify = useNotify();
   const queryClient = useQueryClient();
   const [editorKey, setEditorKey] = useState(0);
 
-  const { data: networkData } = useQuery({
+  const {
+    data: networkData,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: [queryKeys.osNetwork, target],
     queryFn: async () => fetchOSNetwork(target),
   });
@@ -48,8 +58,24 @@ const OSNetwork: FC<Props> = ({ target }) => {
       });
   };
 
+  if (error) {
+    notify.failure("Loading network data failed", error);
+  }
+
   return (
-    <OSYamlEditor key={editorKey} yamlData={networkData} onSubmit={onSubmit} />
+    <>
+      <NotificationRow />
+      {isLoading && (
+        <Spinner className="u-loader" text="Loading network data..." />
+      )}
+      {!isLoading && !error && (
+        <OSYamlEditor
+          key={editorKey}
+          yamlData={networkData}
+          onSubmit={onSubmit}
+        />
+      )}
+    </>
   );
 };
 

@@ -26,6 +26,7 @@ export const queryKeys = {
   osServices: "osServices",
   osServiceDetails: "osServiceDetails",
   osStorage: "osStorage",
+  osUpdate: "osUpdate",
   profiles: "profiles",
   projects: "projects",
   resources: "resources",

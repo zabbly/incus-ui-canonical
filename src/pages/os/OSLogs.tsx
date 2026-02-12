@@ -1,7 +1,8 @@
 import type { FC } from "react";
-import { Spinner } from "@canonical/react-components";
+import { Spinner, useNotify } from "@canonical/react-components";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDebugLogs } from "api/os";
+import NotificationRow from "components/NotificationRow";
 import type { IncusOSLog } from "types/os";
 import { queryKeys } from "util/queryKeys";
 
@@ -37,15 +38,25 @@ interface Props {
 }
 
 const OSLogs: FC<Props> = ({ target }) => {
+  const notify = useNotify();
   const entriesLimit = 200;
 
-  const { data: logs, isLoading } = useQuery({
+  const {
+    data: logs = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: [queryKeys.osDebugLogs, target],
     queryFn: async () => fetchDebugLogs(target, entriesLimit),
   });
 
+  if (error) {
+    notify.failure("Loading logs failed", error);
+  }
+
   return (
     <>
+      <NotificationRow />
       {isLoading && <Spinner className="u-loader" text="Loading logs..." />}
       {!isLoading && logs.length === 0 && (
         <div className="u-align-text--center">There are no logs.</div>
