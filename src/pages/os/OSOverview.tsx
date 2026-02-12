@@ -20,7 +20,7 @@ const OSOverview: FC<Props> = ({ target }) => {
   const { data: incusOSData, error, isLoading } = useIncusOS();
 
   const { data: systemUpdate } = useQuery({
-    queryKey: [queryKeys.osDebugLogs, target],
+    queryKey: [queryKeys.osUpdate, target],
     queryFn: async () => fetchSystemUpdate(target),
   });
 

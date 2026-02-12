@@ -1,8 +1,8 @@
 import type { FC } from "react";
 import {
-  EmptyState,
   MainTable,
   ScrollableTable,
+  Spinner,
   TablePagination,
   useNotify,
 } from "@canonical/react-components";
@@ -21,7 +21,11 @@ interface Props {
 const OSServices: FC<Props> = ({ target }) => {
   const notify = useNotify();
 
-  const { data: services } = useQuery({
+  const {
+    data: services,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: [queryKeys.osServices, target],
     queryFn: async () => fetchOSServices(target),
   });
@@ -70,10 +74,15 @@ const OSServices: FC<Props> = ({ target }) => {
 
   const { rows: sortedRows, updateSort } = useSortTableData({ rows });
 
+  if (error) {
+    notify.failure("Loading services failed", error);
+  }
+
   return (
     <div>
       <NotificationRow />
-      {services?.length > 0 ? (
+      {isLoading && <Spinner className="u-loader" text="Loading services..." />}
+      {!isLoading && !error && services?.length > 0 && (
         <>
           <ScrollableTable
             dependencies={[services, notify.notification]}
@@ -97,11 +106,6 @@ const OSServices: FC<Props> = ({ target }) => {
             </TablePagination>
           </ScrollableTable>
         </>
-      ) : (
-        <EmptyState
-          className="empty-state"
-          title="No services found"
-        ></EmptyState>
       )}
     </div>
   );
