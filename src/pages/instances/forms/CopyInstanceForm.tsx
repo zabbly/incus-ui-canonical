@@ -14,7 +14,10 @@ import {
 import * as Yup from "yup";
 import { createInstance } from "api/instances";
 import { useNavigate } from "react-router-dom";
-import { instanceNameValidation } from "util/instances";
+import {
+  instanceIncludeConfigWhenCopying,
+  instanceNameValidation,
+} from "util/instances";
 import type { LxdDiskDevice } from "types/device";
 import { useEventQueue } from "context/eventQueue";
 import ClusterMemberSelector from "pages/cluster/ClusterMemberSelector";
@@ -29,6 +32,7 @@ import { useProjectEntitlements } from "util/entitlements/projects";
 import { useStoragePools } from "context/useStoragePools";
 import { useIsClustered } from "context/useIsClustered";
 import { InstanceRichChip } from "../InstanceRichChip";
+import { isRootDisk } from "util/devices";
 
 interface Props {
   instance: LxdInstance;
@@ -112,11 +116,45 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
           projectName={instance.project}
         />
       );
+      const config = Object.fromEntries(
+        Object.entries(instance.config).filter(([key, _]) =>
+          instanceIncludeConfigWhenCopying(key),
+        ),
+      );
+
+      let rootDiskName = "";
+      const devices = Object.fromEntries(
+        Object.entries(instance.devices).map(([key, value]) => {
+          if (isRootDisk(value)) {
+            rootDiskName = key;
+            if (values.targetStoragePool !== "") {
+              return [key, { ...value, pool: values.targetStoragePool }];
+            }
+          }
+
+          return [key, value];
+        }),
+      );
+
+      if (rootDiskName === "" && values.targetStoragePool !== "") {
+        devices["root"] = {
+          path: "/",
+          type: "disk",
+          pool: values.targetStoragePool,
+        };
+      }
+
       createInstance(
         JSON.stringify({
           description: instance.description,
           name: values.instanceName,
           architecture: instance.architecture,
+          ephemeral: instance.ephemeral,
+          type: instance.type,
+          profiles: [...instance.profiles],
+          config: {
+            ...config,
+          },
           source: {
             allow_inconsistent: values.allowInconsistent,
             instance_only: values.instanceOnly,
@@ -125,12 +163,7 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
             project: instance.project,
           },
           devices: {
-            ...instance.devices,
-            root: {
-              path: "/",
-              type: "disk",
-              pool: values.targetStoragePool,
-            },
+            ...devices,
           },
         }),
         values.targetProject,
