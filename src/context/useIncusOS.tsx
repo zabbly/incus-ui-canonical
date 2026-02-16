@@ -4,9 +4,9 @@ import { fetchOS } from "api/os";
 import type { IncusOSSettings } from "types/os";
 import { queryKeys } from "util/queryKeys";
 
-export const useIncusOS = (): UseQueryResult<IncusOSSettings> => {
+export const useIncusOS = (target: string): UseQueryResult<IncusOSSettings> => {
   return useQuery({
-    queryKey: [queryKeys.os],
-    queryFn: async () => fetchOS(),
+    queryKey: [queryKeys.os, target],
+    queryFn: async () => fetchOS(target),
   });
 };
