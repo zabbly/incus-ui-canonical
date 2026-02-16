@@ -17,8 +17,8 @@ const prepareOSURL = (url: string, target: string) => {
   return result;
 };
 
-export const fetchOS = async (): Promise<IncusOSSettings> => {
-  return fetch("/os/1.0")
+export const fetchOS = async (target: string): Promise<IncusOSSettings> => {
+  return fetch(prepareOSURL("/os/1.0", target))
     .then(handleResponse)
     .then((data: LxdApiResponse<IncusOSSettings>) => {
       return data.metadata;

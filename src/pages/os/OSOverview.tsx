@@ -17,7 +17,7 @@ interface Props {
 
 const OSOverview: FC<Props> = ({ target }) => {
   const notify = useNotify();
-  const { data: incusOSData, error, isLoading } = useIncusOS();
+  const { data: incusOSData, error, isLoading } = useIncusOS(target);
 
   const { data: systemUpdate } = useQuery({
     queryKey: [queryKeys.osUpdate, target],
