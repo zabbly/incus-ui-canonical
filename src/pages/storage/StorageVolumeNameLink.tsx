@@ -7,6 +7,7 @@ import { linkForVolumeDetail, hasVolumeDetailPage } from "util/storageVolume";
 import { useInstances } from "context/useInstances";
 import { useLocalImagesInProject } from "context/useImages";
 import { getImageAlias, getImageName } from "util/images";
+import { encodeServerFilters } from "util/instanceFilter";
 
 interface Props {
   volume: LxdStorageVolume;
@@ -24,7 +25,7 @@ const StorageVolumeNameLink: FC<Props> = ({
 
   const isInstance =
     volume.type === "container" || volume.type === "virtual-machine";
-  const { data: instances = [] } = useInstances(volume.project);
+  const { data: instances = [] } = useInstances(volume.project, encodeServerFilters([""]));
   const instance =
     isInstance && instances.find((instance) => instance.name === volume.name);
 
