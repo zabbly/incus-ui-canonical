@@ -26,6 +26,7 @@ import { useProjectEntitlements } from "util/entitlements/projects";
 import { useStoragePools } from "context/useStoragePools";
 import { useIsClustered } from "context/useIsClustered";
 import { truncateEntityName } from "util/helpers";
+import { encodeServerFilters } from "util/instanceFilter";
 
 interface Props {
   instance: LxdInstance;
@@ -96,7 +97,7 @@ const CreateInstanceFromSnapshotForm: FC<Props> = ({
   const { data: storagePools = [], isLoading: storagePoolsLoading } =
     useStoragePools();
 
-  const { data: instances = [] } = useInstances(instance.project);
+  const { data: instances = [] } = useInstances(instance.project, encodeServerFilters([""]));
 
   const notifySuccess = (
     name: string,
