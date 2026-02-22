@@ -200,6 +200,7 @@ const DiskDeviceFormRoot: FC<Props> = ({
                       ? "Use the migrate button in the header to change root storage."
                       : "",
                   }}
+                  project={project}
                 />
               </>
             ),

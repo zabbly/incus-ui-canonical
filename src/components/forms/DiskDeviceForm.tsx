@@ -32,7 +32,7 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
     data: pools = [],
     isLoading: isStorageLoading,
     error: storageError,
-  } = useStoragePools();
+  } = useStoragePools(true, project);
 
   if (storageError) {
     notify.failure("Loading storage pools failed", storageError);
