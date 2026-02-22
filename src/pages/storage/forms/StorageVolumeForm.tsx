@@ -151,7 +151,7 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
   }
 
   const { data: clusterMembers = [] } = useClusterMembers();
-  const { data: pools = [], error } = useStoragePools();
+  const { data: pools = [], error } = useStoragePools(true, project);
 
   if (error) {
     notify.failure("Loading storage pools failed", error);
@@ -209,6 +209,7 @@ const StorageVolumeForm: FC<Props> = ({ formik, section, setSection }) => {
               pools={pools}
               settings={settings}
               showClusterMember={showClusterMember}
+              project={project}
             />
           )}
           {section === slugify(SNAPSHOTS) && (

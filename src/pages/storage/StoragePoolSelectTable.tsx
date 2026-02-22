@@ -19,7 +19,7 @@ interface Props {
 }
 
 const StoragePoolSelectTable: FC<Props> = ({ onSelect, disablePool }) => {
-  const { data: pools = [], isLoading } = useStoragePools();
+  const { data: pools = [], isLoading } = useStoragePools(true);
   const isClustered = useIsClustered();
 
   const headers = [
