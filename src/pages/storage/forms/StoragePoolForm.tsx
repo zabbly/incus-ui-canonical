@@ -204,9 +204,7 @@ export const toStoragePool = (
     config: {
       ...missingConfigFields,
       ...getConfig(),
-      source: hasSource(values.driver, hasRemoteDropSource)
-        ? values.source
-        : undefined,
+      source: values.source,
     },
   };
 };
