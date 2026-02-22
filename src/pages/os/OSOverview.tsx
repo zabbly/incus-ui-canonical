@@ -2,12 +2,12 @@ import type { FC } from "react";
 import { Col, Row, useNotify, Spinner } from "@canonical/react-components";
 import { useQuery } from "@tanstack/react-query";
 import {
+  fetchOS,
   fetchOSApplication,
   fetchOSApplications,
   fetchSystemUpdate,
 } from "api/os";
 import NotificationRow from "components/NotificationRow";
-import { useIncusOS } from "context/useIncusOS";
 import { nameFromURL } from "util/os";
 import { queryKeys } from "util/queryKeys";
 
@@ -17,7 +17,14 @@ interface Props {
 
 const OSOverview: FC<Props> = ({ target }) => {
   const notify = useNotify();
-  const { data: incusOSData, error, isLoading } = useIncusOS(target);
+  const {
+    data: incusOSData,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: [queryKeys.os, target],
+    queryFn: async () => fetchOS(target),
+  });
 
   const { data: systemUpdate } = useQuery({
     queryKey: [queryKeys.osUpdate, target],

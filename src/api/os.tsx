@@ -17,6 +17,17 @@ const prepareOSURL = (url: string, target: string) => {
   return result;
 };
 
+export const isIncusOS = async (): Promise<boolean> => {
+  return fetch("/os/1.0")
+    .then(handleResponse)
+    .then((response: LxdApiResponse<null>) => {
+      if (response.error_code == 0) {
+        return true;
+      }
+      return false;
+    });
+};
+
 export const fetchOS = async (target: string): Promise<IncusOSSettings> => {
   return fetch(prepareOSURL("/os/1.0", target))
     .then(handleResponse)

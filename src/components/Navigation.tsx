@@ -10,6 +10,7 @@ import {
   Stepper,
   useListener,
 } from "@canonical/react-components";
+import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "context/auth";
 import classnames from "classnames";
 import Logo from "./Logo";
@@ -27,13 +28,14 @@ import type { AccordionNavMenu } from "./NavAccordion";
 import NavAccordion from "./NavAccordion";
 import type { Location } from "react-router-dom";
 import { useLocation, useNavigate } from "react-router-dom";
+import { isIncusOS } from "api/os";
 import { useLoggedInUser } from "context/useLoggedInUser";
 import { useSettings } from "context/useSettings";
 import type { LxdProject } from "types/project";
 import { useIsScreenBelow } from "context/useIsScreenBelow";
 import { useIsClustered } from "context/useIsClustered";
-import { useIncusOS } from "context/useIncusOS";
 import { getReportBugURL } from "util/reportBug";
+import { queryKeys } from "util/queryKeys";
 import DocLink from "components/DocLink";
 
 const initialiseOpenNavMenus = (location: Location) => {
@@ -106,7 +108,11 @@ const Navigation: FC = () => {
   const hasOidc = settings?.auth_methods?.includes("oidc");
   const navigate = useNavigate();
   const isClustered = useIsClustered();
-  const isIncusOS = useIncusOS();
+
+  const { data: isRunningIncusOS = false } = useQuery({
+    queryKey: [queryKeys.osCheck],
+    queryFn: async () => isIncusOS(),
+  });
 
   useEffect(() => {
     const isAllProjects = isAllProjectsFromUrl || !canViewProject;
@@ -621,7 +627,7 @@ const Navigation: FC = () => {
                       </SideNavigationItem>
                     </>
                   )}
-                  {isAuthenticated && isIncusOS && (
+                  {isAuthenticated && isRunningIncusOS && (
                     <>
                       <hr
                         className={classnames("navigation-hr", {
