@@ -59,9 +59,12 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
   const { canCreateInstances } = useProjectEntitlements();
 
   const { data: storagePools = [], isLoading: storagePoolsLoading } =
-    useStoragePools();
+    useStoragePools(true);
 
-  const { data: instances = [] } = useInstances(instance.project, encodeServerFilters([""]));
+  const { data: instances = [] } = useInstances(
+    instance.project,
+    encodeServerFilters([""]),
+  );
 
   const notifySuccess = (
     name: string,

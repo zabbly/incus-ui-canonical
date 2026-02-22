@@ -32,7 +32,7 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
     data: pools = [],
     isLoading: isStorageLoading,
     error: storageError,
-  } = useStoragePools();
+  } = useStoragePools(true, project);
 
   if (storageError) {
     notify.failure("Loading storage pools failed", storageError);
@@ -53,7 +53,12 @@ const DiskDeviceForm: FC<Props> = ({ formik, project }) => {
       <ScrollableForm>
         {/* hidden submit to enable enter key in inputs */}
         <Input type="submit" hidden value="Hidden input" />
-        <DiskDeviceFormRoot formik={formik} pools={pools} profiles={profiles} />
+        <DiskDeviceFormRoot
+          formik={formik}
+          project={project}
+          pools={pools}
+          profiles={profiles}
+        />
         <DiskDeviceFormInherited
           formik={formik}
           inheritedDiskDevices={inheritedDiskDevices}

@@ -61,7 +61,7 @@ const UploadVolumeBackupFileForm: FC<Props> = ({
   const navigate = useNavigate();
   const [uploadAbort, setUploadAbort] = useState<AbortController | null>(null);
   const volumeNameAbort = useState<AbortController | null>(null);
-  const { data: pools = [] } = useStoragePools();
+  const { data: pools = [] } = useStoragePools(true, project);
   const { data: clusterMembers = [] } = useClusterMembers();
 
   const handleSuccess = (

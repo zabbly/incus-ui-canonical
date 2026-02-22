@@ -21,9 +21,15 @@ interface Props {
   formik: InstanceAndProfileFormikProps;
   pools: LxdStoragePool[];
   profiles: LxdProfile[];
+  project: string;
 }
 
-const DiskDeviceFormRoot: FC<Props> = ({ formik, pools, profiles }) => {
+const DiskDeviceFormRoot: FC<Props> = ({
+  formik,
+  pools,
+  profiles,
+  project,
+}) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
   const rootIndex = formik.values.devices.findIndex(isRootDisk);
   const hasRootStorage = rootIndex !== -1;
@@ -147,6 +153,7 @@ const DiskDeviceFormRoot: FC<Props> = ({ formik, pools, profiles }) => {
                       ? "Use the migrate button in the header to change root storage."
                       : "",
                   }}
+                  project={project}
                 />
               </>
             ),
