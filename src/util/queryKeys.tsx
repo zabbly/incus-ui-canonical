@@ -20,6 +20,7 @@ export const queryKeys = {
   operations: "operations",
   os: "os",
   osApps: "osApps",
+  osCheck: "osCheck",
   osDebugLogs: "osDebugLogs",
   osNetwork: "osNetwork",
   osSecurity: "osSecurity",
