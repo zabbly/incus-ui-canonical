@@ -38,9 +38,13 @@ export const fetchStoragePool = async (
 
 export const fetchStoragePools = async (
   isFineGrained: boolean | null,
+  project: string | null,
 ): Promise<LxdStoragePool[]> => {
   const params = new URLSearchParams();
   params.set("recursion", "1");
+  if (project) {
+    params.set("project", project);
+  }
   addEntitlements(params, isFineGrained, storagePoolEntitlements);
 
   return fetch(`/1.0/storage-pools?${params.toString()}`)

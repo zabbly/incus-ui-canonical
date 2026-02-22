@@ -24,6 +24,7 @@ interface Props {
   pools?: LxdStoragePool[];
   settings?: LxdSettings;
   showClusterMember: boolean;
+  project: string;
 }
 
 const StorageVolumeFormMain: FC<Props> = ({
@@ -33,6 +34,7 @@ const StorageVolumeFormMain: FC<Props> = ({
   pools = [],
   settings,
   showClusterMember,
+  project,
 }) => {
   const poolDriver = pools.find(
     (item) => item.name === formik.values.pool,
@@ -76,6 +78,7 @@ const StorageVolumeFormMain: FC<Props> = ({
                 ? undefined
                 : "Use the migrate button in the header to move the volume to a different storage pool.",
             }}
+            project={project}
           />
           {formik.values.clusterMember !== undefined &&
             formik.values.clusterMember !== "none" && (
