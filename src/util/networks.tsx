@@ -30,12 +30,13 @@ export const getIpAddresses = (
 ): IpAddress[] => {
   if (!instance.state?.network) return [];
   return Object.entries(instance.state.network)
-    .filter(([key, _value]) => key !== "lo")
+    .filter(([_key, value]) => value.type == "broadcast")
     .flatMap(([key, value]) =>
       value.addresses.map((item) => {
         return { ...item, iface: key };
       }),
     )
+    .filter((item) => item.scope == "global")
     .filter((item) => item.family === family);
 };
 
@@ -70,7 +71,7 @@ export const getMACAddresses = (
 ) => {
   if (!instance.state?.network) return [];
   return Object.entries(instance.state.network)
-    .filter(([key, _value]) => key !== "lo")
+    .filter(([_key, value]) => value.type == "broadcast")
     .map(([key, value]) => {return { iface: key, hwaddr: value.hwaddr }});
 };
 
