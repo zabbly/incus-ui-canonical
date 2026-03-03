@@ -39,7 +39,7 @@ const XTERM_OPTIONS = {
 };
 
 const defaultPayload: TerminalConnectPayload = {
-  command: "su -l",
+  command: "bash",
   environment: [
     {
       key: "TERM",
