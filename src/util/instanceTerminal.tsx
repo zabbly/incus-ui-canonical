@@ -6,13 +6,7 @@ export const UI_TERMINAL_DEFAULT_PAYLOAD = "user.ui_terminal_default_payload";
 const BASH_DISTROS = ["ubuntu", "debian", "fedora"];
 
 const getCommand = (instance: LxdInstance): string => {
-  const os = instance.config["image.os"]?.toLowerCase() || "";
-
-  if (BASH_DISTROS.includes(os)) {
-    return "bash -il";
-  }
-
-  return "su -l";
+  return "bash";
 };
 
 const getEnvironment = (instance: LxdInstance) => {
