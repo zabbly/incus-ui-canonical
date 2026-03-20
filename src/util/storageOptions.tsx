@@ -87,6 +87,7 @@ export const driversWithFilesystemSupport = [
   cephDriver,
   pureStorage,
   cephObject,
+  lvmClusterDriver,
 ];
 
 export const isRemoteStorage = (driver: string) => {
