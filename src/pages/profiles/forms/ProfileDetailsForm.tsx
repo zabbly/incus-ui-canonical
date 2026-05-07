@@ -63,17 +63,6 @@ const ProfileDetailsForm: FC<Props> = ({ formik, isEdit, project }) => {
             disabled={!!formik.values.editRestriction}
             title={formik.values.editRestriction}
           />
-          {isClustered && (
-            <PlacementGroupSelect
-              value={formik.values.placement_group}
-              setValue={(value) => {
-                ensureEditMode(formik);
-                formik.setFieldValue("placement_group", value || undefined);
-              }}
-              project={project}
-              hasNoneOption
-            />
-          )}
           <SshKeyForm formik={formik} />
         </Col>
       </Row>

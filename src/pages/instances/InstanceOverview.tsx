@@ -104,20 +104,6 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
                       )}
                     </td>
                   </tr>
-                  <tr>
-                    <th className="u-text--muted">Placement group</th>
-                    <td>
-                      {instance.expanded_config["placement.group"] ? (
-                        <ResourceLink
-                          type="placement-group"
-                          value={instance.expanded_config["placement.group"]}
-                          to={`${ROOT_PATH}/ui/project/${instance.project}/placement-groups`}
-                        />
-                      ) : (
-                        "-"
-                      )}
-                    </td>
-                  </tr>
                 </>
               )}
               <tr>

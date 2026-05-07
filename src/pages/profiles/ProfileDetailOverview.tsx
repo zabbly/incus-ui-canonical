@@ -66,22 +66,6 @@ const ProfileDetailOverview: FC<Props> = ({ profile }) => {
                 <th className="u-text--muted">Description</th>
                 <td>{profile.description ? profile.description : "-"}</td>
               </tr>
-              {isClustered && (
-                <tr>
-                  <th className="u-text--muted">Placement group</th>
-                  <td>
-                    {profile.config["placement.group"] ? (
-                      <ResourceLink
-                        type="placement-group"
-                        value={profile.config["placement.group"]}
-                        to={`${ROOT_PATH}/ui/project/${project}/placement-groups`}
-                      />
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-                </tr>
-              )}
             </tbody>
           </table>
         </Col>
