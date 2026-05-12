@@ -52,6 +52,11 @@ interface LxdInstanceNetwork {
   type: string;
 }
 
+interface LxdInstanceOSInfo {
+  os: string;
+  os_version: string;
+}
+
 interface LxdInstanceState {
   cpu: LxdInstanceCPUUsage;
   disk: {
@@ -62,6 +67,7 @@ interface LxdInstanceState {
   pid: number;
   processes: number;
   status: string;
+  os_info: LxdInstanceOSInfo;
   etag?: string;
 }
 

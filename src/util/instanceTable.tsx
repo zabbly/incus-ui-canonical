@@ -10,6 +10,7 @@ export const IPV6 = "IPv6";
 export const SNAPSHOTS = "Snapshots";
 export const PROJECT = "Project";
 export const ACTIONS = "Actions";
+export const OS_NAME = "OS";
 
 export const COLUMN_WIDTHS: Record<string, number> = {
   [NAME]: 170,
@@ -24,6 +25,7 @@ export const COLUMN_WIDTHS: Record<string, number> = {
   [PROJECT]: 160,
   [STATUS]: 160,
   [ACTIONS]: 240,
+  [OS_NAME]: 200,
 };
 
 export const SIZE_HIDEABLE_COLUMNS = [
@@ -37,6 +39,7 @@ export const SIZE_HIDEABLE_COLUMNS = [
   TYPE,
   STATUS,
   ACTIONS,
+  OS_NAME,
 ];
 
 export const USER_HIDEABLE_COLUMNS = [
@@ -48,6 +51,7 @@ export const USER_HIDEABLE_COLUMNS = [
   IPV4,
   IPV6,
   SNAPSHOTS,
+  OS_NAME,
 ];
 
 export const CREATION_SPAN_COLUMNS = [
