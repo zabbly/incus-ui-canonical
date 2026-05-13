@@ -22,11 +22,13 @@ import { StoragePoolClusterMember } from "./StoragePoolClusterMember";
 import { useIsClustered } from "context/useIsClustered";
 import DocLink from "components/DocLink";
 import { ROOT_PATH } from "util/rootPath";
+import { isAdmin } from "util/permissions";
 
 const StoragePools: FC = () => {
   const notify = useNotify();
   const { project } = useParams<{ project: string }>();
   const isClustered = useIsClustered();
+  const canCreatePool = isAdmin();
 
   if (!project) {
     return <>Missing project</>;
@@ -161,10 +163,12 @@ const StoragePools: FC = () => {
             Learn more about storage pools, volumes and buckets
           </DocLink>
         </p>
-        <CreateStoragePoolBtn
-          project={project}
-          className="empty-state-button"
-        />
+        {canCreatePool && (
+          <CreateStoragePoolBtn
+            project={project}
+            className="empty-state-button"
+          />
+        )}
       </EmptyState>
     );
 
@@ -184,10 +188,12 @@ const StoragePools: FC = () => {
             </PageHeader.Title>
           </PageHeader.Left>
           <PageHeader.BaseActions>
-            <CreateStoragePoolBtn
-              project={project}
-              className="u-float-right u-no-margin--bottom"
-            />
+            {canCreatePool && (
+              <CreateStoragePoolBtn
+                project={project}
+                className="u-float-right u-no-margin--bottom"
+              />
+            )}
           </PageHeader.BaseActions>
         </PageHeader>
       }
