@@ -111,3 +111,19 @@ export const instanceIncludeConfigWhenCopying = (
 
   return true; // Keep all other keys.
 };
+
+export const getInstanceOSName = (instance: LxdInstance): string => {
+  if (instance.state?.os_info?.os) {
+    return `${instance.state.os_info.os} ${instance.state.os_info?.os_version}`;
+  }
+
+  if (instance.config?.["image.description"]) {
+    return instance.config["image.description"];
+  }
+
+  if (instance.config?.["image.os"]) {
+    return instance.config["image.os"];
+  }
+
+  return "";
+};

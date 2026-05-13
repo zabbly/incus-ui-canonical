@@ -13,7 +13,7 @@ import { useInstanceLoading } from "context/instanceLoading";
 import { useIsClustered } from "context/useIsClustered";
 import InstanceMACAddresses from "pages/instances/InstanceMACAddresses";
 import ResourceLink from "components/ResourceLink";
-import { getInstanceType } from "util/instances";
+import { getInstanceOSName, getInstanceType } from "util/instances";
 import { ImageLink } from "pages/instances/ImageLink";
 import ProfileRichChip from "pages/profiles/ProfileRichChip";
 import DevicesSummaryList from "components/DevicesSummaryList";
@@ -78,6 +78,10 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
         <tr>
           <th className="u-text--muted">Type</th>
           <td>{getInstanceType(instance)}</td>
+        </tr>
+        <tr>
+          <th className="u-text--muted">OS</th>
+          <td>{getInstanceOSName(instance)}</td>
         </tr>
         <tr>
           <th className="u-text--muted">IPv4</th>

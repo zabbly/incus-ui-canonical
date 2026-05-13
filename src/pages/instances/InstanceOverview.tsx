@@ -18,7 +18,7 @@ import NetworkListTable from "components/NetworkListTable";
 import type { LxdDevices } from "types/device";
 import ResourceLink from "components/ResourceLink";
 import { getIpAddresses } from "util/networks";
-import { getInstanceType } from "util/instances";
+import { getInstanceOSName, getInstanceType } from "util/instances";
 import { ImageLink } from "pages/instances/ImageLink";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 
@@ -67,6 +67,10 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
               <tr>
                 <th className="u-text--muted">Type</th>
                 <td>{getInstanceType(instance)}</td>
+              </tr>
+              <tr>
+                <th className="u-text--muted">OS</th>
+                <td>{getInstanceOSName(instance)}</td>
               </tr>
               <tr>
                 <th className="u-text--muted">IPv4</th>
