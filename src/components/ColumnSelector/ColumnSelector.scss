@@ -1,0 +1,36 @@
+@import "vanilla-framework";
+@include vf-b-placeholders;
+@include vf-p-icon-settings;
+
+.column-selector-column-list {
+  min-width: 12rem;
+
+  .p-checkbox {
+    margin-left: 1rem;
+  }
+
+  .size-hidden > * {
+    opacity: 0.33;
+  }
+}
+
+.column-container {
+  display: flex;
+  align-items: center;
+}
+
+.order-buttons-container {
+  display: flex;
+  margin-left: auto;
+  gap: 10px;
+}
+
+.order-icon {
+  width: 0.7rem;
+  height: 0.7rem;
+}
+
+.order-button {
+  margin: 1px;
+  padding: 0px 10px;
+}
