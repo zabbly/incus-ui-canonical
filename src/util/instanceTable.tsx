@@ -28,6 +28,22 @@ export const COLUMN_WIDTHS: Record<string, number> = {
   [OS_NAME]: 200,
 };
 
+export const ALL_COLUMNS = [
+  NAME,
+  TYPE,
+  PROJECT,
+  CLUSTER_MEMBER,
+  MEMORY,
+  FILESYSTEM,
+  DESCRIPTION,
+  IPV4,
+  IPV6,
+  SNAPSHOTS,
+  STATUS,
+  OS_NAME,
+  ACTIONS
+];
+
 export const SIZE_HIDEABLE_COLUMNS = [
   SNAPSHOTS,
   IPV6,
