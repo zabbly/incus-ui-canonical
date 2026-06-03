@@ -507,6 +507,20 @@ const Navigation: FC = () => {
                           Configuration
                         </NavLink>
                       </SideNavigationItem>
+                      <SideNavigationItem>
+                        <NavLink
+                          to={`${ROOT_PATH}/ui/project/${encodeURIComponent(projectName)}/usage`}
+                          title={getNavTitle("usage")}
+                          disabled={isAllProjects}
+                          onClick={softToggleMenu}
+                        >
+                          <Icon
+                            className="is-light p-side-navigation__icon"
+                            name="statistics"
+                          />{" "}
+                          Usage
+                        </NavLink>
+                      </SideNavigationItem>
                       <hr
                         className={classnames("navigation-hr", {
                           "is-light": isLight,

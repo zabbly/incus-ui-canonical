@@ -48,4 +48,5 @@ export const queryKeys = {
   peers: "peers",
   instancePreview: "instancePreview",
   loadBalancers: "load-balancers",
+  projectUsage: "project-usage",
 };
