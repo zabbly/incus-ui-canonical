@@ -136,11 +136,11 @@ jobs:
 
       - name: Setup Ceph
         if: ${{ matrix.lxd_channel != '5.0/edge' }}
-        uses: canonical/lxd/.github/actions/setup-microceph@83beb32729de0814ac0e7e6b1223a7d009cde268
+        uses: canonical/lxd/.github/actions/setup-microceph@4c6a9fc7bcb5990ca9ab5b3db165cbce36cba3cc
 
       - name: Setup OVN
         if: ${{ matrix.lxd_channel != '5.0/edge' }}
-        uses: canonical/lxd/.github/actions/setup-microovn@83beb32729de0814ac0e7e6b1223a7d009cde268
+        uses: canonical/lxd/.github/actions/setup-microovn@4c6a9fc7bcb5990ca9ab5b3db165cbce36cba3cc
 
       - name: Install LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee # v1
