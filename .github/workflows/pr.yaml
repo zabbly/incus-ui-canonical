@@ -28,7 +28,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -105,7 +105,7 @@ jobs:
       LXD_OIDC_PASSWORD: "lxd-ui-e2e-password"
       LXD_OIDC_GROUPS_CLAIM: "lxd-idp-groups"
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -136,11 +136,11 @@ jobs:
 
       - name: Setup Ceph
         if: ${{ matrix.lxd_channel != '5.0/edge' }}
-        uses: canonical/lxd/.github/actions/setup-microceph@83beb32729de0814ac0e7e6b1223a7d009cde268
+        uses: canonical/lxd/.github/actions/setup-microceph@f2e76ad73c192d28ece811c2b88e5acbd91fe85e
 
       - name: Setup OVN
         if: ${{ matrix.lxd_channel != '5.0/edge' }}
-        uses: canonical/lxd/.github/actions/setup-microovn@83beb32729de0814ac0e7e6b1223a7d009cde268
+        uses: canonical/lxd/.github/actions/setup-microovn@f2e76ad73c192d28ece811c2b88e5acbd91fe85e
 
       - name: Install LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee # v1
@@ -216,7 +216,7 @@ jobs:
       HTML_REPORT_URL_PATH: reports/pr-${{ github.event.number }}/${{ github.run_id }}/${{ github.run_attempt }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
@@ -246,7 +246,7 @@ jobs:
     name: js-tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
         with:
           persist-credentials: false
 
