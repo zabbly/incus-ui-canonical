@@ -234,7 +234,17 @@ const StorageVolumes: FC = () => {
     const id = getVolumeId(volume);
     const volumeType = renderVolumeType(volume);
     const contentType = renderContentType(volume);
-    const snapshotCount = volume?.snapshots?.length ?? 0;
+    // undefined snapshots means the volumes were loaded with recursion=1 (the
+    // recursion=2 fallback), so the snapshot count is unknown rather than zero.
+    const snapshotsUnavailable = volume.snapshots === undefined;
+    const snapshotCount = volume.snapshots?.length ?? 0;
+    const snapshotCountContent = snapshotsUnavailable ? (
+      <span title="Snapshot count unavailable">
+        <Icon name="warning" />
+      </span>
+    ) : (
+      snapshotCount
+    );
     const canSelect = hasVolumeDetailPage(volume);
 
     return {
@@ -317,7 +327,7 @@ const StorageVolumes: FC = () => {
             <>
               {volume.used_by?.length ?? 0}
               {isSmallScreen && (
-                <div className="u-text--muted">{snapshotCount}</div>
+                <div className="u-text--muted">{snapshotCountContent}</div>
               )}
             </>
           ),
@@ -332,7 +342,7 @@ const StorageVolumes: FC = () => {
           : [
               {
                 className: "u-align--right",
-                content: snapshotCount,
+                content: snapshotCountContent,
                 role: "cell",
                 "aria-label": SNAPSHOTS_COL,
                 style: { width: COLUMN_WIDTHS[SNAPSHOTS_COL] },
@@ -370,7 +380,7 @@ const StorageVolumes: FC = () => {
         contentType: contentType,
         type: volumeType,
         usedBy: volume.used_by?.length ?? 0,
-        snapshots: snapshotCount,
+        snapshots: snapshotsUnavailable ? -1 : snapshotCount,
       },
     };
   });

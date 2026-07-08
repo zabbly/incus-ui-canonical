@@ -19,39 +19,67 @@ export const volumeEntitlements = [
   "can_manage_backups",
 ];
 
+// recursion=2 expands each volume's data, which forces the server to
+// resolve the referenced instances. A broken instance reference in the DB makes
+// that whole request fail, so we fall back to recursion=1: the list still loads,
+// only without additional data.
+const fetchVolumesWithRecursionFallback = async (
+  buildUrl: (recursion: string) => string,
+  mapVolumes: (volumes: LxdStorageVolume[]) => LxdStorageVolume[] = (volumes) =>
+    volumes,
+): Promise<LxdStorageVolume[]> => {
+  const fetchWithRecursion = async (
+    recursion: string,
+  ): Promise<LxdStorageVolume[]> =>
+    fetch(buildUrl(recursion))
+      .then(handleResponse)
+      .then((data: LxdApiResponse<LxdStorageVolume[]>) =>
+        mapVolumes(data.metadata),
+      );
+
+  return fetchWithRecursion("2")
+    .then((volumes) =>
+      volumes.map((volume) => ({
+        ...volume,
+        snapshots: volume.snapshots ?? [],
+      })),
+    )
+    .catch(async () =>
+      (await fetchWithRecursion("1")).map((volume) => ({
+        ...volume,
+        snapshots: undefined,
+      })),
+    );
+};
+
 export const fetchStorageVolumes = async (
   pool: string,
   project: string,
   isFineGrained: boolean | null,
 ): Promise<LxdStorageVolume[]> => {
-  const params = new URLSearchParams();
-  params.set("recursion", "2");
-  params.set("project", project);
-  addEntitlements(params, isFineGrained, volumeEntitlements);
-
-  return fetch(
-    `${ROOT_PATH}/1.0/storage-pools/${encodeURIComponent(pool)}/volumes?${params.toString()}`,
-  )
-    .then(handleResponse)
-    .then((data: LxdApiResponse<LxdStorageVolume[]>) => {
-      return data.metadata.map((volume) => ({ ...volume, pool }));
-    });
+  return fetchVolumesWithRecursionFallback(
+    (recursion) => {
+      const params = new URLSearchParams();
+      params.set("recursion", recursion);
+      params.set("project", project);
+      addEntitlements(params, isFineGrained, volumeEntitlements);
+      return `${ROOT_PATH}/1.0/storage-pools/${encodeURIComponent(pool)}/volumes?${params.toString()}`;
+    },
+    (volumes) => volumes.map((volume) => ({ ...volume, pool })),
+  );
 };
 
 export const fetchAllStorageVolumes = async (
   project: string,
   isFineGrained: boolean | null,
 ): Promise<LxdStorageVolume[]> => {
-  const params = new URLSearchParams();
-  params.set("recursion", "1");
-  params.set("project", project);
-  addEntitlements(params, isFineGrained, volumeEntitlements);
-
-  return fetch(`${ROOT_PATH}/1.0/storage-volumes?${params.toString()}`)
-    .then(handleResponse)
-    .then((data: LxdApiResponse<LxdStorageVolume[]>) => {
-      return data.metadata;
-    });
+  return fetchVolumesWithRecursionFallback((recursion) => {
+    const params = new URLSearchParams();
+    params.set("recursion", recursion);
+    params.set("project", project);
+    addEntitlements(params, isFineGrained, volumeEntitlements);
+    return `${ROOT_PATH}/1.0/storage-volumes?${params.toString()}`;
+  });
 };
 
 export const fetchStorageVolume = async (

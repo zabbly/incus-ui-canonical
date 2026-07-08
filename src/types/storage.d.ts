@@ -52,6 +52,7 @@ export interface LxdStorageVolume {
   project: string;
   type: LxdStorageVolumeType;
   used_by?: string[];
+  snapshots?: LxdVolumeSnapshot[] | null;
   etag?: string;
   source?: {
     location: string;
