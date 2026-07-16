@@ -473,6 +473,7 @@ export const connectInstanceExec = async (
   name: string,
   project: string,
   payload: TerminalConnectPayload,
+  interactive = true,
 ): Promise<LxdTerminal> => {
   const params = new URLSearchParams();
   params.set("project", project);
@@ -492,7 +493,7 @@ export const connectInstanceExec = async (
           (a, v) => ({ ...a, [v.key]: v.value }),
           {},
         ),
-        interactive: true,
+        interactive: interactive,
         group: payload.group,
         user: payload.user,
       }),

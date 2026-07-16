@@ -4,6 +4,8 @@ export interface LxdTerminal {
     metadata: {
       fds: {
         0: string;
+        1?: string;
+        2?: string;
         control: string;
       };
     };

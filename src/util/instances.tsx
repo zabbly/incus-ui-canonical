@@ -112,6 +112,11 @@ export const instanceIncludeConfigWhenCopying = (
   return true; // Keep all other keys.
 };
 
+export const isWindowsInstance = (instance: LxdInstance): boolean => {
+  const os = instance.config?.["image.os"]?.toLowerCase() || "";
+  return os.includes("windows");
+};
+
 export const getInstanceOSName = (instance: LxdInstance): string => {
   if (instance.state?.os_info?.os) {
     return `${instance.state.os_info.os} ${instance.state.os_info?.os_version}`;
