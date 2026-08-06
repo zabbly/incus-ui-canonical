@@ -9,8 +9,8 @@ import type { InstanceAndProfileFormikProps } from "types/forms/instanceAndProfi
 import { focusField } from "util/formFields";
 import {
   isCustomNic,
+  isIsoDeviceName,
   ISO_VOLUME_NAME,
-  ISO_VOLUME_PROFILE_NAME,
   ISO_VOLUME_TYPE,
 } from "./devices";
 
@@ -26,10 +26,7 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
       };
     }
 
-    if (
-      (key === ISO_VOLUME_NAME || key === ISO_VOLUME_PROFILE_NAME) &&
-      item.type !== "none"
-    ) {
+    if (isIsoDeviceName(key) && item.type !== "none") {
       const isoDevice = item as LxdIsoDevice;
       return {
         name: key,
@@ -124,14 +121,18 @@ export const isEmptyDevice = (device: FormDevice): boolean =>
   device.name.length === 0 &&
   (device.network?.length ?? 0) === 0;
 
-export const remoteImageToIsoDevice = (image: RemoteImage): IsoVolumeDevice => {
+export const remoteImageToIsoDevice = (
+  image: RemoteImage,
+  name = `${ISO_VOLUME_NAME}-1`,
+): IsoVolumeDevice => {
   return {
     type: ISO_VOLUME_TYPE,
-    name: ISO_VOLUME_NAME,
+    name,
     pool: image.pool ?? "",
     source: image.aliases,
     bare: {
       "boot.priority": "10",
+      "io.bus": "usb",
       pool: image.pool ?? "",
       source: image.aliases,
       type: "disk",

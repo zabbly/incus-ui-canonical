@@ -21,8 +21,11 @@ import type { FormNetworkDevice } from "types/formDevice";
 import type { InheritedNetwork } from "types/forms/configInheritance";
 
 export const ISO_VOLUME_TYPE = "iso-volume";
-export const ISO_VOLUME_NAME = "iso-volume";
-export const ISO_VOLUME_PROFILE_NAME = "iso-volume-profile";
+// Iso devices are named `iso-vol-1`, `iso-vol-2`, ... on instances and
+// `iso-prof-1` on profiles. The names used before more than one iso could be
+// attached, `iso-volume` and `iso-volume-profile`, share the `iso-vol` prefix.
+export const ISO_VOLUME_NAME = "iso-vol";
+export const ISO_VOLUME_PROFILE_NAME = "iso-prof";
 
 export const isValidIPV6 = (ip: string): boolean => {
   const ipv6Regex =
@@ -49,14 +52,14 @@ export const isHostDiskDevice = (device: LxdDiskDevice): boolean => {
   );
 };
 
+export const isIsoDeviceName = (name: string): boolean =>
+  name.startsWith(ISO_VOLUME_NAME) || name.startsWith(ISO_VOLUME_PROFILE_NAME);
+
 export const isIsoDiskDevice = (
   device: LxdDiskDevice | FormDevice | InheritedDiskDevice,
 ): boolean => {
   if ("disk" in device && "key" in device) {
-    return (
-      isDiskDevice(device.disk) &&
-      (device.key === ISO_VOLUME_NAME || device.key === ISO_VOLUME_PROFILE_NAME)
-    );
+    return isDiskDevice(device.disk) && isIsoDeviceName(device.key);
   }
 
   return device.type === ISO_VOLUME_TYPE;
