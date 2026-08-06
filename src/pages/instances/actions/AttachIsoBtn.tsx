@@ -5,6 +5,7 @@ import type { LxdInstance } from "types/instance";
 import { useParams } from "react-router-dom";
 import {
   ActionButton,
+  ContextualMenu,
   useToastNotification,
   usePortal,
   Icon,
@@ -17,15 +18,20 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "util/queryKeys";
 import type { RemoteImage } from "types/image";
 import CustomIsoModal from "pages/images/CustomIsoModal";
-import type { FormDiskDevice } from "types/formDevice";
-import { remoteImageToIsoDevice } from "util/formDevices";
+import type { IsoVolumeDevice } from "types/formDevice";
+import { deduplicateName, remoteImageToIsoDevice } from "util/formDevices";
 import { useEventQueue } from "context/eventQueue";
 import { instanceLinkFromOperation } from "util/operations";
 import ResourceLink from "components/ResourceLink";
 import { useInstanceEntitlements } from "util/entitlements/instances";
 import { InstanceRichChip } from "../InstanceRichChip";
 import { ROOT_PATH } from "util/rootPath";
-import { ISO_VOLUME_NAME } from "util/devices";
+import {
+  getExistingDeviceNames,
+  isIsoDiskDevice,
+  ISO_VOLUME_NAME,
+} from "util/devices";
+import { useProfiles } from "context/useProfiles";
 
 interface Props {
   instance: LxdInstance;
@@ -40,15 +46,17 @@ const AttachIsoBtn: FC<Props> = ({ instance }) => {
   const [isLoading, setLoading] = useState(false);
   const { canEditInstance } = useInstanceEntitlements();
 
-  const attachedIso = getInstanceEditValues(instance).devices.find((device) => {
-    return device.name === ISO_VOLUME_NAME;
-  }) as FormDiskDevice | undefined;
+  const { data: profiles = [] } = useProfiles(instance.project);
 
-  const detachIso = () => {
+  const attachedIsos = getInstanceEditValues(instance).devices.filter(
+    isIsoDiskDevice,
+  ) as IsoVolumeDevice[];
+
+  const detachIso = (isoDevice: IsoVolumeDevice) => {
     setLoading(true);
     const values = getInstanceEditValues(instance);
     values.devices = values.devices.filter((device) => {
-      return device.name !== ISO_VOLUME_NAME;
+      return device.name !== isoDevice.name;
     });
     const instanceMinusIso = getInstancePayload(
       instance,
@@ -71,7 +79,7 @@ const AttachIsoBtn: FC<Props> = ({ instance }) => {
                 <ResourceLink
                   to={`${ROOT_PATH}/ui/project/${encodeURIComponent(project ?? "")}/storage/custom-isos`}
                   type="iso-volume"
-                  value={attachedIso?.bare?.source ?? ""}
+                  value={isoDevice.source}
                 />{" "}
                 detached from {instanceLink}
               </>,
@@ -100,7 +108,12 @@ const AttachIsoBtn: FC<Props> = ({ instance }) => {
     setLoading(true);
     closePortal();
     const values = getInstanceEditValues(instance);
-    const isoDevice = remoteImageToIsoDevice(image);
+    const deviceName = deduplicateName(
+      ISO_VOLUME_NAME,
+      1,
+      getExistingDeviceNames(values, profiles),
+    );
+    const isoDevice = remoteImageToIsoDevice(image, deviceName);
     values.devices.push(isoDevice);
     const instancePlusIso = getInstancePayload(instance, values) as LxdInstance;
     updateInstance(instancePlusIso, project ?? "")
@@ -147,23 +160,7 @@ const AttachIsoBtn: FC<Props> = ({ instance }) => {
     ? undefined
     : "You do not have permission to edit this instance.";
 
-  return attachedIso ? (
-    <>
-      <span className="u-text--muted margin-right--large">
-        {attachedIso?.bare?.source}
-      </span>
-      <ActionButton
-        loading={isLoading}
-        onClick={detachIso}
-        className="u-no-margin--bottom has-icon"
-        disabled={!!disabledReason || isLoading}
-        title={disabledReason}
-      >
-        <Icon name="iso" />
-        <span>Detach ISO</span>
-      </ActionButton>
-    </>
-  ) : (
+  return (
     <>
       <ActionButton
         loading={isLoading}
@@ -175,6 +172,21 @@ const AttachIsoBtn: FC<Props> = ({ instance }) => {
         <Icon name="iso" />
         <span>Attach ISO</span>
       </ActionButton>
+      {attachedIsos.length > 0 && (
+        <ContextualMenu
+          hasToggleIcon
+          toggleLabel={`${attachedIsos.length} ISO${attachedIsos.length > 1 ? "s" : ""} attached`}
+          toggleClassName="u-no-margin--bottom"
+          toggleDisabled={!!disabledReason || isLoading}
+          toggleProps={{ title: disabledReason }}
+          links={attachedIsos.map((isoDevice) => ({
+            children: `Detach ${isoDevice.source}`,
+            onClick: () => {
+              detachIso(isoDevice);
+            },
+          }))}
+        />
+      )}
       {isOpen && (
         <Portal>
           <CustomIsoModal onClose={closePortal} onSelect={handleSelect} />

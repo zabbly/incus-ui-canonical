@@ -31,6 +31,7 @@ import { isDiskDeviceMountPointMissing } from "util/instanceValidation";
 import {
   getExistingDeviceNames,
   isIsoDiskDevice,
+  isVolumeDevice,
   ISO_VOLUME_NAME,
   ISO_VOLUME_PROFILE_NAME,
   ISO_VOLUME_TYPE,
@@ -38,10 +39,7 @@ import {
 } from "util/devices";
 import { isInstanceCreation } from "util/instanceEdit";
 import { ensureEditMode } from "util/editMode";
-import { isVolumeDevice } from "util/devices";
 import { isSpecialDisk } from "util/instanceValidation";
-import { getExistingDeviceNames, isVolumeDevice } from "util/devices";
-import type { LxdProfile } from "types/profile";
 import { focusField } from "util/formFields";
 import { getSpecialDiskSourceOptions } from "util/storageVolume";
 import AttachDiskDeviceBtn from "pages/storage/AttachDiskDeviceBtn";
@@ -66,7 +64,11 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
     isProfile: boolean,
   ): string => {
     if (deviceType === ISO_VOLUME_TYPE) {
-      return isProfile ? ISO_VOLUME_PROFILE_NAME : ISO_VOLUME_NAME;
+      return deduplicateName(
+        isProfile ? ISO_VOLUME_PROFILE_NAME : ISO_VOLUME_NAME,
+        1,
+        existingDeviceNames,
+      );
     }
     return deduplicateName("disk-device", 1, existingDeviceNames);
   };

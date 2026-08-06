@@ -24,7 +24,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import type { LxdInstance } from "types/instance";
 import InstanceCreateDetailsForm from "pages/instances/forms/InstanceCreateDetailsForm";
 import type { FormDevice } from "types/formDevice";
-import { remoteImageToIsoDevice } from "util/formDevices";
+import { deduplicateName, remoteImageToIsoDevice } from "util/formDevices";
 import SecurityPoliciesForm from "components/forms/SecurityPoliciesForm";
 import InstanceSnapshotsForm from "components/forms/InstanceSnapshotsForm";
 import CloudInitForm from "components/forms/CloudInitForm";
@@ -86,7 +86,11 @@ import NetworkDevicePanel from "components/forms/NetworkDevicesForm/edit/Network
 import { InstanceRichChip } from "./InstanceRichChip";
 import { ROOT_PATH } from "util/rootPath";
 import type { CreateInstanceFormValues } from "types/forms/instanceAndProfile";
-import { ISO_VOLUME_TYPE } from "util/devices";
+import {
+  getExistingDeviceNames,
+  ISO_VOLUME_NAME,
+  ISO_VOLUME_TYPE,
+} from "util/devices";
 
 interface PresetFormState {
   retryFormValues?: CreateInstanceFormValues;
@@ -361,8 +365,12 @@ const CreateInstance: FC = () => {
       (item) => item.type !== ISO_VOLUME_TYPE,
     );
     if (image.server === LOCAL_ISO) {
-      const isoDevice = remoteImageToIsoDevice(image);
-      devices.push(isoDevice);
+      const deviceName = deduplicateName(
+        ISO_VOLUME_NAME,
+        1,
+        getExistingDeviceNames({ ...formik.values, devices }, profiles),
+      );
+      devices.push(remoteImageToIsoDevice(image, deviceName));
     }
     formik.setFieldValue("devices", devices);
 

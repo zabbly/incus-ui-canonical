@@ -13,6 +13,7 @@ export interface LxdDiskDevice {
 
 export interface LxdIsoDevice {
   "boot.priority": string;
+  "io.bus"?: string;
   pool: string;
   source: string;
   type: "disk";
