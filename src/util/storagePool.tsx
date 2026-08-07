@@ -135,7 +135,7 @@ export const hasSource = (
   driver: string,
   hasRemoteDropSource: boolean,
 ): boolean => {
-  const driversWithSource = [btrfsDriver, dirDriver, lvmDriver, zfsDriver];
+  const driversWithSource = [btrfsDriver, dirDriver, lvmDriver, lvmClusterDriver, zfsDriver];
 
   if (hasRemoteDropSource) {
     driversWithSource.push(cephDriver);
