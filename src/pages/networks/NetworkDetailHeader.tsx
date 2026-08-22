@@ -34,7 +34,12 @@ const NetworkDetailHeader: FC<Props> = ({ name, network, project }) => {
   const eventQueue = useEventQueue();
 
   const RenameSchema = Yup.object().shape({
-    name: getNetworkNameValidation(project, controllerState, network?.name),
+    name: getNetworkNameValidation(
+      project,
+      controllerState,
+      network?.name,
+      network?.type,
+    ),
   });
 
   const onSuccess = (networkName: string) => {
