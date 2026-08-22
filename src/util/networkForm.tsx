@@ -9,7 +9,7 @@ import type { NetworkFormValues } from "types/forms/network";
 import type { ClusterSpecificValues } from "types/cluster";
 import type { AbortControllerState } from "util/helpers";
 import { checkDuplicateName } from "util/helpers";
-import { getNetworkAcls, getNetworkKey } from "util/networks";
+import { getNetworkAcls, getNetworkKey, physicalType } from "util/networks";
 
 export const toNetworkFormValues = (
   network: LxdNetwork,
@@ -96,10 +96,18 @@ export const getNetworkNameValidation = (
   project: string,
   controllerState: AbortControllerState,
   excludeName?: string,
+  networkType?: string,
 ) => {
   return Yup.string()
     .min(2, "Minimum length is 2 characters")
-    .max(15, "Maximum length is 15 characters")
+    .test("max-length", "Maximum length is 15 characters", (value, context) => {
+      // For Physical networks, NIC gets connecting to an existing parent interface,
+      // so the interface name length limit does not apply.
+      const type =
+        networkType ??
+        (context.parent as NetworkFormValues | undefined)?.networkType;
+      return type === physicalType || !value || value.length <= 15;
+    })
     .test(
       "no-double-dots",
       "Network name must not contain '..'",
