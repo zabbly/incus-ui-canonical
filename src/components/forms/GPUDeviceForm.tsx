@@ -195,7 +195,14 @@ const GPUDevicesForm: FC<Props> = ({ formik, project }) => {
     );
 
     Object.keys(device).forEach((key) => {
-      if (key === "name" || key === "type" || key === "pci" || key === "id") {
+      if (
+        key === "name" ||
+        key === "type" ||
+        key === "pci" ||
+        key === "id" ||
+        key === "vendorid" ||
+        key === "productid"
+      ) {
         return;
       }
 
@@ -214,10 +221,18 @@ const GPUDevicesForm: FC<Props> = ({ formik, project }) => {
         inheritValue: (
           <GPUDeviceInput
             device={device}
-            onChange={(pci, id) => {
+            onChange={(identifier) => {
               ensureEditMode(formik);
-              formik.setFieldValue(`devices.${index}.pci`, pci);
-              formik.setFieldValue(`devices.${index}.id`, id);
+              formik.setFieldValue(`devices.${index}.pci`, identifier.pci);
+              formik.setFieldValue(`devices.${index}.id`, identifier.id);
+              formik.setFieldValue(
+                `devices.${index}.vendorid`,
+                identifier.vendorid,
+              );
+              formik.setFieldValue(
+                `devices.${index}.productid`,
+                identifier.productid,
+              );
             }}
             disableReason={formik.values.editRestriction}
           />
