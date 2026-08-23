@@ -51,9 +51,24 @@ const DeviceDetails: FC<Props> = ({ device, project, location }) => {
   }
 
   if (device.type === "gpu") {
+    const gpuIdentifier = (() => {
+      if (device.pci) {
+        return `PCI  ${device.pci}`;
+      }
+      if (device.id) {
+        return `ID ${device.id}`;
+      }
+      return [
+        device.vendorid ? `Vendor ${device.vendorid}` : "",
+        device.productid ? `Product ${device.productid}` : "",
+      ]
+        .filter(Boolean)
+        .join(", ");
+    })();
+
     return (
-      <span title={device.pci} className="u-truncate">
-        {device.pci ? `PCI  ${device.pci}` : `ID ${device.id}`}
+      <span title={gpuIdentifier} className="u-truncate">
+        {gpuIdentifier || "-"}
       </span>
     );
   }

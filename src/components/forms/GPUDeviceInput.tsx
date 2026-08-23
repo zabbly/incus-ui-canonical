@@ -3,16 +3,32 @@ import { useState } from "react";
 import { Input, RadioInput } from "@canonical/react-components";
 import type { LxdGPUDevice } from "types/device";
 
+export interface GpuIdentifier {
+  pci?: string;
+  id?: string;
+  vendorid?: string;
+  productid?: string;
+}
+
 interface Props {
   device: LxdGPUDevice;
-  onChange?: (pci?: string, id?: string) => void;
+  onChange?: (identifier: GpuIdentifier) => void;
   disableReason?: string;
 }
 
+const getInitialType = (device: LxdGPUDevice) => {
+  if (device.pci) {
+    return "pci";
+  }
+  if (device.vendorid ?? device.productid) {
+    return "vendor";
+  }
+  return "id";
+};
+
 const GpuDeviceInput: FC<Props> = ({ device, onChange, disableReason }) => {
-  const [type, setType] = useState(device.pci ? "pci" : "id");
-  const isPci = type === "pci";
-  const key = `device.${device.name}.${isPci ? "pci" : "id"}`;
+  const [type, setType] = useState(getInitialType(device));
+  const key = `device.${device.name}.${type}`;
 
   return (
     <>
@@ -21,7 +37,7 @@ const GpuDeviceInput: FC<Props> = ({ device, onChange, disableReason }) => {
           inline
           labelClassName="margin-right--large"
           label="ID"
-          checked={!isPci}
+          checked={type === "id"}
           onClick={() => {
             setType("id");
           }}
@@ -29,27 +45,67 @@ const GpuDeviceInput: FC<Props> = ({ device, onChange, disableReason }) => {
         />
         <RadioInput
           inline
+          labelClassName="margin-right--large"
           label="PCI"
-          checked={isPci}
+          checked={type === "pci"}
           onClick={() => {
             setType("pci");
           }}
           disabled={!!disableReason}
         />
+        <RadioInput
+          inline
+          label="Vendor"
+          checked={type === "vendor"}
+          onClick={() => {
+            setType("vendor");
+          }}
+          disabled={!!disableReason}
+        />
       </div>
-      <Input
-        key={key}
-        type="text"
-        label={isPci ? "PCI Address" : "ID"}
-        value={isPci ? device.pci : device.id}
-        onChange={(e) =>
-          onChange?.(
-            isPci ? e.target.value : undefined,
-            isPci ? undefined : e.target.value,
-          )
-        }
-        disabled={!!disableReason}
-      />
+      {type === "vendor" ? (
+        <>
+          <Input
+            key={`${key}.vendorid`}
+            type="text"
+            label="Vendor ID"
+            value={device.vendorid}
+            onChange={(e) =>
+              onChange?.({
+                vendorid: e.target.value,
+                productid: device.productid,
+              })
+            }
+            disabled={!!disableReason}
+          />
+          <Input
+            key={`${key}.productid`}
+            type="text"
+            label="Product ID"
+            value={device.productid}
+            onChange={(e) =>
+              onChange?.({
+                vendorid: device.vendorid,
+                productid: e.target.value,
+              })
+            }
+            disabled={!!disableReason}
+          />
+        </>
+      ) : (
+        <Input
+          key={key}
+          type="text"
+          label={type === "pci" ? "PCI Address" : "ID"}
+          value={type === "pci" ? device.pci : device.id}
+          onChange={(e) =>
+            onChange?.(
+              type === "pci" ? { pci: e.target.value } : { id: e.target.value },
+            )
+          }
+          disabled={!!disableReason}
+        />
+      )}
     </>
   );
 };
