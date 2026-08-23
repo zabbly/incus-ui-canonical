@@ -232,7 +232,11 @@ const EditInstance: FC<Props> = ({ instance }) => {
             )}
 
             {section === slugify(GPU_DEVICES) && (
-              <GPUDeviceForm formik={formik} project={project} />
+              <GPUDeviceForm
+                formik={formik}
+                project={project}
+                target={instance.location}
+              />
             )}
 
             {section === slugify(PROXY_DEVICES) && (

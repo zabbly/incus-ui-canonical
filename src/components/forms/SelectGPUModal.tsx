@@ -16,14 +16,15 @@ import { useServerEntitlements } from "util/entitlements/server";
 interface Props {
   onSelect: (image: GpuCard) => void;
   onClose: () => void;
+  target?: string;
 }
 
-const SelectGPUModal: FC<Props> = ({ onSelect, onClose }) => {
+const SelectGPUModal: FC<Props> = ({ onSelect, onClose, target }) => {
   const { canViewResources } = useServerEntitlements();
 
   const { data: resources, isLoading } = useQuery({
-    queryKey: [queryKeys.resources],
-    queryFn: async () => fetchResources(),
+    queryKey: [queryKeys.resources, target],
+    queryFn: async () => fetchResources(target),
     enabled: canViewResources(),
   });
 
