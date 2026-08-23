@@ -42,9 +42,10 @@ import { isDeviceModified } from "util/formChangeCount";
 interface Props {
   formik: InstanceAndProfileFormikProps;
   project: string;
+  target?: string;
 }
 
-const GPUDevicesForm: FC<Props> = ({ formik, project }) => {
+const GPUDevicesForm: FC<Props> = ({ formik, project, target }) => {
   const notify = useNotify();
 
   const {
@@ -284,6 +285,7 @@ const GPUDevicesForm: FC<Props> = ({ formik, project }) => {
           addGPUCard(card);
         }}
         disabledReason={formik.values.editRestriction}
+        target={target}
       />
     </ScrollableForm>
   );

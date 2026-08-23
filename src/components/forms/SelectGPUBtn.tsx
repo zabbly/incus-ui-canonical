@@ -6,9 +6,10 @@ import type { GpuCard } from "types/resources";
 interface Props {
   onSelect: (image: GpuCard) => void;
   disabledReason?: string;
+  target?: string;
 }
 
-const SelectGPUBtn: FC<Props> = ({ onSelect, disabledReason }) => {
+const SelectGPUBtn: FC<Props> = ({ onSelect, disabledReason, target }) => {
   const { openPortal, closePortal, isOpen, Portal } = usePortal();
 
   const handleSelect = (card: GpuCard) => {
@@ -30,7 +31,11 @@ const SelectGPUBtn: FC<Props> = ({ onSelect, disabledReason }) => {
       </Button>
       {isOpen && (
         <Portal>
-          <SelectGPUModal onClose={closePortal} onSelect={handleSelect} />
+          <SelectGPUModal
+            onClose={closePortal}
+            onSelect={handleSelect}
+            target={target}
+          />
         </Portal>
       )}
     </>
