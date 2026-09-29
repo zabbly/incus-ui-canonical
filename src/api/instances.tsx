@@ -18,6 +18,7 @@ import type { InstanceMigrationBundle } from "types/migration";
 import { addEntitlements } from "util/entitlements/api";
 import { addTarget } from "util/target";
 import { linkForInstanceDetail } from "util/instances";
+import { isNearLiveMigration } from "util/nearLiveMigration";
 import { ROOT_PATH } from "util/rootPath";
 
 export const instanceEntitlements = [
@@ -168,10 +169,19 @@ export const migrateInstance = async (
   target?: string,
   pool?: string,
   targetProject?: string,
+  hasInstanceRefreshMigration = false,
 ): Promise<LxdOperationResponse> => {
   const params = new URLSearchParams();
   params.set("project", instance.project);
   addTarget(params, target);
+
+  const refresh = isNearLiveMigration(
+    instance,
+    hasInstanceRefreshMigration,
+    target,
+    pool,
+    targetProject,
+  );
 
   return fetch(
     `${ROOT_PATH}/1.0/instances/${encodeURIComponent(instance.name)}?${params.toString()}`,
@@ -183,6 +193,7 @@ export const migrateInstance = async (
       body: JSON.stringify({
         migration: true,
         live: instance.type === "virtual-machine" && instance.status === "Running",
+        refresh,
         pool,
         project: targetProject,
       }),
@@ -200,6 +211,7 @@ export const migrateInstanceBulk = async (
   pool: string,
   targetProject: string,
   eventQueue: EventQueue,
+  hasInstanceRefreshMigration = false,
 ): Promise<BulkOperationResult[]> => {
   const results: BulkOperationResult[] = [];
   return new Promise((resolve, reject) => {
@@ -210,7 +222,13 @@ export const migrateInstanceBulk = async (
           type: "instance",
           href: linkForInstanceDetail(instance.name, instance.project),
         };
-        await migrateInstance(instance, target, pool, targetProject)
+        await migrateInstance(
+          instance,
+          target,
+          pool,
+          targetProject,
+          hasInstanceRefreshMigration,
+        )
           .then((operation) => {
             eventQueue.set(
               operation.metadata.id,
