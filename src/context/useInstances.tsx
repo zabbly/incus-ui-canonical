@@ -14,7 +14,7 @@ export const useInstances = (
   const { hasInstanceStateSelectiveRecursion } = useSupportedFeatures();
 
   return useQuery({
-    queryKey: [queryKeys.instances, project],
+    queryKey: [queryKeys.instances, project, filter],
     queryFn: async () =>
       fetchInstances(
         project,
@@ -23,6 +23,9 @@ export const useInstances = (
         filter,
       ),
     enabled: isFineGrained !== null,
+    // keep showing the previous list of the same project while a new filter loads
+    placeholderData: (previousData, previousQuery) =>
+      previousQuery?.queryKey[1] === project ? previousData : undefined,
   });
 };
 

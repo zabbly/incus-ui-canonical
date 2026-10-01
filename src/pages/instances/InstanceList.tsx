@@ -178,7 +178,6 @@ const InstanceList: FC = () => {
     data: instances = [],
     error,
     isLoading,
-    refetch,
   } = useInstances(project?.name ?? null, encodeServerFilters(serverFilters));
 
   if (error) {
@@ -273,9 +272,6 @@ const InstanceList: FC = () => {
 
   const onSearch = (filter: string) => {
     setSearchParams("filter=" + filter);
-    setTimeout(() => {
-      void refetch();
-    }, 1);
   };
 
   const filteredInstances = instances.filter((item) => {
