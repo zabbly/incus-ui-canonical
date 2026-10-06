@@ -249,6 +249,7 @@ const NetworkDevicePanel: FC<Props> = ({
         name: values.name,
         type: "nic",
         network: values.network,
+        hwaddr: device?.hwaddr,
         "security.acls":
           userSelectedAcls.length > 0 ? userSelectedAcls.join(",") : undefined,
         "ipv4.address": values.ipv4 || undefined,
