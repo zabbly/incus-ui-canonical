@@ -25,6 +25,7 @@ export interface LxdNicDevice {
   parent?: string;
   network: string;
   type: "nic";
+  hwaddr?: string;
   "ipv4.address"?: string;
   "ipv6.address"?: string;
   "security.acls"?: string;
