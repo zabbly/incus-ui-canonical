@@ -6,7 +6,11 @@ import {
 } from "util/helpers";
 import type { BulkOperationItem, BulkOperationResult } from "util/promises";
 import { continueOrFinish, pushFailure, pushSuccess } from "util/promises";
-import type { LxdInstance, LxdInstanceAction } from "types/instance";
+import type {
+  LxdInstance,
+  LxdInstanceAction,
+  LxdInstanceSource,
+} from "types/instance";
 import type { LxdTerminal, TerminalConnectPayload } from "types/terminal";
 import type { LxdApiResponse } from "types/apiResponse";
 import type { LxdOperationResponse } from "types/operation";
@@ -129,6 +133,29 @@ export const updateInstance = async (
         "Content-Type": "application/json",
         "If-Match": instance.etag ?? "invalid-etag",
       },
+    },
+  )
+    .then(handleResponse)
+    .then((data: LxdOperationResponse) => {
+      return data;
+    });
+};
+
+export const rebuildInstance = async (
+  instance: LxdInstance,
+  source: LxdInstanceSource,
+): Promise<LxdOperationResponse> => {
+  const params = new URLSearchParams();
+  params.set("project", instance.project);
+
+  return fetch(
+    `${ROOT_PATH}/1.0/instances/${encodeURIComponent(instance.name)}/rebuild?${params.toString()}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ source }),
     },
   )
     .then(handleResponse)

@@ -22,7 +22,7 @@ import type { LxdInstance } from "types/instance";
 import type { LxdConfigPair } from "types/config";
 import type { LxdProject } from "types/project";
 import type { LxdStorageVolume } from "types/storage";
-import { LOCAL_IMAGE, LOCAL_ISO } from "util/images";
+import { remoteImageToInstanceSource } from "util/images";
 import type { FormDevice } from "types/formDevice";
 import { ISO_VOLUME_TYPE } from "util/devices";
 import type { CpuLimit, MemoryLimit } from "types/limits";
@@ -339,39 +339,7 @@ const getInstanceSource = (
   values: InstanceDetailsFormValues,
   hasImageRegistries: boolean,
 ) => {
-  if (values.image?.registryName && hasImageRegistries) {
-    return {
-      alias: values.image?.aliases.split(",")[0],
-      mode: "pull",
-      image_registry: values.image?.registryName,
-      type: "image",
-    };
-  }
-
-  if (values.image?.server === LOCAL_IMAGE || values.image?.cached) {
-    return {
-      type: "image",
-      certificate: "",
-      fingerprint: values.image?.fingerprint,
-      allow_inconsistent: false,
-    };
-  }
-
-  if (values.image?.server === LOCAL_ISO) {
-    return {
-      type: "none",
-      certificate: "",
-      allow_inconsistent: false,
-    };
-  }
-
-  return {
-    alias: values.image?.aliases.split(",")[0],
-    mode: "pull",
-    protocol: values.image?.protocol ? values.image?.protocol : "simplestreams",
-    server: values.image?.server,
-    type: "image",
-  };
+  return remoteImageToInstanceSource(values.image, hasImageRegistries);
 };
 
 export const getInstanceEditValues = (
