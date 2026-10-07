@@ -89,10 +89,23 @@ export type LxdInstanceAction =
   | "stop"
   | "unfreeze";
 
+export interface LxdInstanceSource {
+  type: "image" | "none";
+  alias?: string;
+  allow_inconsistent?: boolean;
+  certificate?: string;
+  fingerprint?: string;
+  image_registry?: string;
+  mode?: "pull";
+  protocol?: string;
+  server?: string;
+}
+
 export type LxdInstanceStatus =
   | "Error"
   | "Freezing"
   | "Frozen"
+  | "Rebuilding"
   | "Restarting"
   | "Running"
   | "Starting"
