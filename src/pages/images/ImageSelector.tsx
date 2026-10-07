@@ -4,6 +4,8 @@ import {
   Button,
   CheckboxInput,
   Col,
+  Icon,
+  Input,
   MainTable,
   Modal,
   Notification,
@@ -400,27 +402,41 @@ const ImageSelector: FC<Props> = ({
               })}
               value={arch}
             />
-            <Select
-              id="imageFilterType"
-              label="Type"
-              name="type"
-              onChange={(v) => {
-                setType(
-                  v.target.value === ANY
-                    ? undefined
-                    : (v.target.value as LxdImageType),
-                );
-              }}
-              options={[
-                {
-                  label: "Any",
-                  value: ANY,
-                },
-                ...instanceCreationTypes,
-              ]}
-              value={type ?? ""}
-              disabled={imageType !== undefined}
-            />
+            {imageType ? (
+              <Input
+                id="imageFilterType"
+                label="Compatible with"
+                name="type"
+                readOnly
+                type="text"
+                value={
+                  instanceCreationTypes.find(
+                    (option) => option.value === imageType,
+                  )?.label ?? imageType
+                }
+              />
+            ) : (
+              <Select
+                id="imageFilterType"
+                label="Type"
+                name="type"
+                onChange={(v) => {
+                  setType(
+                    v.target.value === ANY
+                      ? undefined
+                      : (v.target.value as LxdImageType),
+                  );
+                }}
+                options={[
+                  {
+                    label: "Any",
+                    value: ANY,
+                  },
+                  ...instanceCreationTypes,
+                ]}
+                value={type ?? ""}
+              />
+            )}
             <CheckboxInput
               aria-label="Only show cached images"
               checked={hideRemote}
@@ -429,16 +445,6 @@ const ImageSelector: FC<Props> = ({
                 setHideRemote((prev) => !prev);
               }}
             />
-            {onUseImageReference && (
-              <Button
-                appearance="base"
-                className="u-no-margin--bottom"
-                onClick={onUseImageReference}
-                type="button"
-              >
-                Use image reference
-              </Button>
-            )}
           </div>
         </Col>
         <Col size={9}>
@@ -468,6 +474,17 @@ const ImageSelector: FC<Props> = ({
                   placeholder="Search an image"
                 />
               </div>
+            )}
+            {onUseImageReference && (
+              <Button
+                appearance="default"
+                className="has-icon image-reference-button"
+                onClick={onUseImageReference}
+                type="button"
+              >
+                <Icon name="image" />
+                <span>Use image reference</span>
+              </Button>
             )}
           </div>
           <div className="image-list">

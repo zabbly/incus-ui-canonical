@@ -35,9 +35,11 @@ import {
 import ResourceLabel from "components/ResourceLabel";
 import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
 import type { ConfigField } from "types/config";
+import { useSearchParams } from "react-router-dom";
 
 const Settings: FC = () => {
-  const [query, setQuery] = useState("");
+  const [searchParams] = useSearchParams();
+  const [query, setQuery] = useState(searchParams.get("query") ?? "");
 
   const [userSettings, setUserSettings] = useState<UserSetting[]>([]);
 
