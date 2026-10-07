@@ -90,7 +90,6 @@ const Navigation: FC = () => {
   const {
     hasCustomVolumeIso,
     hasAccessManagement,
-    hasImageRegistries,
     hasClusterLinks,
     hasReplicators,
   } = useSupportedFeatures();
@@ -474,7 +473,7 @@ const Navigation: FC = () => {
                           open={
                             openNavMenus.includes("images") && !menuCollapsed
                           }
-                          disabled={isAllProjects && !hasImageRegistries}
+                          disabled={isAllProjects}
                         >
                           <NavLink
                             to={`${ROOT_PATH}/ui/project/${encodeURIComponent(projectName)}/local-images`}
@@ -484,16 +483,6 @@ const Navigation: FC = () => {
                           >
                             Local images
                           </NavLink>
-                          {hasImageRegistries && (
-                            <NavLink
-                              to={`${ROOT_PATH}/ui/image-registries`}
-                              title={getNavTitle("image registries")}
-                              activeUrlMatches={["ui/image-registry/"]}
-                              onClick={softToggleMenu}
-                            >
-                              Image registries
-                            </NavLink>
-                          )}
                         </NavAccordion>
                       </SideNavigationItem>
                       <SideNavigationItem>

@@ -139,7 +139,7 @@ const ImageServersForm: FC<Props> = ({ configField, value }) => {
           <Input
             type="text"
             label="Name"
-            aria-label={`Image server ${index + 1} name`}
+            aria-label={`Image remote ${index + 1} name`}
             value={server.name}
             onChange={(e) => {
               updateServer(index, { name: e.target.value });
@@ -148,8 +148,12 @@ const ImageServersForm: FC<Props> = ({ configField, value }) => {
           <Input
             type="text"
             label="URL"
-            placeholder="https://example.com"
-            aria-label={`Image server ${index + 1} URL`}
+            placeholder={
+              server.protocol === "oci"
+                ? "https://docker.io"
+                : "https://example.com"
+            }
+            aria-label={`Image remote ${index + 1} URL`}
             value={server.url}
             onChange={(e) => {
               updateServer(index, { url: e.target.value });
@@ -157,16 +161,23 @@ const ImageServersForm: FC<Props> = ({ configField, value }) => {
           />
           <Select
             label="Protocol"
-            aria-label={`Image server ${index + 1} protocol`}
-            options={[{ label: "simplestreams", value: "simplestreams" }]}
+            aria-label={`Image remote ${index + 1} protocol`}
+            options={[
+              { label: "OCI", value: "oci" },
+              { label: "Simple streams", value: "simplestreams" },
+            ]}
+            onChange={(e) => {
+              updateServer(index, {
+                protocol: e.target.value as ImageServer["protocol"],
+              });
+            }}
             value={server.protocol}
-            disabled
           />
           <Button
             type="button"
             appearance="base"
             hasIcon
-            aria-label={`Remove image server ${index + 1}`}
+            aria-label={`Remove image remote ${index + 1}`}
             onClick={() => {
               removeServer(index);
             }}
@@ -177,7 +188,7 @@ const ImageServersForm: FC<Props> = ({ configField, value }) => {
       ))}
       <Button type="button" appearance="base" hasIcon onClick={addServer}>
         <Icon name="plus" />
-        <span>Add server</span>
+        <span>Add remote</span>
       </Button>
       <hr />
       <Button appearance="base" type="button" onClick={onCancel}>
