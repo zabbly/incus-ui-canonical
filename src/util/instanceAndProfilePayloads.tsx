@@ -331,15 +331,14 @@ export const instanceDetailPayload = (
     description: values.description,
     type: values.instanceType,
     profiles: values.profiles,
-    source: getInstanceSource(values, hasImageRegistries),
+    source: getInstanceSource(values),
   };
 };
 
 const getInstanceSource = (
-  values: InstanceDetailsFormValues,
-  hasImageRegistries: boolean,
+  values: InstanceDetailsFormValues
 ) => {
-  return remoteImageToInstanceSource(values.image, hasImageRegistries);
+  return remoteImageToInstanceSource(values.image);
 };
 
 export const getInstanceEditValues = (
