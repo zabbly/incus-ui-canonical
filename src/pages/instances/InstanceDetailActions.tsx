@@ -9,6 +9,8 @@ import {
   largeScreenBreakpoint,
   useIsScreenBelow,
 } from "context/useIsScreenBelow";
+import RebuildInstanceBtn from "./actions/RebuildInstanceBtn";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
 
 interface Props {
   instance: LxdInstance;
@@ -18,6 +20,7 @@ interface Props {
 
 const InstanceDetailActions: FC<Props> = ({ instance, project, isLoading }) => {
   const isSmallScreen = useIsScreenBelow(largeScreenBreakpoint);
+  const { hasInstanceRebuild } = useSupportedFeatures();
 
   const classname = isSmallScreen
     ? "p-contextual-menu__link"
@@ -29,6 +32,15 @@ const InstanceDetailActions: FC<Props> = ({ instance, project, isLoading }) => {
       instance={instance}
       classname={classname}
     />,
+    ...(hasInstanceRebuild
+      ? [
+          <RebuildInstanceBtn
+            key="rebuild"
+            instance={instance}
+            classname={classname}
+          />,
+        ]
+      : []),
     <CopyInstanceBtn
       key="copy"
       instance={instance}

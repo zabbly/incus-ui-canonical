@@ -28,25 +28,32 @@ import { instanceCreationTypes } from "util/instanceOptions";
 import { useSettings } from "context/useSettings";
 import { useParams } from "react-router-dom";
 import { useRemoteImages, useLocalImagesInProject } from "context/useImages";
-import {
-  linuxContainersServer,
-} from "util/imageLegacy";
+import { linuxContainersServer } from "util/imageLegacy";
 
 interface Props {
   onSelect: (image: RemoteImage, type?: LxdImageType) => void;
   onClose: () => void;
+  imageType?: LxdImageType;
+  excludeLocalIso?: boolean;
+  onUseImageReference?: () => void;
 }
 
 const ANY = "any";
 const CONTAINER = "container";
 const VM = "virtual-machine";
 
-const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
+const ImageSelector: FC<Props> = ({
+  onSelect,
+  onClose,
+  imageType,
+  excludeLocalIso = false,
+  onUseImageReference,
+}) => {
   const [query, setQuery] = useState<string>("");
   const [os, setOs] = useState<string>("");
   const [release, setRelease] = useState<string>("");
   const [arch, setArch] = useState<string>("amd64");
-  const [type, setType] = useState<LxdImageType | undefined>(undefined);
+  const [type, setType] = useState<LxdImageType | undefined>(imageType);
   const [variant, setVariant] = useState<string>(ANY);
   const [hideRemote, setHideRemote] = useState(false);
   const [error, setError] = useState("");
@@ -77,6 +84,7 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
         .map(localLxdToRemoteImage)
         .sort(byOSRelease)
         .concat(remoteImages?.images ?? [])
+        .filter((image) => !excludeLocalIso || image.server !== LOCAL_ISO)
         .filter((image) => archSupported.includes(image.arch));
 
   const archAll = [...new Set(images.map((item) => item.arch))]
@@ -410,6 +418,7 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
                 ...instanceCreationTypes,
               ]}
               value={type ?? ""}
+              disabled={imageType !== undefined}
             />
             <CheckboxInput
               aria-label="Only show cached images"
@@ -419,6 +428,16 @@ const ImageSelector: FC<Props> = ({ onSelect, onClose }) => {
                 setHideRemote((prev) => !prev);
               }}
             />
+            {onUseImageReference && (
+              <Button
+                appearance="base"
+                className="u-no-margin--bottom"
+                onClick={onUseImageReference}
+                type="button"
+              >
+                Use image reference
+              </Button>
+            )}
           </div>
         </Col>
         <Col size={9}>

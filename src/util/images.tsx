@@ -1,4 +1,5 @@
 import type { LxdImage, RemoteImage } from "types/image";
+import type { LxdInstanceSource } from "types/instance";
 import type { LxdStorageVolume } from "types/storage";
 import { capitalizeFirstLetter } from "./helpers";
 import { instanceCreationTypes } from "./instanceOptions";
@@ -42,6 +43,45 @@ export const isoToRemoteImage = (volume: LxdStorageVolume): RemoteImage => {
 };
 
 export const LOCAL_IMAGE = "local-image";
+
+export const remoteImageToInstanceSource = (
+  image: RemoteImage | undefined,
+  hasImageRegistries: boolean,
+): LxdInstanceSource => {
+  if (image?.registryName && hasImageRegistries) {
+    return {
+      alias: image.aliases.split(",")[0],
+      mode: "pull",
+      image_registry: image.registryName,
+      type: "image",
+    };
+  }
+
+  if (image?.server === LOCAL_IMAGE || image?.cached) {
+    return {
+      type: "image",
+      certificate: "",
+      fingerprint: image.fingerprint,
+      allow_inconsistent: false,
+    };
+  }
+
+  if (image?.server === LOCAL_ISO) {
+    return {
+      type: "none",
+      certificate: "",
+      allow_inconsistent: false,
+    };
+  }
+
+  return {
+    alias: image?.aliases.split(",")[0],
+    mode: "pull",
+    protocol: image?.protocol ?? "simplestreams",
+    server: image?.server,
+    type: "image",
+  };
+};
 
 export const localLxdToRemoteImage = (image: LxdImage): RemoteImage => {
   const isLTS = image.properties?.description
