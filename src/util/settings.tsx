@@ -116,7 +116,7 @@ export const getUserSettings = (
       category: "user",
       default: "",
       shortdesc:
-        "Custom simplestreams image servers to offer when creating instances. Overrides the default image server list when set.",
+        "Custom simple streams and OCI image remotes to offer when creating or rebuilding instances.",
       type: "string",
       isSaved: true,
     },

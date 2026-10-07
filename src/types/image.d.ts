@@ -1,7 +1,7 @@
 import type { LxdStorageVolume } from "types/storage";
 
 export type LxdImageType = "container" | "virtual-machine";
-export type LxdImageRegistryProtocol = "simplestreams" | "lxd";
+export type LxdImageRegistryProtocol = "lxd" | "oci" | "simplestreams";
 
 interface LxdImageAlias {
   name: string;

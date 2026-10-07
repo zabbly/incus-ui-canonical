@@ -17,10 +17,17 @@ const streamsIndex = (server: string): string => {
 export const loadRemoteImagesLegacy = async (
   userServers: ImageServer[] = [],
 ): Promise<RemoteImagesResult> => {
+  const simpleStreamsServers = userServers.filter(
+    (server) => server.protocol === "simplestreams",
+  );
+
   // when user-defined servers are configured, they override the default list
   const servers =
-    userServers.length > 0
-      ? userServers.map((server) => ({ url: server.url, name: server.name }))
+    simpleStreamsServers.length > 0
+      ? simpleStreamsServers.map((server) => ({
+          url: server.url,
+          name: server.name,
+        }))
       : [{ url: linuxContainersServer, name: undefined }];
 
   const results = await Promise.all(

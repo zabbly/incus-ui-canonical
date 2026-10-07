@@ -89,8 +89,7 @@ const Navigation: FC = () => {
 
   const isSmallScreen = useIsScreenBelow();
   const isAllProjects = projectName === ALL_PROJECTS;
-  const { hasCustomVolumeIso, hasAccessManagement, hasImageRegistries } =
-    useSupportedFeatures();
+  const { hasCustomVolumeIso, hasAccessManagement } = useSupportedFeatures();
   const { loggedInUserName, loggedInUserID } = useLoggedInUser();
   const [scroll, setScroll] = useState(false);
   const location = useLocation();
@@ -480,16 +479,6 @@ const Navigation: FC = () => {
                           >
                             Local images
                           </NavLink>
-                          {hasImageRegistries && (
-                            <NavLink
-                              to={`${ROOT_PATH}/ui/image-registries`}
-                              title={getNavTitle("image registries")}
-                              activeUrlMatches={["ui/image-registry/"]}
-                              onClick={softToggleMenu}
-                            >
-                              Image registries
-                            </NavLink>
-                          )}
                         </NavAccordion>
                       </SideNavigationItem>
                       <SideNavigationItem>
