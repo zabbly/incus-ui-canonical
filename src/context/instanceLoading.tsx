@@ -11,6 +11,7 @@ import { mapsAreEqual } from "util/mapsAreEqual";
 export type LoadingTypes =
   | "Starting"
   | "Stopping"
+  | "Rebuilding"
   | "Restarting"
   | "Freezing"
   | "Migrating";
@@ -43,6 +44,8 @@ const getLoadingType = (operation: LxdOperation): LoadingTypes | null => {
       return "Starting";
     case "Restarting instance":
       return "Restarting";
+    case "Rebuilding instance":
+      return "Rebuilding";
     case "Migrating instance":
       return "Migrating";
     default:
