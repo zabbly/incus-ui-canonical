@@ -13,6 +13,7 @@ import { useToastNotification } from "@canonical/react-components";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 import ProjectRichChip from "pages/projects/ProjectRichChip";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
 
 export type MigrationType =
   | "cluster member"
@@ -38,6 +39,7 @@ export const useInstanceMigration = ({
   const eventQueue = useEventQueue();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const { hasInstanceRefreshMigration } = useSupportedFeatures();
 
   const handleSuccess = (target: string) => {
     let successMessage: ReactNode = "";
@@ -148,7 +150,13 @@ export const useInstanceMigration = ({
       target = targetProject;
     }
     instanceLoading.setLoading(instance, "Migrating");
-    migrateInstance(instance, targetMember, targetPool, targetProject)
+    migrateInstance(
+      instance,
+      targetMember,
+      targetPool,
+      targetProject,
+      hasInstanceRefreshMigration,
+    )
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,

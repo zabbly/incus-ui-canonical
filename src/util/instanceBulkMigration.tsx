@@ -8,6 +8,7 @@ import { getPromiseSettledCounts } from "util/promises";
 import { useToastNotification } from "@canonical/react-components";
 import { useBulkDetails } from "context/useBulkDetails";
 import { useInstanceEntitlements } from "util/entitlements/instances";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
 
 export type BulkMigrationType =
   | "cluster member"
@@ -38,6 +39,7 @@ export const useInstanceBulkMigration = ({
   const queryClient = useQueryClient();
   const viewBulkDetails = useBulkDetails();
   const { canEditInstance } = useInstanceEntitlements();
+  const { hasInstanceRefreshMigration } = useSupportedFeatures();
 
   // Instances that the user can migrate and that are not already on the chosen
   // target.
@@ -96,6 +98,7 @@ export const useInstanceBulkMigration = ({
       targetPool,
       targetProject,
       eventQueue,
+      hasInstanceRefreshMigration,
     )
       .then((results) => {
         const { fulfilledCount, rejectedCount } =
