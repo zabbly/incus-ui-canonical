@@ -2,14 +2,9 @@ import type { FC } from "react";
 import { useState } from "react";
 import {
   ActionButton,
-  Button,
   ConfirmationModal,
-  Form,
   Icon,
-  Input,
-  Modal,
   Notification,
-  Select,
   usePortal,
   useToastNotification,
 } from "@canonical/react-components";
@@ -19,24 +14,16 @@ import { rebuildInstance, startInstance, stopInstance } from "api/instances";
 import { useEventQueue } from "context/eventQueue";
 import { useLocalImagesInProject } from "context/useImages";
 import { useInstanceLoading } from "context/instanceLoading";
-import { useImageRegistries } from "context/useImageRegistries";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
+import ImageReferenceSelector from "pages/images/ImageReferenceSelector";
 import ImageSelector from "pages/images/ImageSelector";
 import { InstanceRichChip } from "pages/instances/InstanceRichChip";
-import { useNavigate } from "react-router-dom";
 import type { RemoteImage } from "types/image";
 import type { LxdInstance, LxdInstanceSource } from "types/instance";
 import { useInstanceEntitlements } from "util/entitlements/instances";
 import { remoteImageToInstanceSource } from "util/images";
-import {
-  defaultImageServers,
-  getImageServerHost,
-  IMAGE_SERVERS_KEY,
-  inferOciImageReference,
-  parseImageServers,
-} from "util/imageServers";
+import { inferOciImageReference } from "util/imageServers";
 import { queryKeys } from "util/queryKeys";
-import { ROOT_PATH } from "util/rootPath";
 
 interface Props {
   instance: LxdInstance;
@@ -51,88 +38,17 @@ interface SelectedSource {
   source: LxdInstanceSource;
 }
 
-interface ManualSource extends SelectedSource {
-  matchProtocol?: string;
-  matchServer?: string;
-  value: string;
-}
-
 const RebuildInstanceBtn: FC<Props> = ({ instance, classname, onClose }) => {
   const eventQueue = useEventQueue();
-  const navigate = useNavigate();
   const instanceLoading = useInstanceLoading();
   const queryClient = useQueryClient();
   const toastNotify = useToastNotification();
   const { canEditInstance, canUpdateInstanceState } = useInstanceEntitlements();
-  const { hasImageRegistries, settings } = useSupportedFeatures();
-  const { data: imageRegistries = [] } = useImageRegistries(hasImageRegistries);
   const { data: localImages = [] } = useLocalImagesInProject(instance.project);
   const { openPortal, closePortal, isOpen, Portal } = usePortal();
   const [selectedSource, setSelectedSource] = useState<SelectedSource>();
   const [isUsingImageReference, setUsingImageReference] = useState(false);
-  const [manualSourceName, setManualSourceName] = useState("");
-  const [manualAlias, setManualAlias] = useState("");
   const [isLoading, setLoading] = useState(false);
-
-  const legacyServers = parseImageServers(
-    settings?.config?.[IMAGE_SERVERS_KEY],
-  );
-  const availableLegacyServers = [...legacyServers, ...defaultImageServers]
-    .filter(
-      (server, index, servers) =>
-        index === servers.findIndex((item) => item.name === server.name),
-    )
-    .filter(
-      (server) => instance.type === "container" || server.protocol !== "oci",
-    );
-  const registrySources: ManualSource[] = imageRegistries.map((registry) => ({
-    label: registry.name,
-    matchProtocol: registry.protocol,
-    matchServer: registry.config?.url,
-    value: registry.name,
-    source: {
-      type: "image" as const,
-      mode: "pull" as const,
-      image_registry: registry.name,
-    },
-  }));
-  const customRemoteSources: ManualSource[] = legacyServers
-    .filter(
-      (server) => instance.type === "container" || server.protocol !== "oci",
-    )
-    .map((server) => ({
-      label: server.name || server.url,
-      matchProtocol: server.protocol,
-      matchServer: server.url,
-      value: server.url,
-      source: {
-        type: "image" as const,
-        mode: "pull" as const,
-        protocol: server.protocol,
-        server: server.url,
-      },
-    }));
-  const legacyRemoteSources: ManualSource[] = availableLegacyServers.map(
-    (server) => ({
-      label: server.name || server.url,
-      matchProtocol: server.protocol,
-      matchServer: server.url,
-      value: server.url,
-      source: {
-        type: "image" as const,
-        mode: "pull" as const,
-        protocol: server.protocol,
-        server: server.url,
-      },
-    }),
-  );
-  const manualSources: ManualSource[] = hasImageRegistries
-    ? [...registrySources, ...customRemoteSources]
-    : legacyRemoteSources;
-
-  const selectedManualSource =
-    manualSources.find((source) => source.value === manualSourceName) ??
-    manualSources[0];
 
   const instanceLink = (
     <InstanceRichChip
@@ -145,8 +61,6 @@ const RebuildInstanceBtn: FC<Props> = ({ instance, classname, onClose }) => {
     closePortal();
     setSelectedSource(undefined);
     setUsingImageReference(false);
-    setManualSourceName("");
-    setManualAlias("");
     onClose?.();
   };
 
@@ -258,7 +172,6 @@ const RebuildInstanceBtn: FC<Props> = ({ instance, classname, onClose }) => {
 
   const disabledReason = getDisabledReason();
   const wasRunning = instance.status === "Running";
-  const normalizedManualAlias = manualAlias.trim();
   const baseImageFingerprint =
     instance.config["volatile.base_image"] ??
     instance.expanded_config["volatile.base_image"];
@@ -268,69 +181,28 @@ const RebuildInstanceBtn: FC<Props> = ({ instance, classname, onClose }) => {
       (image.fingerprint === baseImageFingerprint ||
         image.fingerprint.startsWith(baseImageFingerprint)),
   );
-  const normalizeServer = (server?: string) =>
-    server?.replace(/\/+$/, "").toLowerCase();
   const updateSource = baseImage?.update_source;
   const ociImageReference = inferOciImageReference({
     ...instance.expanded_config,
     ...instance.config,
   });
-  const updateSourceMatch = updateSource
-    ? (manualSources.find(
-        (source) =>
-          source.matchProtocol === updateSource.protocol &&
-          normalizeServer(source.matchServer) ===
-            normalizeServer(updateSource.server),
-      ) ??
-      manualSources.find(
-        (source) => source.matchProtocol === updateSource.protocol,
-      ))
-    : undefined;
-  const ociMetadataMatch = ociImageReference
-    ? manualSources.find(
-        (source) =>
-          source.matchProtocol === "oci" &&
-          getImageServerHost(source.matchServer) === ociImageReference.server,
-      )
-    : undefined;
-  const inferredManualSource = updateSourceMatch ?? ociMetadataMatch;
+  const inferredProtocol = updateSource?.protocol
+    ? updateSource.protocol
+    : ociImageReference
+      ? "oci"
+      : undefined;
+  const inferredServer = updateSource?.server ?? ociImageReference?.server;
   const inferredAlias = updateSource?.alias ?? ociImageReference?.alias ?? "";
 
   const selectImage = (image: RemoteImage) => {
     setSelectedSource({
       label: image.aliases,
-      source: remoteImageToInstanceSource(image, hasImageRegistries),
-    });
-  };
-
-  const selectManualReference = () => {
-    if (!selectedManualSource || !normalizedManualAlias) {
-      return;
-    }
-
-    setSelectedSource({
-      label: `${selectedManualSource.label}:${normalizedManualAlias}`,
-      source: {
-        ...selectedManualSource.source,
-        alias: normalizedManualAlias,
-      },
+      source: remoteImageToInstanceSource(image),
     });
   };
 
   const useImageReference = () => {
-    setManualSourceName(
-      inferredManualSource?.value ?? manualSources[0]?.value ?? "",
-    );
-    setManualAlias(inferredAlias);
     setUsingImageReference(true);
-  };
-
-  const manageRemotes = () => {
-    close();
-    const path = `${ROOT_PATH}/ui/settings?query=${encodeURIComponent(
-      IMAGE_SERVERS_KEY,
-    )}`;
-    void navigate(path);
   };
 
   return (
@@ -373,99 +245,24 @@ const RebuildInstanceBtn: FC<Props> = ({ instance, classname, onClose }) => {
               )}
             </ConfirmationModal>
           ) : isUsingImageReference ? (
-            <Modal
-              buttonRow={
-                <>
-                  <Button
-                    appearance="base"
-                    className="u-no-margin--bottom"
-                    onClick={() => {
-                      setUsingImageReference(false);
-                    }}
-                    type="button"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    appearance="positive"
-                    className="u-no-margin--bottom"
-                    disabled={!selectedManualSource || !normalizedManualAlias}
-                    onClick={selectManualReference}
-                    type="button"
-                  >
-                    Continue
-                  </Button>
-                </>
-              }
-              close={close}
-              title="Use image reference"
-            >
-              <Form
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  selectManualReference();
-                }}
-              >
-                <Select
-                  id="rebuild-image-source"
-                  help={
-                    hasImageRegistries
-                      ? "Select the configured image registry that contains the image."
-                      : "Select a standard Incus image remote or a custom Web UI remote. OCI remotes are available for containers only. Remotes configured only in the local Incus CLI are not available to the browser."
-                  }
-                  label="Remote"
-                  name="image-source"
-                  onChange={(event) => {
-                    setManualSourceName(event.target.value);
-                  }}
-                  options={manualSources.map(({ label, value }) => ({
-                    label,
-                    value,
-                  }))}
-                  required
-                  value={manualSourceName || selectedManualSource?.value || ""}
-                />
-                <Button
-                  appearance="base"
-                  className="u-no-margin--top"
-                  hasIcon
-                  onClick={manageRemotes}
-                  type="button"
-                >
-                  <Icon name="plus" />
-                  <span>Configure Web UI remotes</span>
-                </Button>
-                <Input
-                  autoFocus
-                  help={
-                    <>
-                      Enter the image reference exactly as it appears on the
-                      remote, using <code>organisation/repository:version</code>
-                      .
-                    </>
-                  }
-                  label="Image (organisation/repository:version)"
-                  name="image-alias"
-                  onChange={(event) => {
-                    setManualAlias(event.target.value);
-                  }}
-                  placeholder="organisation/repository:version"
-                  required
-                  type="text"
-                  value={manualAlias}
-                />
-                <Input type="submit" hidden value="Select image reference" />
-              </Form>
-            </Modal>
+            <ImageReferenceSelector
+              imageType={instance.type}
+              initialAlias={inferredAlias}
+              initialProtocol={inferredProtocol}
+              initialServer={inferredServer}
+              onBack={() => {
+                setUsingImageReference(false);
+              }}
+              onClose={close}
+              onSelect={selectImage}
+            />
           ) : (
             <ImageSelector
               excludeLocalIso
               imageType={instance.type}
               onClose={close}
               onSelect={selectImage}
-              onUseImageReference={
-                manualSources.length ? useImageReference : undefined
-              }
+              onUseImageReference={useImageReference}
             />
           )}
         </Portal>
