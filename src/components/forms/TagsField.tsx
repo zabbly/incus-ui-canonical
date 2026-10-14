@@ -103,7 +103,7 @@ const TagsField: FC<Props> = ({
           return (
             <span
               key={tag}
-              className="tags-field__chip"
+              className="p-chip is-inline is-dense tags-field__chip"
               style={{ backgroundColor: color, color: textColorFor(color) }}
             >
               <label className="tags-field__color" title="Change color">
@@ -121,7 +121,7 @@ const TagsField: FC<Props> = ({
                   }}
                 />
               </label>
-              <span>{tag}</span>
+              <span className="p-chip__value">{tag}</span>
               <button
                 type="button"
                 className="tags-field__remove"
