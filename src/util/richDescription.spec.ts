@@ -65,6 +65,12 @@ describe("sanitizeDescription", () => {
     expect(result).toContain('rel="noopener noreferrer"');
   });
 
+  it("keeps strike-through from the visual editor", () => {
+    expect(sanitizeDescription("<p><s>old</s> new</p>")).toBe(
+      "<p><s>old</s> new</p>",
+    );
+  });
+
   it("drops plain http urls", () => {
     const result = sanitizeDescription("<img src='http://example.org/a.png'>");
     expect(result).not.toContain("src=");

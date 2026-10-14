@@ -4,6 +4,7 @@ import ReactCodeMirror from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
 import { bespin } from "@uiw/codemirror-theme-bespin";
 import RichDescription from "components/RichDescription";
+import VisualDescriptionEditor from "components/forms/VisualDescriptionEditor";
 
 interface Props {
   id: string;
@@ -15,7 +16,15 @@ interface Props {
   title?: string;
 }
 
-// Html source editor with a preview of the sanitized result.
+type Mode = "visual" | "html" | "preview";
+
+const MODES: { mode: Mode; label: string }[] = [
+  { mode: "visual", label: "Visual" },
+  { mode: "html", label: "HTML" },
+  { mode: "preview", label: "Preview" },
+];
+
+// Wysiwyg, html source, or a preview of the sanitized result.
 const DescriptionEditor: FC<Props> = ({
   id,
   label,
@@ -25,35 +34,29 @@ const DescriptionEditor: FC<Props> = ({
   disabled = false,
   title,
 }) => {
-  const [isPreview, setPreview] = useState(false);
+  const [mode, setMode] = useState<Mode>("visual");
 
   return (
     <Field label={label} forId={id}>
       <div className="description-editor" title={title}>
         <Tabs
           className="description-editor__tabs"
-          links={[
-            {
-              label: "HTML",
-              active: !isPreview,
-              onClick: () => {
-                setPreview(false);
-              },
+          links={MODES.map((item) => ({
+            label: item.label,
+            active: mode === item.mode,
+            onClick: () => {
+              setMode(item.mode);
             },
-            {
-              label: "Preview",
-              active: isPreview,
-              onClick: () => {
-                setPreview(true);
-              },
-            },
-          ]}
+          }))}
         />
-        {isPreview ? (
-          <div className="description-editor__preview">
-            <RichDescription description={value} />
-          </div>
-        ) : (
+        {mode === "visual" && (
+          <VisualDescriptionEditor
+            value={value}
+            onChange={onChange}
+            disabled={disabled}
+          />
+        )}
+        {mode === "html" && (
           <ReactCodeMirror
             id={id}
             value={value}
@@ -69,6 +72,11 @@ const DescriptionEditor: FC<Props> = ({
               onChange(text);
             }}
           />
+        )}
+        {mode === "preview" && (
+          <div className="description-editor__preview">
+            <RichDescription description={value} />
+          </div>
         )}
       </div>
     </Field>

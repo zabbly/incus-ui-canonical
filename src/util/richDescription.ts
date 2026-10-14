@@ -24,6 +24,7 @@ const ALLOWED_TAGS = [
   "ol",
   "p",
   "pre",
+  "s",
   "small",
   "span",
   "strong",

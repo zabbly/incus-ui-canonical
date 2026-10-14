@@ -15,7 +15,7 @@
   h5,
   h6 {
     font-size: 1rem;
-    font-weight: 550;
+    font-weight: $font-weight-bold;
     margin: 0.25rem 0;
     padding: 0;
   }
@@ -43,6 +43,26 @@
 .description-editor {
   &__tabs {
     margin-bottom: 0.5rem;
+  }
+
+  &__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.25rem;
+  }
+
+  &__tool--active {
+    background-color: rgb(127 127 127 / 25%);
+  }
+
+  &__visual {
+    border: $border-thin;
+    max-height: 24rem;
+    min-height: 8rem;
+    outline: none;
+    overflow: auto;
+    padding: 0.5rem;
   }
 
   &__preview {
