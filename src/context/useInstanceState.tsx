@@ -14,7 +14,9 @@ export const useInstanceState = (
   return useQuery({
     queryKey: [queryKeys.instances, instance.name, instance.project, "state"],
     queryFn: async () => fetchInstanceState(instance.name, instance.project),
-    refetchInterval: 15 * 1000,
+    // second sample soon after the first, the cpu rate needs two
+    refetchInterval: (query) =>
+      query.state.dataUpdateCount < 2 ? 3000 : 15 * 1000,
     enabled: enabled && !isRestricted,
   });
 };

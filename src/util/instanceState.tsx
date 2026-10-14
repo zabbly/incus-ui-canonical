@@ -69,7 +69,8 @@ export const trackCpuUsage = (
   const key = `${instance.project}/${instance.name}`;
   const next = { time: updatedAt, usage: state.cpu.usage };
   const last = cpuSamples.get(key);
-  if (last && last.sample.time === next.time) {
+  // list and panel poll the same instance, pairs under a second apart are noise
+  if (last && next.time - last.sample.time < 1000) {
     return last.percentage;
   }
 

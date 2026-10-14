@@ -22,8 +22,11 @@ const InstanceStateUsageCpu: FC<Props> = ({ instance, state, updatedAt }) => {
 
   if (percentage === undefined) {
     return (
-      <div className="p-text--small u-no-margin--bottom u-text--muted">
-        {cpuTime}
+      <div
+        className="p-text--small u-no-margin--bottom u-text--muted"
+        title={cpuTime}
+      >
+        measuring
       </div>
     );
   }

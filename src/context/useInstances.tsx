@@ -15,7 +15,13 @@ export const useInstances = (
 
   return useQuery({
     queryKey: [queryKeys.instances, project, filter],
-    refetchInterval,
+    // second sample soon after the first, usage rates need two
+    refetchInterval: refetchInterval
+      ? (query) =>
+          query.state.dataUpdateCount < 2
+            ? Math.min(3000, refetchInterval)
+            : refetchInterval
+      : undefined,
     queryFn: async () =>
       fetchInstances(
         project,

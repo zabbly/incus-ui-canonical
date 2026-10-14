@@ -46,6 +46,12 @@ describe("trackCpuUsage", () => {
   it("returns undefined without state", () => {
     expect(trackCpuUsage(instance, undefined, 20000)).toBeUndefined();
   });
+
+  it("ignores samples less than a second after the last one", () => {
+    // list and panel poll the same instance, near simultaneous pairs are noise
+    expect(trackCpuUsage(instance, stateAt(5.1e9), 11500)).toBe(25);
+    expect(trackCpuUsage(instance, stateAt(10e9), 21000)).toBe(25);
+  });
 });
 
 describe("getCpuAllocatedTime", () => {
