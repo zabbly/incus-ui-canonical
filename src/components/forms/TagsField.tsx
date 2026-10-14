@@ -1,7 +1,7 @@
 import { useState, type ChangeEvent, type FC, type KeyboardEvent } from "react";
 import classnames from "classnames";
 import { CheckboxInput, Field } from "@canonical/react-components";
-import { X } from "lucide-react";
+import { Palette, X } from "lucide-react";
 import { useInstances } from "context/useInstances";
 import {
   TAG_COLORS_KEY,
@@ -106,20 +106,21 @@ const TagsField: FC<Props> = ({
               className="tags-field__chip"
               style={{ backgroundColor: color, color: textColorFor(color) }}
             >
-              <input
-                type="color"
-                className="tags-field__color"
-                value={color}
-                disabled={disabled}
-                title="Change color"
-                aria-label={`Color of ${tag}`}
-                onChange={(e) => {
-                  onChange({
-                    ...values,
-                    tagColors: { ...values.tagColors, [tag]: e.target.value },
-                  });
-                }}
-              />
+              <label className="tags-field__color" title="Change color">
+                <Palette size={12} aria-hidden="true" />
+                <input
+                  type="color"
+                  value={color}
+                  disabled={disabled}
+                  aria-label={`Color of ${tag}`}
+                  onChange={(e) => {
+                    onChange({
+                      ...values,
+                      tagColors: { ...values.tagColors, [tag]: e.target.value },
+                    });
+                  }}
+                />
+              </label>
               <span>{tag}</span>
               <button
                 type="button"
@@ -180,19 +181,28 @@ const TagsField: FC<Props> = ({
               }}
             />
             {values.ipTags[family] && (
-              <input
-                type="color"
-                className="tags-field__color tags-field__color--plain"
-                value={values.ipTags[family]}
-                disabled={disabled}
-                aria-label={`Color of ${family} tags`}
-                onChange={(e) => {
-                  onChange({
-                    ...values,
-                    ipTags: { ...values.ipTags, [family]: e.target.value },
-                  });
+              <label
+                className="tags-field__color tags-field__color--dot"
+                title="Change color"
+                style={{
+                  backgroundColor: values.ipTags[family],
+                  color: textColorFor(values.ipTags[family]),
                 }}
-              />
+              >
+                <Palette size={12} aria-hidden="true" />
+                <input
+                  type="color"
+                  value={values.ipTags[family]}
+                  disabled={disabled}
+                  aria-label={`Color of ${family} tags`}
+                  onChange={(e) => {
+                    onChange({
+                      ...values,
+                      ipTags: { ...values.ipTags, [family]: e.target.value },
+                    });
+                  }}
+                />
+              </label>
             )}
           </span>
         ))}
