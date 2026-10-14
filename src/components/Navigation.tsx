@@ -15,6 +15,7 @@ import NavigationProjectSelector from "pages/projects/NavigationProjectSelector"
 import {
   capitalizeFirstLetter,
   getElementAbsoluteHeight,
+  LxdApiError,
   logout,
 } from "util/helpers";
 import { ROOT_PATH } from "util/rootPath";
@@ -112,6 +113,17 @@ const Navigation: FC = () => {
   const { data: isRunningIncusOS = false } = useQuery({
     queryKey: [queryKeys.osCheck],
     queryFn: async () => isIncusOS(),
+    enabled: isAuthenticated,
+    retry: (failureCount, error: unknown) => {
+      // Not authorized to access the OS API, retrying will not help
+      if (
+        error instanceof LxdApiError &&
+        [401, 403, 404].includes(error.status)
+      ) {
+        return false;
+      }
+      return failureCount < 3;
+    },
   });
 
   useEffect(() => {
