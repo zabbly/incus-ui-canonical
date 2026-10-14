@@ -20,9 +20,10 @@ import ExpandableList from "components/ExpandableList";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
 import RichDescription from "components/RichDescription";
-import InstanceUsageCpu from "pages/instances/InstanceUsageCpu";
-import InstanceUsageMainMemory from "pages/instances/InstanceUsageMainMemory";
-import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesystem";
+import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
+import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
+import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
+import { useInstanceState } from "context/useInstanceState";
 import { useAuth } from "context/auth";
 
 const RECENT_SNAPSHOT_LIMIT = 5;
@@ -45,6 +46,8 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
 
   const { isRestricted } = useAuth();
   const isRunning = instance.status === "Running";
+  const showUsage = isRunning && !isRestricted;
+  const { data: state, dataUpdatedAt } = useInstanceState(instance, showUsage);
   const rootPool = getRootPool(instance);
 
   return (
@@ -99,27 +102,28 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
             <InstanceIps instance={instance} family="inet6" />
           </td>
         </tr>
-        {isRunning && !isRestricted && (
+        {showUsage && (
           <>
             <tr>
               <th className="u-text--muted">CPU</th>
               <td>
-                <InstanceUsageCpu
-                  key={`${instance.project}/${instance.name}`}
+                <InstanceStateUsageCpu
                   instance={instance}
+                  state={state}
+                  updatedAt={dataUpdatedAt}
                 />
               </td>
             </tr>
             <tr>
               <th className="u-text--muted">Memory</th>
               <td>
-                <InstanceUsageMainMemory instance={instance} />
+                <InstanceStateUsageMemory state={state} />
               </td>
             </tr>
             <tr>
               <th className="u-text--muted">Root filesystem</th>
               <td>
-                <InstanceUsageRootFilesystem instance={instance} />
+                <InstanceStateUsageRootDisk instance={instance} state={state} />
               </td>
             </tr>
           </>

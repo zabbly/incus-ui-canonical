@@ -16,7 +16,6 @@ import NotificationRow from "components/NotificationRow";
 import DeviceListTable from "components/DeviceListTable";
 import NetworkListTable from "components/NetworkListTable";
 import type { LxdDevices } from "types/device";
-import ResourceLink from "components/ResourceLink";
 import { getIpAddresses } from "util/networks";
 import { getInstanceOSName, getInstanceType } from "util/instances";
 import { ImageLink } from "pages/instances/ImageLink";
@@ -134,7 +133,11 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
             <h2 className="p-heading--5">Preview</h2>
           </Col>
           <Col size={4}>
-            <InstancePreview instance={instance} refetch={false} onFailure={onFailure} />
+            <InstancePreview
+              instance={instance}
+              refetch={false}
+              onFailure={onFailure}
+            />
           </Col>
           <Col size={3}></Col>
         </Row>
