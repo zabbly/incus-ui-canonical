@@ -1,0 +1,63 @@
+.tag-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.tag-chip {
+  border: 0;
+  margin: 0;
+
+  .p-chip__value {
+    color: inherit;
+  }
+
+  &__remove {
+    background: none;
+    border: 0;
+    color: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    margin: 0 0 0 0.25rem;
+    padding: 0;
+    vertical-align: middle;
+  }
+}
+
+.tag-editor {
+  border: $border-thin;
+  padding: 0.5rem;
+
+  &__row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  &__tag {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.25rem;
+  }
+
+  &__color {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    height: 1.5rem;
+    padding: 0;
+    width: 1.5rem;
+  }
+
+  &__input {
+    flex: 1 1 10rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+  }
+}

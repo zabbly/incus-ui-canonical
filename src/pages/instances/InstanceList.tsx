@@ -52,6 +52,7 @@ import {
   CPU,
   CREATION_SPAN_COLUMNS,
   DESCRIPTION,
+  TAGS,
   FILESYSTEM,
   IPV4,
   IPV6,
@@ -82,6 +83,8 @@ import {
 } from "context/useIsScreenBelow";
 import { descriptionToText } from "util/richDescription";
 import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
+import TagChips from "components/TagChips";
+import { getInstanceTagChips } from "util/instanceTags";
 import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
 import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
 import { useInstances } from "context/useInstances";
@@ -346,6 +349,10 @@ const InstanceList: FC = () => {
         sortKey: "description",
         style: { width: `${COLUMN_WIDTHS[DESCRIPTION]}px` },
       },
+      [TAGS]: {
+        content: TAGS,
+        style: { width: `${COLUMN_WIDTHS[TAGS]}px` },
+      },
       [IPV4]: {
         content: IPV4,
         className: "u-align--right",
@@ -575,6 +582,19 @@ const InstanceList: FC = () => {
             onClick: openSummary,
             className: "clickable-cell",
             style: { width: `${COLUMN_WIDTHS[DESCRIPTION]}px` },
+          },
+          [TAGS]: {
+            content: (
+              <TagChips
+                chips={getInstanceTagChips(instance, instances)}
+                emptyText=""
+              />
+            ),
+            role: "cell",
+            "aria-label": TAGS,
+            onClick: openSummary,
+            className: "clickable-cell",
+            style: { width: `${COLUMN_WIDTHS[TAGS]}px` },
           },
           [IPV4]: {
             key: `ipv4-${ipv4.length}`,

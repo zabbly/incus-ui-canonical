@@ -3,6 +3,7 @@ export const NAME = "Name";
 export const TYPE = "Type";
 export const CLUSTER_MEMBER = "Location";
 export const DESCRIPTION = "Description";
+export const TAGS = "Tags";
 export const CPU = "CPU";
 export const MEMORY = "Memory";
 export const FILESYSTEM = "Root filesystem";
@@ -21,6 +22,7 @@ export const COLUMN_WIDTHS: Record<string, number> = {
   [MEMORY]: 150,
   [FILESYSTEM]: 150,
   [DESCRIPTION]: 150,
+  [TAGS]: 220,
   [IPV4]: 150,
   [IPV6]: 330,
   [SNAPSHOTS]: 110,
@@ -39,6 +41,7 @@ export const ALL_COLUMNS = [
   MEMORY,
   FILESYSTEM,
   DESCRIPTION,
+  TAGS,
   IPV4,
   IPV6,
   SNAPSHOTS,
@@ -51,6 +54,7 @@ export const SIZE_HIDEABLE_COLUMNS = [
   SNAPSHOTS,
   IPV6,
   IPV4,
+  TAGS,
   DESCRIPTION,
   CLUSTER_MEMBER,
   FILESYSTEM,
@@ -69,6 +73,7 @@ export const USER_HIDEABLE_COLUMNS = [
   FILESYSTEM,
   CLUSTER_MEMBER,
   DESCRIPTION,
+  TAGS,
   IPV4,
   IPV6,
   SNAPSHOTS,
@@ -78,6 +83,7 @@ export const USER_HIDEABLE_COLUMNS = [
 export const CREATION_SPAN_COLUMNS = [
   TYPE,
   DESCRIPTION,
+  TAGS,
   CPU,
   MEMORY,
   FILESYSTEM,

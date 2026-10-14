@@ -20,6 +20,7 @@ import ExpandableList from "components/ExpandableList";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
 import RichDescription from "components/RichDescription";
+import InstanceTagsEditor from "pages/instances/InstanceTagsEditor";
 import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
 import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
 import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
@@ -80,6 +81,12 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
           <th className="u-text--muted">Description</th>
           <td>
             <RichDescription description={instance.description} />
+          </td>
+        </tr>
+        <tr>
+          <th className="u-text--muted">Tags</th>
+          <td>
+            <InstanceTagsEditor instance={instance} />
           </td>
         </tr>
         <tr>
