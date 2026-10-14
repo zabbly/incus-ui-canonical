@@ -47,10 +47,15 @@ describe("trackCpuUsage", () => {
     expect(trackCpuUsage(instance, undefined, 20000)).toBeUndefined();
   });
 
-  it("ignores samples less than a second after the last one", () => {
+  it("ignores samples less than half a second after the last one", () => {
     // list and panel poll the same instance, near simultaneous pairs are noise
-    expect(trackCpuUsage(instance, stateAt(5.1e9), 11500)).toBe(25);
+    expect(trackCpuUsage(instance, stateAt(5.1e9), 11300)).toBe(25);
     expect(trackCpuUsage(instance, stateAt(10e9), 21000)).toBe(25);
+  });
+
+  it("accepts samples more than half a second apart", () => {
+    // 0.6 cpu seconds in 0.6 s on 2 cores -> 50 %
+    expect(trackCpuUsage(instance, stateAt(10.6e9), 21600)).toBe(50);
   });
 });
 

@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { Spinner } from "@canonical/react-components";
 import Meter from "components/Meter";
 import { humanCpuUsage } from "util/helpers";
 import { getCpuCores, trackCpuUsage } from "util/instanceState";
@@ -22,12 +23,9 @@ const InstanceStateUsageCpu: FC<Props> = ({ instance, state, updatedAt }) => {
 
   if (percentage === undefined) {
     return (
-      <div
-        className="p-text--small u-no-margin--bottom u-text--muted"
-        title={cpuTime}
-      >
-        measuring
-      </div>
+      <span title={cpuTime}>
+        <Spinner />
+      </span>
     );
   }
 

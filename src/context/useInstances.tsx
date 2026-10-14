@@ -19,7 +19,7 @@ export const useInstances = (
     refetchInterval: refetchInterval
       ? (query) =>
           query.state.dataUpdateCount < 2
-            ? Math.min(3000, refetchInterval)
+            ? Math.min(1000, refetchInterval)
             : refetchInterval
       : undefined,
     queryFn: async () =>
