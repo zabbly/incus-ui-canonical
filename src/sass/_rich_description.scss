@@ -1,0 +1,97 @@
+.rich-description {
+  overflow-wrap: anywhere;
+
+  img {
+    display: inline-block;
+    height: auto;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+    font-weight: $font-weight-bold;
+    margin: 0.25rem 0;
+    padding: 0;
+  }
+
+  p,
+  ul,
+  ol,
+  pre,
+  blockquote {
+    margin-bottom: 0.25rem;
+    padding-top: 0;
+  }
+
+  // Font Awesome is not bundled; hide its empty icon placeholders.
+  i:empty {
+    display: none;
+  }
+}
+
+.rich-description--text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.description-editor {
+  &__tabs {
+    margin-bottom: 0.5rem;
+  }
+
+  &__toolbar {
+    align-items: center;
+    background-color: rgb(127 127 127 / 10%);
+    border: $border-thin;
+    border-bottom: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+
+  &__tool {
+    align-items: center;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    width: 2rem;
+  }
+
+  &__tool--active {
+    background-color: rgb(127 127 127 / 30%);
+  }
+
+  &__separator {
+    background-color: rgb(127 127 127 / 50%);
+    height: 1.25rem;
+    margin: 0 0.25rem;
+    width: 1px;
+  }
+
+  &__visual {
+    border: $border-thin;
+    max-height: 24rem;
+    min-height: 8rem;
+    outline: none;
+    overflow: auto;
+    padding: 0.5rem;
+  }
+
+  &__preview {
+    border: $border-thin;
+    min-height: 8rem;
+    padding: 0.5rem;
+  }
+
+  .cm-editor {
+    border: $border-thin;
+  }
+}

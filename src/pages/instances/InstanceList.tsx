@@ -49,8 +49,10 @@ import {
   ACTIONS,
   CLUSTER_MEMBER,
   COLUMN_WIDTHS,
+  CPU,
   CREATION_SPAN_COLUMNS,
   DESCRIPTION,
+  TAGS,
   FILESYSTEM,
   IPV4,
   IPV6,
@@ -79,8 +81,12 @@ import {
   mediumScreenBreakpoint,
   useIsScreenBelow,
 } from "context/useIsScreenBelow";
-import InstanceUsageMainMemory from "pages/instances/InstanceUsageMainMemory";
-import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesystem";
+import { descriptionToText } from "util/richDescription";
+import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
+import TagChips from "components/TagChips";
+import { getInstanceTagChips } from "util/instanceTags";
+import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
+import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
 import { useInstances } from "context/useInstances";
 import { useProjectEntitlements } from "util/entitlements/projects";
 import { useCurrentProject } from "context/useCurrentProject";
@@ -105,7 +111,7 @@ const loadHidden = () => {
   const validColumns = new Set(USER_HIDEABLE_COLUMNS);
   return saved
     ? (JSON.parse(saved) as string[]).filter((item) => validColumns.has(item))
-    : [MEMORY, FILESYSTEM];
+    : [CPU, MEMORY, FILESYSTEM];
 };
 
 const loadOrderedColumns = () => {
@@ -175,9 +181,14 @@ const InstanceList: FC = () => {
 
   const {
     data: instances = [],
+    dataUpdatedAt,
     error,
     isLoading,
-  } = useInstances(project?.name ?? null, encodeServerFilters(serverFilters));
+  } = useInstances(
+    project?.name ?? null,
+    encodeServerFilters(serverFilters),
+    15 * 1000,
+  );
 
   if (error) {
     notify.failure("Loading instances failed", error);
@@ -321,6 +332,10 @@ const InstanceList: FC = () => {
         sortKey: "member",
         style: { width: `${COLUMN_WIDTHS[CLUSTER_MEMBER]}px` },
       },
+      [CPU]: {
+        content: CPU,
+        style: { width: `${COLUMN_WIDTHS[CPU]}px` },
+      },
       [MEMORY]: {
         content: MEMORY,
         style: { width: `${COLUMN_WIDTHS[MEMORY]}px` },
@@ -333,6 +348,10 @@ const InstanceList: FC = () => {
         content: DESCRIPTION,
         sortKey: "description",
         style: { width: `${COLUMN_WIDTHS[DESCRIPTION]}px` },
+      },
+      [TAGS]: {
+        content: TAGS,
+        style: { width: `${COLUMN_WIDTHS[TAGS]}px` },
       },
       [IPV4]: {
         content: IPV4,
@@ -514,8 +533,22 @@ const InstanceList: FC = () => {
             "aria-label": CLUSTER_MEMBER,
             style: { width: `${COLUMN_WIDTHS[CLUSTER_MEMBER]}px` },
           },
+          [CPU]: {
+            content: (
+              <InstanceStateUsageCpu
+                instance={instance}
+                state={instance.state}
+                updatedAt={dataUpdatedAt}
+              />
+            ),
+            role: "cell",
+            "aria-label": CPU,
+            onClick: openSummary,
+            className: "clickable-cell",
+            style: { width: `${COLUMN_WIDTHS[CPU]}px` },
+          },
           [MEMORY]: {
-            content: <InstanceUsageMainMemory instance={instance} />,
+            content: <InstanceStateUsageMemory state={instance.state} />,
             role: "cell",
             "aria-label": MEMORY,
             onClick: openSummary,
@@ -523,7 +556,12 @@ const InstanceList: FC = () => {
             style: { width: `${COLUMN_WIDTHS[MEMORY]}px` },
           },
           [FILESYSTEM]: {
-            content: <InstanceUsageRootFilesystem instance={instance} />,
+            content: (
+              <InstanceStateUsageRootDisk
+                instance={instance}
+                state={instance.state}
+              />
+            ),
             role: "cell",
             "aria-label": FILESYSTEM,
             onClick: openSummary,
@@ -532,8 +570,11 @@ const InstanceList: FC = () => {
           },
           [DESCRIPTION]: {
             content: (
-              <div className="u-truncate" title={instance.description}>
-                {instance.description}
+              <div
+                className="u-truncate"
+                title={descriptionToText(instance.description)}
+              >
+                {descriptionToText(instance.description)}
               </div>
             ),
             role: "cell",
@@ -541,6 +582,19 @@ const InstanceList: FC = () => {
             onClick: openSummary,
             className: "clickable-cell",
             style: { width: `${COLUMN_WIDTHS[DESCRIPTION]}px` },
+          },
+          [TAGS]: {
+            content: (
+              <TagChips
+                chips={getInstanceTagChips(instance, instances)}
+                emptyText=""
+              />
+            ),
+            role: "cell",
+            "aria-label": TAGS,
+            onClick: openSummary,
+            className: "clickable-cell",
+            style: { width: `${COLUMN_WIDTHS[TAGS]}px` },
           },
           [IPV4]: {
             key: `ipv4-${ipv4.length}`,

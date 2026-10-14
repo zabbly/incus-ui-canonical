@@ -1,3 +1,4 @@
+import { isTagConfigKey } from "util/instanceTags";
 import type { FC } from "react";
 import { Button, Icon, Input } from "@canonical/react-components";
 import type {
@@ -9,7 +10,7 @@ import ScrollableConfigurationTable from "components/forms/ScrollableConfigurati
 import type { EditInstanceFormValues } from "pages/instances/EditInstance";
 import { focusField } from "util/formFields";
 import { ensureEditMode } from "util/editMode";
-import { userPropPrefix} from "util/instanceAndProfilePayloads";
+import { userPropPrefix } from "util/instanceAndProfilePayloads";
 
 export interface UserPropertyFormValues {
   name: string;
@@ -20,11 +21,10 @@ export interface UserPropertyFormValues {
 export const userPropertiesFromConfig = (
   config: Record<string, string>,
 ): Record<string, string> => {
-  return Object.entries(config ?? {}).filter(([k]) =>
-    k.startsWith(userPropPrefix),
+  return Object.entries(config ?? {}).filter(
+    ([k]) => k.startsWith(userPropPrefix) && !isTagConfigKey(k),
   );
 };
-
 
 const removePrefix = (value: string, prefix: string): string => {
   return value.startsWith(prefix) ? value.slice(prefix.length) : value;
