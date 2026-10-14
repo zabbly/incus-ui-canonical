@@ -49,6 +49,7 @@ import {
   ACTIONS,
   CLUSTER_MEMBER,
   COLUMN_WIDTHS,
+  CPU,
   CREATION_SPAN_COLUMNS,
   DESCRIPTION,
   FILESYSTEM,
@@ -80,8 +81,9 @@ import {
   useIsScreenBelow,
 } from "context/useIsScreenBelow";
 import { descriptionToText } from "util/richDescription";
-import InstanceUsageMainMemory from "pages/instances/InstanceUsageMainMemory";
-import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesystem";
+import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
+import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
+import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
 import { useInstances } from "context/useInstances";
 import { useProjectEntitlements } from "util/entitlements/projects";
 import { useCurrentProject } from "context/useCurrentProject";
@@ -106,7 +108,7 @@ const loadHidden = () => {
   const validColumns = new Set(USER_HIDEABLE_COLUMNS);
   return saved
     ? (JSON.parse(saved) as string[]).filter((item) => validColumns.has(item))
-    : [MEMORY, FILESYSTEM];
+    : [CPU, MEMORY, FILESYSTEM];
 };
 
 const loadOrderedColumns = () => {
@@ -176,9 +178,14 @@ const InstanceList: FC = () => {
 
   const {
     data: instances = [],
+    dataUpdatedAt,
     error,
     isLoading,
-  } = useInstances(project?.name ?? null, encodeServerFilters(serverFilters));
+  } = useInstances(
+    project?.name ?? null,
+    encodeServerFilters(serverFilters),
+    15 * 1000,
+  );
 
   if (error) {
     notify.failure("Loading instances failed", error);
@@ -321,6 +328,10 @@ const InstanceList: FC = () => {
         content: CLUSTER_MEMBER,
         sortKey: "member",
         style: { width: `${COLUMN_WIDTHS[CLUSTER_MEMBER]}px` },
+      },
+      [CPU]: {
+        content: CPU,
+        style: { width: `${COLUMN_WIDTHS[CPU]}px` },
       },
       [MEMORY]: {
         content: MEMORY,
@@ -515,8 +526,22 @@ const InstanceList: FC = () => {
             "aria-label": CLUSTER_MEMBER,
             style: { width: `${COLUMN_WIDTHS[CLUSTER_MEMBER]}px` },
           },
+          [CPU]: {
+            content: (
+              <InstanceStateUsageCpu
+                instance={instance}
+                state={instance.state}
+                updatedAt={dataUpdatedAt}
+              />
+            ),
+            role: "cell",
+            "aria-label": CPU,
+            onClick: openSummary,
+            className: "clickable-cell",
+            style: { width: `${COLUMN_WIDTHS[CPU]}px` },
+          },
           [MEMORY]: {
-            content: <InstanceUsageMainMemory instance={instance} />,
+            content: <InstanceStateUsageMemory state={instance.state} />,
             role: "cell",
             "aria-label": MEMORY,
             onClick: openSummary,
@@ -524,7 +549,12 @@ const InstanceList: FC = () => {
             style: { width: `${COLUMN_WIDTHS[MEMORY]}px` },
           },
           [FILESYSTEM]: {
-            content: <InstanceUsageRootFilesystem instance={instance} />,
+            content: (
+              <InstanceStateUsageRootDisk
+                instance={instance}
+                state={instance.state}
+              />
+            ),
             role: "cell",
             "aria-label": FILESYSTEM,
             onClick: openSummary,

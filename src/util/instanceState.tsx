@@ -43,6 +43,43 @@ export const getCpuAllocatedTime = (
   return cores * 1e9;
 };
 
+export const getCpuCores = (
+  instance: LxdInstance,
+  state: LxdInstanceState,
+): number => {
+  return Math.max(1, Math.round(getCpuAllocatedTime(instance, state) / 1e9));
+};
+
+const cpuSamples = new Map<
+  string,
+  { sample: CpuSample; percentage?: number }
+>();
+
+// Keeps the last sample per instance, so list rows and panels share it
+// and survive remounts. Undefined until a second sample arrived.
+export const trackCpuUsage = (
+  instance: LxdInstance,
+  state: LxdInstanceState | undefined,
+  updatedAt: number,
+): number | undefined => {
+  if (!state?.cpu || !updatedAt) {
+    return undefined;
+  }
+
+  const key = `${instance.project}/${instance.name}`;
+  const next = { time: updatedAt, usage: state.cpu.usage };
+  const last = cpuSamples.get(key);
+  if (last && last.sample.time === next.time) {
+    return last.percentage;
+  }
+
+  const percentage = last
+    ? getCpuPercentage(last.sample, next, getCpuAllocatedTime(instance, state))
+    : undefined;
+  cpuSamples.set(key, { sample: next, percentage });
+  return percentage;
+};
+
 const isRootDisk = (device: LxdDevices[string]): boolean => {
   if (device.type !== "disk") {
     return false;

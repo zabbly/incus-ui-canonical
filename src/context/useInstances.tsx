@@ -8,12 +8,14 @@ import type { LxdInstance } from "types/instance";
 export const useInstances = (
   project: string | null,
   filter?: string,
+  refetchInterval?: number,
 ): UseQueryResult<LxdInstance[]> => {
   const { isFineGrained } = useAuth();
   const { hasInstanceStateSelectiveRecursion } = useSupportedFeatures();
 
   return useQuery({
     queryKey: [queryKeys.instances, project, filter],
+    refetchInterval,
     queryFn: async () =>
       fetchInstances(
         project,

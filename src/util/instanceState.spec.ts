@@ -1,9 +1,52 @@
 import type { LxdInstance, LxdInstanceState } from "types/instance";
 import {
   getCpuAllocatedTime,
+  getCpuCores,
   getCpuPercentage,
   getRootDiskUsage,
+  trackCpuUsage,
 } from "./instanceState";
+
+describe("getCpuCores", () => {
+  it("derives the core count from the allocated cpu time", () => {
+    const instance = { expanded_config: {} } as unknown as LxdInstance;
+    const state = {
+      cpu: { usage: 0, allocated_time: 12e9 },
+    } as unknown as LxdInstanceState;
+    expect(getCpuCores(instance, state)).toBe(12);
+  });
+});
+
+describe("trackCpuUsage", () => {
+  const instance = {
+    name: "web",
+    project: "default",
+    expanded_config: {},
+  } as unknown as LxdInstance;
+  const other = { ...instance, name: "db" } as unknown as LxdInstance;
+  const stateAt = (usage: number) =>
+    ({ cpu: { usage, allocated_time: 2e9 } }) as unknown as LxdInstanceState;
+
+  it("needs two samples before it reports a percentage", () => {
+    expect(trackCpuUsage(instance, stateAt(0), 1000)).toBeUndefined();
+    expect(trackCpuUsage(instance, stateAt(5e9), 11000)).toBe(25);
+  });
+
+  it("keeps the percentage for repeated calls with the same sample", () => {
+    expect(trackCpuUsage(instance, stateAt(5e9), 11000)).toBe(25);
+    expect(trackCpuUsage(instance, stateAt(5e9), 11000)).toBe(25);
+  });
+
+  it("tracks instances independently", () => {
+    expect(trackCpuUsage(other, stateAt(0), 11000)).toBeUndefined();
+    expect(trackCpuUsage(other, stateAt(1e9), 12000)).toBe(50);
+    expect(trackCpuUsage(instance, stateAt(5e9), 11000)).toBe(25);
+  });
+
+  it("returns undefined without state", () => {
+    expect(trackCpuUsage(instance, undefined, 20000)).toBeUndefined();
+  });
+});
 
 describe("getCpuAllocatedTime", () => {
   it("uses allocated_time from the state", () => {

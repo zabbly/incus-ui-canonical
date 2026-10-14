@@ -1,7 +1,7 @@
 import type { FC } from "react";
 import Meter from "components/Meter";
 import { humanCpuUsage } from "util/helpers";
-import { useCpuPercentage } from "context/useCpuPercentage";
+import { getCpuCores, trackCpuUsage } from "util/instanceState";
 import type { LxdInstance, LxdInstanceState } from "types/instance";
 
 interface Props {
@@ -11,22 +11,27 @@ interface Props {
 }
 
 const InstanceStateUsageCpu: FC<Props> = ({ instance, state, updatedAt }) => {
-  const percentage = useCpuPercentage(instance, state, updatedAt);
+  const percentage = trackCpuUsage(instance, state, updatedAt);
 
   if (!state?.cpu || state.cpu.usage <= 0) {
     return "-";
   }
 
+  const cores = getCpuCores(instance, state);
   const cpuTime = `${humanCpuUsage(state.cpu.usage)} s cpu time`;
 
   if (percentage === undefined) {
-    return <span className="u-text--muted">{cpuTime}</span>;
+    return (
+      <div className="p-text--small u-no-margin--bottom u-text--muted">
+        {cpuTime}
+      </div>
+    );
   }
 
   return (
     <Meter
       percentage={percentage}
-      text={`${percentage.toFixed(1)} %`}
+      text={`${percentage.toFixed(1)} % of ${cores} CPU${cores === 1 ? "" : "s"}`}
       hoverText={cpuTime}
     />
   );
