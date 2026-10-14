@@ -4,6 +4,7 @@ import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { Button } from "@canonical/react-components";
+import { formatHtml } from "util/formatHtml";
 import {
   Bold,
   Code,
@@ -176,7 +177,7 @@ const VisualDescriptionEditor: FC<Props> = ({
       attributes: { class: "rich-description description-editor__visual" },
     },
     onUpdate: ({ editor }) => {
-      onChange(editor.getHTML());
+      onChange(formatHtml(editor.getHTML()));
     },
   });
 
