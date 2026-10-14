@@ -27,17 +27,11 @@
 }
 
 .tags-field {
-  align-items: center;
-  background-color: rgb(127 127 127 / 10%);
-  border: $border-thin;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  min-height: 2.5rem;
-  padding: 0.25rem 0.5rem;
-
-  &.is-disabled {
-    opacity: 0.6;
+  &__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
   }
 
   &__chip {
@@ -57,6 +51,7 @@
     cursor: pointer;
     display: inline-flex;
     justify-content: center;
+    line-height: 1;
     position: relative;
 
     input {
@@ -87,14 +82,16 @@
     padding: 0;
   }
 
-  &__input {
-    background: none;
-    border: 0;
-    color: inherit;
-    flex: 1 1 8rem;
-    min-width: 8rem;
-    outline: none;
-    padding: 0.25rem 0;
+  &__add {
+    align-items: center;
+    display: flex;
+    gap: 0.5rem;
+
+    input {
+      flex: 1 1 auto;
+      margin: 0;
+      min-width: 0;
+    }
   }
 
   &__suggestions {
@@ -106,17 +103,17 @@
 
   &__suggestion {
     border: 0;
-    border-radius: 1rem;
     cursor: pointer;
-    font-size: 0.875rem;
-    line-height: 1.5;
     margin: 0;
     min-height: 0;
-    opacity: 0.75;
-    padding: 0.125rem 0.5rem;
+    opacity: 0.8;
 
     &:hover {
       opacity: 1;
+    }
+
+    .p-chip__value {
+      color: inherit;
     }
   }
 

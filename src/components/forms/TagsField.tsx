@@ -1,6 +1,5 @@
 import { useState, type ChangeEvent, type FC, type KeyboardEvent } from "react";
-import classnames from "classnames";
-import { CheckboxInput, Field } from "@canonical/react-components";
+import { Button, CheckboxInput, Field } from "@canonical/react-components";
 import { Palette, X } from "lucide-react";
 import { useInstances } from "context/useInstances";
 import {
@@ -27,7 +26,7 @@ const DEFAULT_IP_COLORS = { ipv4: "#17becf", ipv6: "#9467bd" };
 const without = (map: Record<string, string>, key: string) =>
   Object.fromEntries(Object.entries(map).filter(([item]) => item !== key));
 
-// Chip input with suggestions from tags already in use.
+// Tags as chips, a plain input to add more, suggestions from tags in use.
 const TagsField: FC<Props> = ({
   project,
   name,
@@ -83,129 +82,149 @@ const TagsField: FC<Props> = ({
       e.preventDefault();
       add(draft);
     }
-    if (e.key === "Backspace" && !draft && values.tags.length > 0) {
-      remove(values.tags[values.tags.length - 1]);
-    }
   };
+
+  const colorPicker = (
+    value: string,
+    label: string,
+    onPick: (color: string) => void,
+    isDot = false,
+  ) => (
+    <label
+      className={
+        isDot ? "tags-field__color tags-field__color--dot" : "tags-field__color"
+      }
+      title="Change color"
+      style={
+        isDot
+          ? { backgroundColor: value, color: textColorFor(value) }
+          : undefined
+      }
+    >
+      <Palette size={12} aria-hidden="true" />
+      <input
+        type="color"
+        value={value}
+        disabled={disabled}
+        aria-label={label}
+        onChange={(e) => {
+          onPick(e.target.value);
+        }}
+      />
+    </label>
+  );
 
   return (
     <Field
       label="Tags"
       forId="tags"
-      help="Shown in the instance list and summary. Enter adds a tag."
+      help="Shown in the instance list and summary."
     >
-      <div
-        className={classnames("tags-field", { "is-disabled": disabled })}
-        title={title}
-      >
-        {values.tags.map((tag) => {
-          const color = colorOf(tag);
-          return (
-            <span
-              key={tag}
-              className="p-chip is-inline is-dense tags-field__chip"
-              style={{ backgroundColor: color, color: textColorFor(color) }}
-            >
-              <label className="tags-field__color" title="Change color">
-                <Palette size={12} aria-hidden="true" />
-                <input
-                  type="color"
-                  value={color}
-                  disabled={disabled}
-                  aria-label={`Color of ${tag}`}
-                  onChange={(e) => {
+      <div className="tags-field" title={title}>
+        {values.tags.length > 0 && (
+          <div className="tags-field__chips">
+            {values.tags.map((tag) => {
+              const color = colorOf(tag);
+              return (
+                <span
+                  key={tag}
+                  className="p-chip is-inline is-dense tags-field__chip"
+                  style={{ backgroundColor: color, color: textColorFor(color) }}
+                >
+                  {colorPicker(color, `Color of ${tag}`, (picked) => {
                     onChange({
                       ...values,
-                      tagColors: { ...values.tagColors, [tag]: e.target.value },
+                      tagColors: { ...values.tagColors, [tag]: picked },
                     });
-                  }}
-                />
-              </label>
-              <span className="p-chip__value">{tag}</span>
+                  })}
+                  <span className="p-chip__value">{tag}</span>
+                  <button
+                    type="button"
+                    className="tags-field__remove"
+                    disabled={disabled}
+                    aria-label={`Remove ${tag}`}
+                    onClick={() => {
+                      remove(tag);
+                    }}
+                  >
+                    <X size={12} aria-hidden="true" />
+                  </button>
+                </span>
+              );
+            })}
+          </div>
+        )}
+        <div className="tags-field__add">
+          <input
+            id="tags"
+            type="text"
+            placeholder="Add a tag and press Enter"
+            value={draft}
+            disabled={disabled}
+            onChange={(e) => {
+              setDraft(e.target.value);
+            }}
+            onKeyDown={onKeyDown}
+          />
+          <Button
+            className="u-no-margin--bottom"
+            dense
+            type="button"
+            disabled={disabled || !draft.trim()}
+            onClick={() => {
+              add(draft);
+            }}
+          >
+            Add
+          </Button>
+        </div>
+        {suggestions.length > 0 && !disabled && (
+          <div className="tags-field__suggestions">
+            {suggestions.map((item) => (
               <button
+                key={item.tag}
                 type="button"
-                className="tags-field__remove"
-                disabled={disabled}
-                aria-label={`Remove ${tag}`}
+                className="p-chip is-inline is-dense tags-field__suggestion"
+                style={{
+                  backgroundColor: item.color,
+                  color: textColorFor(item.color),
+                }}
+                title={`Add ${item.tag}`}
                 onClick={() => {
-                  remove(tag);
+                  add(item.tag);
                 }}
               >
-                <X size={12} aria-hidden="true" />
+                <span className="p-chip__value">+ {item.tag}</span>
               </button>
+            ))}
+          </div>
+        )}
+        <div className="tags-field__ip">
+          {(["ipv4", "ipv6"] as const).map((family) => (
+            <span key={family} className="tags-field__ip-option">
+              <CheckboxInput
+                label={`${family === "ipv4" ? "IPv4" : "IPv6"} address as tag`}
+                checked={!!values.ipTags[family]}
+                disabled={disabled}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                  toggleIp(family, e.target.checked);
+                }}
+              />
+              {values.ipTags[family] &&
+                colorPicker(
+                  values.ipTags[family],
+                  `Color of ${family} tags`,
+                  (picked) => {
+                    onChange({
+                      ...values,
+                      ipTags: { ...values.ipTags, [family]: picked },
+                    });
+                  },
+                  true,
+                )}
             </span>
-          );
-        })}
-        <input
-          id="tags"
-          type="text"
-          className="tags-field__input"
-          placeholder={values.tags.length > 0 ? "" : "Add tag"}
-          value={draft}
-          disabled={disabled}
-          onChange={(e) => {
-            setDraft(e.target.value);
-          }}
-          onKeyDown={onKeyDown}
-        />
-      </div>
-      {suggestions.length > 0 && !disabled && (
-        <div className="tags-field__suggestions">
-          {suggestions.map((item) => (
-            <button
-              key={item.tag}
-              type="button"
-              className="tags-field__suggestion"
-              style={{
-                backgroundColor: item.color,
-                color: textColorFor(item.color),
-              }}
-              onClick={() => {
-                add(item.tag);
-              }}
-            >
-              + {item.tag}
-            </button>
           ))}
         </div>
-      )}
-      <div className="tags-field__ip">
-        {(["ipv4", "ipv6"] as const).map((family) => (
-          <span key={family} className="tags-field__ip-option">
-            <CheckboxInput
-              label={`${family === "ipv4" ? "IPv4" : "IPv6"} address as tag`}
-              checked={!!values.ipTags[family]}
-              disabled={disabled}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => {
-                toggleIp(family, e.target.checked);
-              }}
-            />
-            {values.ipTags[family] && (
-              <label
-                className="tags-field__color tags-field__color--dot"
-                title="Change color"
-                style={{
-                  backgroundColor: values.ipTags[family],
-                  color: textColorFor(values.ipTags[family]),
-                }}
-              >
-                <Palette size={12} aria-hidden="true" />
-                <input
-                  type="color"
-                  value={values.ipTags[family]}
-                  disabled={disabled}
-                  aria-label={`Color of ${family} tags`}
-                  onChange={(e) => {
-                    onChange({
-                      ...values,
-                      ipTags: { ...values.ipTags, [family]: e.target.value },
-                    });
-                  }}
-                />
-              </label>
-            )}
-          </span>
-        ))}
       </div>
     </Field>
   );
