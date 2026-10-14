@@ -46,14 +46,34 @@
   }
 
   &__toolbar {
+    align-items: center;
+    background-color: rgb(127 127 127 / 10%);
+    border: $border-thin;
+    border-bottom: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem;
-    margin-bottom: 0.25rem;
+    gap: 0.125rem;
+    padding: 0.25rem;
+  }
+
+  &__tool {
+    align-items: center;
+    display: inline-flex;
+    height: 2rem;
+    justify-content: center;
+    padding: 0;
+    width: 2rem;
   }
 
   &__tool--active {
-    background-color: rgb(127 127 127 / 25%);
+    background-color: rgb(127 127 127 / 30%);
+  }
+
+  &__separator {
+    background-color: rgb(127 127 127 / 50%);
+    height: 1.25rem;
+    margin: 0 0.25rem;
+    width: 1px;
   }
 
   &__visual {

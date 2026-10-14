@@ -52,6 +52,7 @@
     "ip-address": "^10.0.1",
     "js-yaml": "4.2.0",
     "lodash.isequal": "4.5.0",
+    "lucide-react": "1.57.0",
     "node-forge": "1.4.0",
     "parse-prometheus-text-format": "1.1.1",
     "react": "19.2.7",
