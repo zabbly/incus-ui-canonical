@@ -40,21 +40,20 @@
   white-space: pre-wrap;
 }
 
-.instance-description {
-  &__edit {
-    margin-left: 0.25rem;
-    vertical-align: top;
+.description-editor {
+  &__toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 0.25rem;
   }
 
   &__preview {
     border: $border-thin;
+    min-height: 8rem;
     padding: 0.5rem;
   }
 
-  &__actions {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-    margin-top: 0.5rem;
+  .cm-editor {
+    border: $border-thin;
   }
 }

@@ -3,12 +3,11 @@ import { Col, Row, OutputField } from "@canonical/react-components";
 import ProfileSelector from "pages/profiles/ProfileSelector";
 import type { FormikProps } from "formik/dist/types";
 import type { EditInstanceFormValues } from "types/forms/instanceAndProfile";
-import AutoExpandingTextArea from "components/AutoExpandingTextArea";
+import DescriptionEditor from "components/forms/DescriptionEditor";
 import ScrollableForm from "components/ScrollableForm";
 import { ensureEditMode } from "util/editMode";
 import SshKeyForm from "components/forms/SshKeyForm";
 import { useIsClustered } from "context/useIsClustered";
-import PlacementGroupSelect from "pages/instances/forms/PlacementGroupSelect";
 
 interface Props {
   formik: FormikProps<EditInstanceFormValues>;
@@ -28,17 +27,15 @@ const EditInstanceDetails: FC<Props> = ({ formik, project }) => {
             value={formik.values.name}
             help="Click the instance name in the header to rename the instance."
           />
-          <AutoExpandingTextArea
+          <DescriptionEditor
             id="description"
-            name="description"
             label="Description"
             placeholder="Enter description"
-            onBlur={formik.handleBlur}
-            onChange={(e) => {
+            value={formik.values.description ?? ""}
+            onChange={(value) => {
               ensureEditMode(formik);
-              formik.handleChange(e);
+              void formik.setFieldValue("description", value);
             }}
-            value={formik.values.description}
             disabled={!!formik.values.editRestriction}
             title={formik.values.editRestriction}
           />
