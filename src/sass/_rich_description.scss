@@ -39,3 +39,22 @@
   overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
+
+.instance-description {
+  &__edit {
+    margin-left: 0.25rem;
+    vertical-align: top;
+  }
+
+  &__preview {
+    border: $border-thin;
+    padding: 0.5rem;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+}

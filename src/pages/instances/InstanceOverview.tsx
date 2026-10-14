@@ -1,6 +1,6 @@
 import { useEffect, type FC } from "react";
 import { isoTimeToString } from "util/helpers";
-import RichDescription from "components/RichDescription";
+import InstanceDescription from "pages/instances/InstanceDescription";
 import { ROOT_PATH } from "util/rootPath";
 import { Col, Row, useListener, useNotify } from "@canonical/react-components";
 import type { LxdInstance } from "types/instance";
@@ -62,7 +62,7 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
               <tr>
                 <th className="u-text--muted">Description</th>
                 <td>
-                  <RichDescription description={instance.description} />
+                  <InstanceDescription instance={instance} />
                 </td>
               </tr>
               <tr>

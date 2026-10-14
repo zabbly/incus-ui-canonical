@@ -19,7 +19,7 @@ import NetworkRichChip from "pages/networks/NetworkRichChip";
 import ExpandableList from "components/ExpandableList";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
-import RichDescription from "components/RichDescription";
+import InstanceDescription from "pages/instances/InstanceDescription";
 import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
 import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
 import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
@@ -79,7 +79,7 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
         <tr>
           <th className="u-text--muted">Description</th>
           <td>
-            <RichDescription description={instance.description} />
+            <InstanceDescription instance={instance} />
           </td>
         </tr>
         <tr>
