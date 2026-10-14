@@ -4,6 +4,7 @@ import ProfileSelector from "pages/profiles/ProfileSelector";
 import type { FormikProps } from "formik/dist/types";
 import type { EditInstanceFormValues } from "types/forms/instanceAndProfile";
 import DescriptionEditor from "components/forms/DescriptionEditor";
+import TagsField from "components/forms/TagsField";
 import ScrollableForm from "components/ScrollableForm";
 import { ensureEditMode } from "util/editMode";
 import SshKeyForm from "components/forms/SshKeyForm";
@@ -35,6 +36,23 @@ const EditInstanceDetails: FC<Props> = ({ formik, project }) => {
             onChange={(value) => {
               ensureEditMode(formik);
               void formik.setFieldValue("description", value);
+            }}
+            disabled={!!formik.values.editRestriction}
+            title={formik.values.editRestriction}
+          />
+          <TagsField
+            project={project}
+            name={formik.values.name}
+            values={{
+              tags: formik.values.tags ?? [],
+              tagColors: formik.values.tagColors ?? {},
+              ipTags: formik.values.ipTags ?? {},
+            }}
+            onChange={(values) => {
+              ensureEditMode(formik);
+              void formik.setFieldValue("tags", values.tags);
+              void formik.setFieldValue("tagColors", values.tagColors);
+              void formik.setFieldValue("ipTags", values.ipTags);
             }}
             disabled={!!formik.values.editRestriction}
             title={formik.values.editRestriction}

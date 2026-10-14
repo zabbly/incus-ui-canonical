@@ -16,6 +16,47 @@ export interface KnownTag {
   color: string;
 }
 
+export interface TagFormValues {
+  tags: string[];
+  tagColors: Record<string, string>;
+  ipTags: Record<string, string>;
+}
+
+const TAG_KEYS = new Set([TAGS_KEY, TAG_COLORS_KEY, IP_TAGS_KEY]);
+
+export const isTagConfigKey = (key: string): boolean => TAG_KEYS.has(key);
+
+export const getTagFormValues = (
+  config: Record<string, string | undefined>,
+): TagFormValues => ({
+  tags: parseTags(config[TAGS_KEY]),
+  tagColors: parseKeyValues(config[TAG_COLORS_KEY]),
+  ipTags: parseKeyValues(config[IP_TAGS_KEY]),
+});
+
+// Form values to config keys, undefined removes a key.
+export const tagsPayload = (
+  values?: Partial<TagFormValues>,
+): Record<string, string | undefined> => {
+  if (!values?.tags) {
+    return {};
+  }
+  const tags = values.tags;
+  const colors = Object.fromEntries(
+    Object.entries(values.tagColors ?? {}).filter(([tag]) =>
+      tags.includes(tag),
+    ),
+  );
+  const ipTags = values.ipTags ?? {};
+  return {
+    [TAGS_KEY]: tags.length > 0 ? serializeTags(tags) : undefined,
+    [TAG_COLORS_KEY]:
+      Object.keys(colors).length > 0 ? serializeKeyValues(colors) : undefined,
+    [IP_TAGS_KEY]:
+      Object.keys(ipTags).length > 0 ? serializeKeyValues(ipTags) : undefined,
+  };
+};
+
 const PALETTE = [
   "#1f77b4",
   "#2ca02c",

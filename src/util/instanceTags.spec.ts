@@ -3,13 +3,77 @@ import {
   getInstanceTagChips,
   getKnownTags,
   getTagColor,
+  getTagFormValues,
   hashColor,
+  isTagConfigKey,
   parseKeyValues,
   parseTags,
   serializeKeyValues,
   serializeTags,
+  tagsPayload,
   textColorFor,
 } from "./instanceTags";
+
+describe("isTagConfigKey", () => {
+  it("matches the three tag keys only", () => {
+    expect(isTagConfigKey("user.tags")).toBe(true);
+    expect(isTagConfigKey("user.tag_colors")).toBe(true);
+    expect(isTagConfigKey("user.ip_tags")).toBe(true);
+    expect(isTagConfigKey("user.hostname")).toBe(false);
+  });
+});
+
+describe("getTagFormValues", () => {
+  it("reads tags, colors and ip tags from the config", () => {
+    expect(
+      getTagFormValues({
+        "user.tags": "os;web",
+        "user.tag_colors": "os=#123456",
+        "user.ip_tags": "ipv4=#00ff00",
+      }),
+    ).toEqual({
+      tags: ["os", "web"],
+      tagColors: { os: "#123456" },
+      ipTags: { ipv4: "#00ff00" },
+    });
+  });
+
+  it("is empty for a config without tags", () => {
+    expect(getTagFormValues({ "user.hostname": "x" })).toEqual({
+      tags: [],
+      tagColors: {},
+      ipTags: {},
+    });
+  });
+});
+
+describe("tagsPayload", () => {
+  it("serializes the form values into config keys", () => {
+    expect(
+      tagsPayload({
+        tags: ["os", "web"],
+        tagColors: { os: "#123456", gone: "#000000" },
+        ipTags: { ipv4: "#00ff00" },
+      }),
+    ).toEqual({
+      "user.tags": "os;web",
+      "user.tag_colors": "os=#123456",
+      "user.ip_tags": "ipv4=#00ff00",
+    });
+  });
+
+  it("removes the keys when nothing is set", () => {
+    expect(tagsPayload({ tags: [], tagColors: {}, ipTags: {} })).toEqual({
+      "user.tags": undefined,
+      "user.tag_colors": undefined,
+      "user.ip_tags": undefined,
+    });
+  });
+
+  it("leaves the config alone without form values", () => {
+    expect(tagsPayload(undefined)).toEqual({});
+  });
+});
 
 const make = (
   name: string,
