@@ -11,17 +11,19 @@ import { isNicDevice } from "util/devices";
 import { getIpAddresses } from "util/networks";
 import { useInstanceLoading } from "context/instanceLoading";
 import { useIsClustered } from "context/useIsClustered";
-import InstanceMACAddresses from "pages/instances/InstanceMACAddresses";
 import ResourceLink from "components/ResourceLink";
 import { getInstanceOSName, getInstanceType } from "util/instances";
 import { ImageLink } from "pages/instances/ImageLink";
 import ProfileRichChip from "pages/profiles/ProfileRichChip";
-import DevicesSummaryList from "components/DevicesSummaryList";
-import type { LxdDevices } from "types/device";
 import NetworkRichChip from "pages/networks/NetworkRichChip";
 import ExpandableList from "components/ExpandableList";
 import ClusterMemberRichChip from "pages/cluster/ClusterMemberRichChip";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
+import RichDescription from "components/RichDescription";
+import InstanceUsageCpu from "pages/instances/InstanceUsageCpu";
+import InstanceUsageMainMemory from "pages/instances/InstanceUsageMainMemory";
+import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesystem";
+import { useAuth } from "context/auth";
 
 const RECENT_SNAPSHOT_LIMIT = 5;
 
@@ -41,8 +43,8 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
 
   const isClustered = useIsClustered();
 
-  const pid =
-    !instance.state || instance.state.pid === 0 ? "-" : instance.state.pid;
+  const { isRestricted } = useAuth();
+  const isRunning = instance.status === "Running";
   const rootPool = getRootPool(instance);
 
   return (
@@ -73,7 +75,9 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
         </tr>
         <tr>
           <th className="u-text--muted">Description</th>
-          <td>{instance.description ? instance.description : "-"}</td>
+          <td>
+            <RichDescription description={instance.description} />
+          </td>
         </tr>
         <tr>
           <th className="u-text--muted">Type</th>
@@ -95,16 +99,31 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
             <InstanceIps instance={instance} family="inet6" />
           </td>
         </tr>
-        <tr>
-          <th className="u-text--muted">MAC addresses</th>
-          <td key={getIpAddresses(instance, "inet6").length}>
-            <InstanceMACAddresses instance={instance} />
-          </td>
-        </tr>
-        <tr>
-          <th className="u-text--muted">Architecture</th>
-          <td>{instance.architecture}</td>
-        </tr>
+        {isRunning && !isRestricted && (
+          <>
+            <tr>
+              <th className="u-text--muted">CPU</th>
+              <td>
+                <InstanceUsageCpu
+                  key={`${instance.project}/${instance.name}`}
+                  instance={instance}
+                />
+              </td>
+            </tr>
+            <tr>
+              <th className="u-text--muted">Memory</th>
+              <td>
+                <InstanceUsageMainMemory instance={instance} />
+              </td>
+            </tr>
+            <tr>
+              <th className="u-text--muted">Root filesystem</th>
+              <td>
+                <InstanceUsageRootFilesystem instance={instance} />
+              </td>
+            </tr>
+          </>
+        )}
         {isClustered && (
           <tr>
             <th className="u-text--muted">Cluster member</th>
@@ -148,18 +167,6 @@ const InstanceDetailPanelContent: FC<Props> = ({ instance }) => {
               </p>
             )}
           </td>
-        </tr>
-        <tr className="list-wrapper">
-          <th className="u-text--muted">Devices</th>
-          <td>
-            <DevicesSummaryList
-              devices={Object.values(instance.expanded_devices as LxdDevices)}
-            />
-          </td>
-        </tr>
-        <tr>
-          <th className="u-text--muted">PID</th>
-          <td>{pid}</td>
         </tr>
         <tr>
           <th className="u-text--muted">Created</th>

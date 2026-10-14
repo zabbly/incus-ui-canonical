@@ -1,0 +1,41 @@
+.rich-description {
+  overflow-wrap: anywhere;
+
+  img {
+    display: inline-block;
+    height: auto;
+    max-width: 100%;
+    vertical-align: middle;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+    font-weight: 550;
+    margin: 0.25rem 0;
+    padding: 0;
+  }
+
+  p,
+  ul,
+  ol,
+  pre,
+  blockquote {
+    margin-bottom: 0.25rem;
+    padding-top: 0;
+  }
+
+  // Font Awesome is not bundled; hide its empty icon placeholders.
+  i:empty {
+    display: none;
+  }
+}
+
+.rich-description--text {
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}

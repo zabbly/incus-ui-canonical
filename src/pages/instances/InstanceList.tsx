@@ -79,6 +79,7 @@ import {
   mediumScreenBreakpoint,
   useIsScreenBelow,
 } from "context/useIsScreenBelow";
+import { descriptionToText } from "util/richDescription";
 import InstanceUsageMainMemory from "pages/instances/InstanceUsageMainMemory";
 import InstanceUsageRootFilesystem from "pages/instances/InstanceUsageRootFilesystem";
 import { useInstances } from "context/useInstances";
@@ -532,8 +533,11 @@ const InstanceList: FC = () => {
           },
           [DESCRIPTION]: {
             content: (
-              <div className="u-truncate" title={instance.description}>
-                {instance.description}
+              <div
+                className="u-truncate"
+                title={descriptionToText(instance.description)}
+              >
+                {descriptionToText(instance.description)}
               </div>
             ),
             role: "cell",
