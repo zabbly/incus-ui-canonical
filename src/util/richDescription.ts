@@ -48,7 +48,11 @@ const ALLOWED_ATTR = [
 // Only https links and images. Blocks javascript:, data:, http: etc.
 const SAFE_URL = /^https:\/\//i;
 
-const HTML_PATTERN = /<\/?[a-z][\s\S]*?>/i;
+// Only tags from the allow-list count as html, so "<me@example.org>" stays text.
+const HTML_PATTERN = new RegExp(
+  `<\\/?(?:${ALLOWED_TAGS.join("|")})\\b[^>]*>`,
+  "i",
+);
 
 let hooksInstalled = false;
 

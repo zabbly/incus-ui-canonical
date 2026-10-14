@@ -15,6 +15,14 @@ describe("isHtmlDescription", () => {
   it("detects html", () => {
     expect(isHtmlDescription("<b>bold</b>")).toBe(true);
     expect(isHtmlDescription("<div align='center'>x</div>")).toBe(true);
+    expect(isHtmlDescription("text</p>")).toBe(true);
+    expect(isHtmlDescription("<IMG SRC='https://x/y.png'>")).toBe(true);
+  });
+
+  it("treats angle brackets around words as plain text", () => {
+    expect(isHtmlDescription("Contact <me@example.org>")).toBe(false);
+    expect(isHtmlDescription("ports <8080> and <9090>")).toBe(false);
+    expect(isHtmlDescription("<unknowntag>x</unknowntag>")).toBe(false);
   });
 });
 
