@@ -1,5 +1,5 @@
 import { useState, type FC } from "react";
-import { Button, Field } from "@canonical/react-components";
+import { Field, Tabs } from "@canonical/react-components";
 import ReactCodeMirror from "@uiw/react-codemirror";
 import { html } from "@codemirror/lang-html";
 import { bespin } from "@uiw/codemirror-theme-bespin";
@@ -15,7 +15,7 @@ interface Props {
   title?: string;
 }
 
-// Html editor with preview, the description may contain sanitized html.
+// Html source editor with a preview of the sanitized result.
 const DescriptionEditor: FC<Props> = ({
   id,
   label,
@@ -30,18 +30,25 @@ const DescriptionEditor: FC<Props> = ({
   return (
     <Field label={label} forId={id}>
       <div className="description-editor" title={title}>
-        <div className="description-editor__toolbar">
-          <Button
-            appearance="base"
-            className="u-no-margin--bottom"
-            dense
-            onClick={() => {
-              setPreview(!isPreview);
-            }}
-          >
-            {isPreview ? "Edit" : "Preview"}
-          </Button>
-        </div>
+        <Tabs
+          className="description-editor__tabs"
+          links={[
+            {
+              label: "HTML",
+              active: !isPreview,
+              onClick: () => {
+                setPreview(false);
+              },
+            },
+            {
+              label: "Preview",
+              active: isPreview,
+              onClick: () => {
+                setPreview(true);
+              },
+            },
+          ]}
+        />
         {isPreview ? (
           <div className="description-editor__preview">
             <RichDescription description={value} />

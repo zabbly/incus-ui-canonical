@@ -25,6 +25,7 @@ const EditInstanceBtn: FC<Props> = ({ instance }) => {
       appearance="base"
       dense
       hasIcon
+      type="button"
       onClick={handleOpen}
       disabled={!canEdit}
       title={

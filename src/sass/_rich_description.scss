@@ -41,10 +41,8 @@
 }
 
 .description-editor {
-  &__toolbar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 0.25rem;
+  &__tabs {
+    margin-bottom: 0.5rem;
   }
 
   &__preview {
