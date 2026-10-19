@@ -39,7 +39,13 @@ export const storageDriverDescriptions: { [key: string]: string } = {
     "Advanced Copy-on-Write filesystem with datasets and zvols (recommended)",
 };
 
-const bucketCompatibleDrivers = [dirDriver, btrfsDriver, lvmDriver, zfsDriver];
+const bucketCompatibleDrivers = [
+  dirDriver,
+  btrfsDriver,
+  lvmDriver,
+  zfsDriver,
+  cephObject,
+];
 
 const driversWithClusterWideSource = [cephDriver, cephFSDriver];
 
