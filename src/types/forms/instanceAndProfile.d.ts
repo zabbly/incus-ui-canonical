@@ -51,6 +51,9 @@ export interface InstanceEditDetailsFormValues {
   readOnly: boolean;
   editRestriction?: string;
   userProperties: UserPropertyFormValues[];
+  tags?: string[];
+  tagColors?: Record<string, string>;
+  ipTags?: Record<string, string>;
 }
 
 export interface InstanceRestrictionFormValues {
