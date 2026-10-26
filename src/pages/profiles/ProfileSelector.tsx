@@ -1,4 +1,4 @@
-import { type FC } from "react";
+import { useEffect, type FC } from "react";
 import {
   Button,
   Icon,
@@ -35,12 +35,14 @@ const ProfileSelector: FC<Props> = ({
 
   const { data: profiles = [], error, isLoading } = useProfiles(project);
 
+  useEffect(() => {
+    if (error) {
+      notify.failure("Loading profiles failed", error);
+    }
+  }, [error]);
+
   if (isLoading) {
     return <Spinner className="u-loader" text="Loading profiles..." />;
-  }
-
-  if (error) {
-    notify.failure("Loading profiles failed", error);
   }
 
   profiles.sort(defaultFirst);
