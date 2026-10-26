@@ -18,11 +18,13 @@ import {
   attachHostPath,
   attachVolume,
   detachDiskDevice,
+  getAttachedVolumeConfig,
   visitProfileGPUDevices,
   visitProfileOtherDevices,
 } from "./helpers/devices";
 import { deleteVolume, randomVolumeName } from "./helpers/storageVolume";
 import { assertTextVisible } from "./helpers/permissions";
+import { hasApiExtension } from "./helpers/server";
 
 test("instance attach custom volumes and detach inherited volumes", async ({
   page,
@@ -53,6 +55,43 @@ test("instance attach custom volumes and detach inherited volumes", async ({
   await deleteVolume(page, instanceVolume);
   await deleteProfile(page, profile);
   await deleteVolume(page, profileVolume);
+});
+
+test("instance attach custom volume as dependent", async ({ page }) => {
+  test.skip(
+    !(await hasApiExtension(page, "dependent")),
+    "Dependent disks need the dependent API extension",
+  );
+  const instance = randomInstanceName();
+  const volume = randomVolumeName();
+
+  await createInstance(page, instance);
+  await editInstance(page, instance);
+  await page.getByText("Disk", { exact: true }).click();
+  await attachVolume(page, volume, "/data");
+  await page.getByLabel("Dependent").selectOption("Yes");
+  await saveInstance(page, instance, 1);
+
+  let volumeConfig = await getAttachedVolumeConfig(
+    page,
+    instance,
+    "disk-device-1",
+  );
+  expect(volumeConfig.dependent).toBe("true");
+
+  await page
+    .getByRole("row")
+    .filter({ hasText: "Dependent" })
+    .getByTitle("Edit")
+    .click();
+  await page.getByLabel("Dependent").selectOption("No");
+  await saveInstance(page, instance, 1);
+
+  volumeConfig = await getAttachedVolumeConfig(page, instance, "disk-device-1");
+  expect(volumeConfig.dependent ?? "").toBe("");
+
+  await deleteInstance(page, instance);
+  await deleteVolume(page, volume);
 });
 
 test("instance attach host path device and detach inherited host path device", async ({
@@ -93,6 +132,7 @@ test("profile edit custom volumes", async ({ page }) => {
   await page.getByRole("button", { name: "Edit" }).click();
   await page.getByPlaceholder("Enter value").fill("3");
   await attachVolume(page, volume, "/foo");
+  await expect(page.getByLabel("Dependent")).toHaveCount(0);
   await attachHostPath(page, "/home", "/data");
   await finishProfileCreation(page, profile);
 

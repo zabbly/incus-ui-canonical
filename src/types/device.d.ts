@@ -8,6 +8,7 @@ export interface LxdDiskDevice {
   source?: string;
   "limits.read"?: string;
   "limits.write"?: string;
+  dependent?: string;
   type: "disk";
 }
 

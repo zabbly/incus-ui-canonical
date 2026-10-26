@@ -46,7 +46,6 @@ import { useNetworkAcls } from "context/useNetworkAcls";
 import type { LxdNetwork } from "types/network";
 import { Link } from "react-router";
 import { ROOT_PATH } from "util/rootPath";
-import { bridgeType } from "util/networks";
 
 interface Props {
   project: string;
