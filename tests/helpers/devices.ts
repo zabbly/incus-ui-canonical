@@ -51,3 +51,27 @@ export const visitProfileOtherDevices = async (page: Page, profile: string) => {
   await page.getByTestId("tab-link-Configuration").click();
   await page.getByText("Other", { exact: true }).click();
 };
+
+// Reads the config of the custom volume behind an instance disk device
+export const getAttachedVolumeConfig = async (
+  page: Page,
+  instance: string,
+  device: string,
+  project = "default",
+): Promise<Record<string, string>> => {
+  const instanceResponse = await page.request.get(
+    `/1.0/instances/${instance}?project=${project}`,
+  );
+  const instanceData = (await instanceResponse.json()) as {
+    metadata: { devices: Record<string, { pool: string; source: string }> };
+  };
+  const { pool, source } = instanceData.metadata.devices[device];
+
+  const volumeResponse = await page.request.get(
+    `/1.0/storage-pools/${pool}/volumes/custom/${source}?project=${project}`,
+  );
+  const volumeData = (await volumeResponse.json()) as {
+    metadata: { config: Record<string, string> };
+  };
+  return volumeData.metadata.config;
+};

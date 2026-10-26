@@ -27,7 +27,10 @@ import type { MainTableRow } from "@canonical/react-components/dist/components/M
 import { getConfigurationRowBase } from "components/ConfigurationRow";
 import DetachDiskDeviceBtn from "pages/instances/actions/DetachDiskDeviceBtn";
 import classnames from "classnames";
-import { isDiskDeviceMountPointMissing } from "util/instanceValidation";
+import {
+  isDiskDeviceMountPointMissing,
+  isSpecialDisk,
+} from "util/instanceValidation";
 import {
   getExistingDeviceNames,
   isIsoDiskDevice,
@@ -39,13 +42,17 @@ import {
 } from "util/devices";
 import { isInstanceCreation } from "util/instanceEdit";
 import { ensureEditMode } from "util/editMode";
-import { isSpecialDisk } from "util/instanceValidation";
 import { focusField } from "util/formFields";
 import { getSpecialDiskSourceOptions } from "util/storageVolume";
 import AttachDiskDeviceBtn from "pages/storage/AttachDiskDeviceBtn";
 import type { LxdProfile } from "types/profile";
 import type { LxdStorageVolume } from "types/storage";
 import StoragePoolRichChip from "pages/storage/StoragePoolRichChip";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
+
+// Values Incus accepts as true for boolean config keys
+const isTrueValue = (value?: string): boolean =>
+  ["true", "1", "yes", "on"].includes(value?.toLowerCase() ?? "");
 
 interface Props {
   formik: InstanceAndProfileFormikProps;
@@ -55,6 +62,7 @@ interface Props {
 
 const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
   const readOnly = (formik.values as EditInstanceFormValues).readOnly;
+  const { hasDependentDisks } = useSupportedFeatures();
 
   const existingDeviceNames = getExistingDeviceNames(formik.values, profiles);
   const isProfile = formik.values.entityType === "profile";
@@ -189,6 +197,12 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
         continue;
       }
 
+      // A dependent volume is tied to a single instance, so profiles don't offer it
+      const showDependent =
+        hasDependentDisks &&
+        formik.values.entityType === "instance" &&
+        isVolumeDevice(item);
+
       rows.push(
         getConfigurationRowBase({
           className: "custom-device-name device-first-row",
@@ -223,7 +237,8 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
       const volumeDeviceSource = () =>
         getConfigurationRowBase({
           className: classnames("no-border-top inherited-with-form", {
-            "device-last-row": isVolumeDevice(item) && item.path === undefined,
+            "device-last-row":
+              isVolumeDevice(item) && item.path === undefined && !showDependent,
           }),
           configuration: (
             <Label forId={`devices.${index}.pool`} className="u-text--muted">
@@ -302,7 +317,9 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
       const specialDiskDeviceSource = () =>
         getConfigurationRowBase({
           className: "no-border-top inherited-with-form",
-          configuration: <Label forId={`devices.${index}.source`}>Source</Label>,
+          configuration: (
+            <Label forId={`devices.${index}.source`}>Source</Label>
+          ),
           inherited: readOnly ? (
             <div className="custom-disk-read-mode">
               <div className="mono-font custom-disk-value u-truncate">
@@ -344,7 +361,9 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
         const hasError = isDiskDeviceMountPointMissing(formik, index);
         rows.push(
           getConfigurationRowBase({
-            className: "no-border-top inherited-with-form device-last-row",
+            className: classnames("no-border-top inherited-with-form", {
+              "device-last-row": !showDependent,
+            }),
             configuration: (
               <Label
                 forId={`devices.${index}.path`}
@@ -374,6 +393,50 @@ const DiskDeviceFormCustom: FC<Props> = ({ formik, project, profiles }) => {
                 placeholder="Enter full path (e.g. /data)"
                 className={hasError ? undefined : "u-no-margin--bottom"}
                 error={hasError ? "Path is required" : undefined}
+              />
+            ),
+            override: "",
+          }),
+        );
+      }
+
+      if (showDependent) {
+        const isDependent = isTrueValue(item.dependent);
+        rows.push(
+          getConfigurationRowBase({
+            className: "no-border-top inherited-with-form device-last-row",
+            configuration: (
+              <Label
+                forId={`devices.${index}.dependent`}
+                className="u-text--muted"
+              >
+                Dependent
+              </Label>
+            ),
+            inherited: readOnly ? (
+              <div className="custom-disk-read-mode">
+                <div className="custom-disk-value">
+                  <b>{isDependent ? "Yes" : "No"}</b>
+                </div>
+                {editButton(`devices.${index}.dependent`)}
+              </div>
+            ) : (
+              <Select
+                id={`devices.${index}.dependent`}
+                name={`devices.${index}.dependent`}
+                onBlur={formik.handleBlur}
+                onChange={(e) => {
+                  formik.setFieldValue(
+                    `devices.${index}.dependent`,
+                    e.target.value === "true" ? "true" : undefined,
+                  );
+                }}
+                value={isDependent ? "true" : ""}
+                options={[
+                  { label: "No", value: "" },
+                  { label: "Yes", value: "true" },
+                ]}
+                help="Ties the volume to the lifecycle of this instance."
               />
             ),
             override: "",

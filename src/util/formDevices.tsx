@@ -51,7 +51,7 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
               item["security.acls.default.egress.action"],
             "security.acls.default.ingress.action":
               item["security.acls.default.ingress.action"],
-            };
+          };
         }
 
         return {
@@ -74,6 +74,7 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
           pool: item.pool,
           source: "source" in item ? item.source : undefined,
           size: "size" in item ? item.size : undefined,
+          dependent: "dependent" in item ? item.dependent : undefined,
           type: "disk",
           bare: item,
         };

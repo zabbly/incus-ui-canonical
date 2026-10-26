@@ -68,6 +68,31 @@ describe("parseDevices", () => {
     expect(matchType("proxy").length).toBe(2);
     expect(matchType("gpu").length).toBe(1);
   });
+
+  it("copies the dependent flag of a custom volume disk to the form device", () => {
+    const formDevices = parseDevices({
+      data: {
+        type: "disk",
+        pool: "default",
+        source: "vol1",
+        path: "/data",
+        dependent: "true",
+      },
+      scratch: {
+        type: "disk",
+        pool: "default",
+        source: "vol2",
+        path: "/scratch",
+      },
+    });
+
+    expect(formDevices).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ name: "data", dependent: "true" }),
+        expect.objectContaining({ name: "scratch", dependent: undefined }),
+      ]),
+    );
+  });
 });
 
 describe("addNoneDevice", () => {
@@ -213,6 +238,31 @@ describe("addNicDevice", () => {
     expect(mockFormik.setFieldValue).toHaveBeenCalledTimes(1);
     expect(mockFormik.setFieldValue).toHaveBeenCalledWith("devices", [
       existingNicDevice,
+      expectedNewDevice,
+    ]);
+  });
+
+  it("should add a bridged NIC device when a parent is given", () => {
+    const mockFormik = createMockFormik([]);
+    const deviceName = "eth0";
+    const deviceParentName = "br0";
+
+    const expectedNewDevice = {
+      type: "nic",
+      name: deviceName,
+      parent: deviceParentName,
+      nictype: "bridged",
+    };
+
+    addNicDevice({
+      formik: mockFormik,
+      deviceName,
+      deviceNetworkName: "lxdbr0",
+      deviceParentName,
+    });
+
+    expect(mockFormik.setFieldValue).toHaveBeenCalledTimes(1);
+    expect(mockFormik.setFieldValue).toHaveBeenCalledWith("devices", [
       expectedNewDevice,
     ]);
   });

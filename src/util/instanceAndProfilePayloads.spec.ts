@@ -217,4 +217,41 @@ describe("formDeviceToPayload", () => {
 
     expect(outYaml).toBe(deviceYaml);
   });
+
+  it("keeps the dependent flag of a custom volume disk", () => {
+    const formDevices = parseDevices({
+      data: {
+        type: "disk",
+        pool: "default",
+        source: "vol1",
+        path: "/data",
+        dependent: "true",
+      },
+    });
+    const payload = formDeviceToPayload(formDevices) as Record<
+      string,
+      Record<string, string | undefined>
+    >;
+
+    expect(payload.data.dependent).toBe("true");
+  });
+
+  it("drops the dependent flag when it is unset in the form", () => {
+    const formDevices = parseDevices({
+      data: {
+        type: "disk",
+        pool: "default",
+        source: "vol1",
+        path: "/data",
+        dependent: "true",
+      },
+    });
+    const disk = formDevices.find((device) => device.name === "data");
+    if (disk && "dependent" in disk) {
+      disk.dependent = undefined;
+    }
+    const outYaml = objectToYaml({ devices: formDeviceToPayload(formDevices) });
+
+    expect(outYaml).not.toContain("dependent");
+  });
 });

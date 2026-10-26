@@ -133,3 +133,14 @@ export const deleteUserSetting = async (page: Page, value: string) => {
   await page.getByRole("button", { name: "Delete", exact: true }).click();
   await expect(button).toHaveCount(0);
 };
+
+export const hasApiExtension = async (
+  page: Page,
+  extension: string,
+): Promise<boolean> => {
+  const response = await page.request.get("/1.0");
+  const data = (await response.json()) as {
+    metadata: { api_extensions?: string[] };
+  };
+  return data.metadata.api_extensions?.includes(extension) ?? false;
+};
