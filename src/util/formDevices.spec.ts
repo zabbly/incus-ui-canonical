@@ -148,6 +148,7 @@ describe("addNicDevice", () => {
       formik: mockFormik,
       deviceName,
       deviceNetworkName,
+      deviceParentName: "",
     });
 
     expect(mockFormik.setFieldValue).toHaveBeenCalledTimes(1);
@@ -172,6 +173,7 @@ describe("addNicDevice", () => {
       formik: mockFormik,
       deviceName,
       deviceNetworkName,
+      deviceParentName: "",
     });
 
     expect(mockFormik.setFieldValue).toHaveBeenCalledTimes(1);
@@ -205,6 +207,7 @@ describe("addNicDevice", () => {
       formik: mockFormik,
       deviceName,
       deviceNetworkName,
+      deviceParentName: "",
     });
 
     expect(mockFormik.setFieldValue).toHaveBeenCalledTimes(1);
