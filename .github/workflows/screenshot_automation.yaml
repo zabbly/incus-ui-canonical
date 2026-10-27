@@ -26,7 +26,7 @@ jobs:
       LXD_OIDC_PASSWORD: "lxd-ui-e2e-password"
       LXD_OIDC_GROUPS_CLAIM: "lxd-idp-groups"
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -56,10 +56,10 @@ jobs:
           curl --head --fail --retry-delay 2 --retry 100 --retry-connrefused --insecure https://localhost:8407
 
       - name: Setup Ceph
-        uses: canonical/lxd/.github/actions/setup-microceph@19d21a922f8d4045149f700e29d8d349f21f13f7
+        uses: canonical/lxd/.github/actions/setup-microceph@d1aea588bc2c67aa64496c9d80b1106e944cc626
 
       - name: Setup OVN
-        uses: canonical/lxd/.github/actions/setup-microovn@19d21a922f8d4045149f700e29d8d349f21f13f7
+        uses: canonical/lxd/.github/actions/setup-microovn@d1aea588bc2c67aa64496c9d80b1106e944cc626
 
       - name: Install LXD
         uses: canonical/setup-lxd@8c6a87bfb56aa48f3fb9b830baa18562d8bfd4ee # v1
@@ -76,7 +76,7 @@ jobs:
           sudo lxc config trust add keys/lxd-ui.crt
           sudo lxc config set cluster.https_address "127.0.0.1"
 
-      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
 
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: lxd-ui-doc-screenshots
           path: tests/screenshots/doc/images
@@ -107,7 +107,7 @@ jobs:
 
       - name: Upload screenshot-automation-report
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: report
           path: blob-report
