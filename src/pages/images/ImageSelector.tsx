@@ -252,7 +252,6 @@ const ImageSelector: FC<Props> = ({
             onClick: selectImage,
           },
           {
-            className: "u-hide--small u-hide--medium",
             content: item.aliases.split(",").pop(),
             title: item.aliases.split(",").pop(),
             role: "cell",
@@ -312,7 +311,6 @@ const ImageSelector: FC<Props> = ({
     {
       content: "Alias",
       sortKey: "alias",
-      className: "u-hide--small u-hide--medium",
     },
     {
       content: "Source",
