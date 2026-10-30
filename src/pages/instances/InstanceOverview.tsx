@@ -1,5 +1,7 @@
 import { useEffect, type FC } from "react";
 import { isoTimeToString } from "util/helpers";
+import RichDescription from "components/RichDescription";
+import InstanceTags from "pages/instances/InstanceTags";
 import { ROOT_PATH } from "util/rootPath";
 import { Col, Row, useListener, useNotify } from "@canonical/react-components";
 import type { LxdInstance } from "types/instance";
@@ -15,7 +17,6 @@ import NotificationRow from "components/NotificationRow";
 import DeviceListTable from "components/DeviceListTable";
 import NetworkListTable from "components/NetworkListTable";
 import type { LxdDevices } from "types/device";
-import ResourceLink from "components/ResourceLink";
 import { getIpAddresses } from "util/networks";
 import { getInstanceOSName, getInstanceType } from "util/instances";
 import { ImageLink } from "pages/instances/ImageLink";
@@ -61,7 +62,15 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
               </tr>
               <tr>
                 <th className="u-text--muted">Description</th>
-                <td>{instance.description ? instance.description : "-"}</td>
+                <td>
+                  <RichDescription description={instance.description} />
+                </td>
+              </tr>
+              <tr>
+                <th className="u-text--muted">Tags</th>
+                <td>
+                  <InstanceTags instance={instance} />
+                </td>
               </tr>
               <tr>
                 <th className="u-text--muted">Type</th>
@@ -131,7 +140,11 @@ const InstanceOverview: FC<Props> = ({ instance }) => {
             <h2 className="p-heading--5">Preview</h2>
           </Col>
           <Col size={4}>
-            <InstancePreview instance={instance} refetch={false} onFailure={onFailure} />
+            <InstancePreview
+              instance={instance}
+              refetch={false}
+              onFailure={onFailure}
+            />
           </Col>
           <Col size={3}></Col>
         </Row>
