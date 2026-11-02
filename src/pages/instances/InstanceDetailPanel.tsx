@@ -13,6 +13,7 @@ import InstanceStateActions from "pages/instances/actions/InstanceStateActions";
 import InstanceDetailPanelContent from "./InstanceDetailPanelContent";
 import { useInstance } from "context/useInstances";
 import DeleteInstanceBtn from "pages/instances/actions/DeleteInstanceBtn";
+import EditInstanceBtn from "pages/instances/actions/EditInstanceBtn";
 
 const InstanceDetailPanel: FC = () => {
   const notify = useNotify();
@@ -60,6 +61,7 @@ const InstanceDetailPanel: FC = () => {
               items={[
                 <OpenTerminalBtn key="terminal" instance={instance} />,
                 <OpenConsoleBtn key="console" instance={instance} />,
+                <EditInstanceBtn key="edit" instance={instance} />,
                 <DeleteInstanceBtn
                   key="delete"
                   instance={instance}

@@ -1,19 +1,11 @@
-import { useState, type FC } from "react";
+import type { FC } from "react";
 import { Spinner } from "@canonical/react-components";
-import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "util/queryKeys";
-import { fetchInstanceState } from "api/metrics";
-import { getInstanceMetrics, getInstanceMetricReport } from "util/metricSelectors";
-import { humanCpuUsage, humanFileSize } from "util/helpers";
-import Meter from "components/Meter";
-import type { LxdInstance, LxdInstanceState } from "types/instance";
+import type { LxdInstance } from "types/instance";
 import { useAuth } from "context/auth";
-import InstanceUsageMemory from "pages/instances/InstanceUsageMemory";
-import InstanceUsageFilesystem from "pages/instances/InstanceUsageFilesystem";
-import { useMetrics } from "context/useMetrics";
-import InstanceUsageCpu from "pages/instances/InstanceUsageCpu";
-import { isRootDisk } from "util/devices";
-import { FormDevice } from "util/formDevices";
+import { useInstanceState } from "context/useInstanceState";
+import InstanceStateUsageCpu from "pages/instances/InstanceStateUsageCpu";
+import InstanceStateUsageMemory from "pages/instances/InstanceStateUsageMemory";
+import InstanceStateUsageRootDisk from "pages/instances/InstanceStateUsageRootDisk";
 
 interface Props {
   instance: LxdInstance;
@@ -22,55 +14,12 @@ interface Props {
 
 const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
   const { isRestricted } = useAuth();
-  const [isShowAllFilesystems, setShowAllFilesystems] = useState(false);
-
-    const {
+  const {
     data: state,
+    dataUpdatedAt,
     error,
     isLoading,
-  } = useQuery({
-    queryKey: [queryKeys.metrics],
-    queryFn: () => fetchInstanceState(instance.name, instance.project),
-    refetchInterval: 15 * 1000, // 15 seconds
-    enabled: !isRestricted,
-  });
-
-  const getRootDiskName = (intsance: LxdInstance) => {
-    for (let key in instance.expanded_devices) {
-      if (isRootDisk(instance.expanded_devices[key] as FormDevice)) {
-        return key;
-      }
-    }
-
-    return "";
-  };
-
-  const hasRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
-    if (!state) {
-      return false;
-    }
-
-    if (state.disk == null || typeof state.disk != "object") {
-      return false
-    }
-
-    let diskName = getRootDiskName(instance);
-    if (diskName != "" && Object.hasOwn(state.disk, diskName)) {
-      return true;
-    }
-
-    return false;
-  };
-
-  const getRootDisk = (instance: LxdInstance, state: LxdInstanceState | undefined) => {
-    if (!state || !hasRootDisk(instance, state)) {
-      return null;
-    }
-
-    return state.disk[getRootDiskName(instance)];
-  };
-
-  const rootDisk = getRootDisk(instance, state);
+  } = useInstanceState(instance);
 
   if (error) {
     onFailure("Loading metrics failed", error);
@@ -84,78 +33,37 @@ const InstanceOverviewMetrics: FC<Props> = ({ instance, onFailure }) => {
     );
   }
 
+  if (isLoading) {
+    return <Spinner className="u-loader" text="Loading metrics..." />;
+  }
+
   return (
-    <>
-      {isLoading ? (
-        <Spinner className="u-loader" text="Loading metrics..." />
-      ) : (
-        <table>
-          <tbody>
-            <tr className="metric-row">
-              <th className="u-text--muted">CPU Time(s)</th>
-              <td>
-                {state && state.cpu && state.cpu.usage > 0 ? (
-                  <div>
-                    {humanCpuUsage(state.cpu.usage)}
-                  </div>
-                ) : (
-                  "-"
-                )}
-              </td>
-            </tr>
-            <tr className="metric-row">
-              <th className="u-text--muted">Memory</th>
-              <td>
-                {state && state.memory ? (
-                  <div>
-                    <Meter
-                      percentage={
-                        (100 / state.memory.total) *
-                        state.memory.usage
-                      }
-                      text={
-                        humanFileSize(
-                          state.memory.usage
-                        ) +
-                        " of " +
-                        humanFileSize(state.memory.total) +
-                        " memory used"
-                      }
-                    />
-                  </div>
-                ) : (
-                  "-"
-                )}
-              </td>
-            </tr>
-            <tr className="metric-row">
-              <th className="u-text--muted">Root filesystem</th>
-              <td>
-                {rootDisk ? (
-                  <div>
-                    <Meter
-                      percentage={
-                        (rootDisk.total ? ((100 / rootDisk.total) * rootDisk.usage) : 0)
-                      }
-                      text={
-                        humanFileSize(
-                          rootDisk.usage
-                        ) +
-                        " of " +
-                        (rootDisk.total ? (humanFileSize(rootDisk.total) +
-                        " disk used") : ("unlimited"))
-                      }
-                    />
-                  </div>
-                ) : (
-                  "-"
-                )}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      )}
-    </>
+    <table>
+      <tbody>
+        <tr className="metric-row">
+          <th className="u-text--muted">CPU</th>
+          <td>
+            <InstanceStateUsageCpu
+              instance={instance}
+              state={state}
+              updatedAt={dataUpdatedAt}
+            />
+          </td>
+        </tr>
+        <tr className="metric-row">
+          <th className="u-text--muted">Memory</th>
+          <td>
+            <InstanceStateUsageMemory state={state} />
+          </td>
+        </tr>
+        <tr className="metric-row">
+          <th className="u-text--muted">Root filesystem</th>
+          <td>
+            <InstanceStateUsageRootDisk instance={instance} state={state} />
+          </td>
+        </tr>
+      </tbody>
+    </table>
   );
 };
 

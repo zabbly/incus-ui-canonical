@@ -29,6 +29,7 @@ import { type CpuLimit, type MemoryLimit, CPU_LIMIT_TYPE } from "types/limits";
 import { parseCpuLimit, parseMemoryLimit } from "util/limits";
 import { parseSshKeys } from "util/instanceEdit";
 import { userPropertiesFromConfig } from "components/forms/UserPropertiesForm";
+import { getTagFormValues, tagsPayload } from "util/instanceTags";
 
 export const userPropPrefix = "user.";
 
@@ -60,6 +61,7 @@ export const getInstancePayload = (
       ...sshKeyPayload(values),
       ...getUnhandledKeyValues(instance.config, handledConfigKeys),
       ...userPropertiesPayload(instance.config, values),
+      ...tagsPayload(values),
     },
     ...getUnhandledKeyValues(instance, handledKeys),
   };
@@ -334,9 +336,7 @@ export const instanceDetailPayload = (
   };
 };
 
-const getInstanceSource = (
-  values: InstanceDetailsFormValues
-) => {
+const getInstanceSource = (values: InstanceDetailsFormValues) => {
   return remoteImageToInstanceSource(values.image);
 };
 
@@ -431,5 +431,6 @@ const getEditValues = (
     cloud_init_vendor_data: item.config["cloud-init.vendor-data"],
     cloud_init_ssh_keys: parseSshKeys(item),
     userProperties: userProperties,
+    ...getTagFormValues(item.config),
   };
 };

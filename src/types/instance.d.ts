@@ -3,6 +3,8 @@ import type { LxdDevices } from "./device";
 
 interface LxdInstanceCPUUsage {
   usage: number;
+  // cpu time per second the instance may use, in ns (cores * 1e9)
+  allocated_time?: number;
 }
 
 interface LxdInstanceDiskUsage {

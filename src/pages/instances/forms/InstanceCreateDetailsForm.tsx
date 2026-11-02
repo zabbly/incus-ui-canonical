@@ -16,7 +16,7 @@ import type { CreateInstanceFormValues } from "types/forms/instanceAndProfile";
 import type { LxdImageType, RemoteImage } from "types/image";
 import InstanceTargetSelect from "pages/instances/forms/InstanceTargetSelect";
 import UseCustomIsoBtn from "pages/images/actions/UseCustomIsoBtn";
-import AutoExpandingTextArea from "components/AutoExpandingTextArea";
+import DescriptionEditor from "components/forms/DescriptionEditor";
 import ScrollableForm from "components/ScrollableForm";
 import { useSupportedFeatures } from "context/useSupportedFeatures";
 import UploadInstanceFileBtn from "../actions/UploadInstanceFileBtn";
@@ -74,14 +74,14 @@ const InstanceCreateDetailsForm: FC<Props> = ({
             value={formik.values.name}
             error={formik.touched.name ? formik.errors.name : null}
           />
-          <AutoExpandingTextArea
+          <DescriptionEditor
             id="description"
-            name="description"
             label="Description"
             placeholder="Enter description"
-            onBlur={formik.handleBlur}
-            onChange={formik.handleChange}
-            value={formik.values.description}
+            value={formik.values.description ?? ""}
+            onChange={(value) => {
+              void formik.setFieldValue("description", value);
+            }}
           />
         </Col>
       </Row>
