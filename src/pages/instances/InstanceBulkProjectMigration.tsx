@@ -1,8 +1,11 @@
-import type { FC } from "react";
-import { ActionButton, Button } from "@canonical/react-components";
+import { type FC, useEffect, useState } from "react";
+import { ActionButton, Button, Select } from "@canonical/react-components";
+import { useQuery } from "@tanstack/react-query";
 import type { LxdInstance } from "types/instance";
 import ProjectSelectTable from "pages/projects/ProjectSelectTable";
+import { fetchClusterMembers } from "api/cluster-members";
 import { pluralize } from "util/helpers";
+import { queryKeys } from "util/queryKeys";
 
 interface Props {
   instances: LxdInstance[];
@@ -13,8 +16,9 @@ interface Props {
     targetPool: string,
     targetProject: string,
   ) => LxdInstance[];
+  canMoveProjectLive: boolean;
   onCancel: () => void;
-  migrate: () => void;
+  migrate: (targetMember: string) => void;
 }
 
 const InstanceBulkProjectMigration: FC<Props> = ({
@@ -22,10 +26,41 @@ const InstanceBulkProjectMigration: FC<Props> = ({
   onSelect,
   targetProject,
   getMigratableInstances,
+  canMoveProjectLive,
   onCancel,
   migrate,
 }) => {
-  const migratableCount = getMigratableInstances("", "", targetProject).length;
+  // Running VMs change project through a live migration to another cluster
+  // member, so we offer a member picker when any running VM is selected.
+  const hasLiveInstances =
+    canMoveProjectLive &&
+    instances.some(
+      (instance) =>
+        instance.type === "virtual-machine" && instance.status === "Running",
+    );
+  const [targetMember, setTargetMember] = useState("");
+
+  const { data: members = [] } = useQuery({
+    queryKey: [queryKeys.cluster, queryKeys.members],
+    queryFn: fetchClusterMembers,
+    enabled: hasLiveInstances,
+  });
+
+  const memberOptions = members.map((item) => {
+    return { label: item.server_name, value: item.server_name };
+  });
+
+  useEffect(() => {
+    if (memberOptions.length > 0 && !targetMember) {
+      setTargetMember(memberOptions[0].value);
+    }
+  }, [memberOptions]);
+
+  const migratableCount = getMigratableInstances(
+    targetMember,
+    "",
+    targetProject,
+  ).length;
   const skippedCount = instances.length - migratableCount;
 
   const summary = (
@@ -38,8 +73,22 @@ const InstanceBulkProjectMigration: FC<Props> = ({
           <>
             {" "}
             <strong>{skippedCount}</strong>{" "}
-            {pluralize("instance", skippedCount)} already in this project will
-            be skipped.
+            {pluralize("instance", skippedCount)} will be skipped (already in
+            this project, running and not movable live, or already on the target
+            server).
+          </>
+        )}
+        {hasLiveInstances && memberOptions.length > 0 && (
+          <>
+            {" "}
+            Select target server for live migrations:
+            <Select
+              options={memberOptions}
+              value={targetMember}
+              onChange={(e) => {
+                setTargetMember(e.target.value);
+              }}
+            />
           </>
         )}
       </p>
@@ -63,7 +112,9 @@ const InstanceBulkProjectMigration: FC<Props> = ({
         <ActionButton
           appearance="positive"
           className="u-no-margin--bottom"
-          onClick={migrate}
+          onClick={() => {
+            migrate(targetMember);
+          }}
           disabled={!targetProject || migratableCount === 0}
         >
           Migrate

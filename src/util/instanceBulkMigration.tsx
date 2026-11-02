@@ -8,6 +8,8 @@ import { getPromiseSettledCounts } from "util/promises";
 import { useToastNotification } from "@canonical/react-components";
 import { useBulkDetails } from "context/useBulkDetails";
 import { useInstanceEntitlements } from "util/entitlements/instances";
+import { useSettings } from "context/useSettings";
+import { useIsClustered } from "context/useIsClustered";
 
 export type BulkMigrationType =
   | "cluster member"
@@ -38,6 +40,14 @@ export const useInstanceBulkMigration = ({
   const queryClient = useQueryClient();
   const viewBulkDetails = useBulkDetails();
   const { canEditInstance } = useInstanceEntitlements();
+  const { data: settings } = useSettings();
+  const isClustered = useIsClustered();
+
+  // Running VMs can change project through a live migration to another cluster
+  // member. Other running instances must be stopped first.
+  const canMoveProjectLive =
+    isClustered &&
+    !!settings?.api_extensions?.includes("instance_project_move_live");
 
   // Instances that the user can migrate and that are not already on the chosen
   // target.
@@ -51,7 +61,18 @@ export const useInstanceBulkMigration = ({
         return instance.location !== targetMember;
       }
       if (type === "project") {
-        return instance.project !== targetProject;
+        if (instance.project === targetProject) {
+          return false;
+        }
+        if (instance.status === "Running") {
+          return (
+            canMoveProjectLive &&
+            isLiveInstance(instance) &&
+            !!targetMember &&
+            instance.location !== targetMember
+          );
+        }
+        return true;
       }
       if (type === "root storage pool") {
         if (getRootPool(instance) === targetPool) {
@@ -90,13 +111,41 @@ export const useInstanceBulkMigration = ({
 
     onStart(migratableInstances.map((item) => item.name));
 
-    migrateInstanceBulk(
-      migratableInstances,
-      targetMember,
-      targetPool,
-      targetProject,
-      eventQueue,
-    )
+    // migrateInstanceBulk never resolves for an empty list.
+    const migrateSubset = async (subset: LxdInstance[], member: string) =>
+      subset.length > 0
+        ? migrateInstanceBulk(
+            subset,
+            member,
+            targetPool,
+            targetProject,
+            eventQueue,
+          )
+        : Promise.resolve([]);
+
+    // For project moves only live VMs go to the target member, stopped
+    // instances stay on their current member.
+    const migration =
+      type === "project"
+        ? Promise.all([
+            migrateSubset(
+              migratableInstances.filter(isLiveInstance),
+              targetMember,
+            ),
+            migrateSubset(
+              migratableInstances.filter((item) => !isLiveInstance(item)),
+              "",
+            ),
+          ]).then(([live, stopped]) => [...live, ...stopped])
+        : migrateInstanceBulk(
+            migratableInstances,
+            targetMember,
+            targetPool,
+            targetProject,
+            eventQueue,
+          );
+
+    migration
       .then((results) => {
         const { fulfilledCount, rejectedCount } =
           getPromiseSettledCounts(results);
@@ -147,5 +196,6 @@ export const useInstanceBulkMigration = ({
   return {
     handleMigrate,
     getMigratableInstances,
+    canMoveProjectLive,
   };
 };

@@ -153,7 +153,9 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
           onSelect={setTarget}
           targetProject={target}
           onCancel={handleGoBack}
-          migrate={() => handleMigrate("", "", target)}
+          migrate={(targetMember) => {
+            handleMigrate(targetMember, "", target);
+          }}
         />
       )}
 
