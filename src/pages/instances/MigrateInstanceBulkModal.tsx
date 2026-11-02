@@ -28,13 +28,14 @@ const MigrateInstanceBulkModal: FC<Props> = ({
   const isClustered = useIsClustered();
   const [type, setType] = useState<BulkMigrationType>("");
   const [target, setTarget] = useState("");
-  const { handleMigrate, getMigratableInstances } = useInstanceBulkMigration({
-    instances,
-    type,
-    close,
-    onStart,
-    onFinish,
-  });
+  const { handleMigrate, getMigratableInstances, canMoveProjectLive } =
+    useInstanceBulkMigration({
+      instances,
+      type,
+      close,
+      onStart,
+      onFinish,
+    });
 
   const count = instances.length;
 
@@ -157,9 +158,10 @@ const MigrateInstanceBulkModal: FC<Props> = ({
           onSelect={setTarget}
           targetProject={target}
           getMigratableInstances={getMigratableInstances}
+          canMoveProjectLive={canMoveProjectLive}
           onCancel={handleGoBack}
-          migrate={() => {
-            handleMigrate("", "", target);
+          migrate={(targetMember) => {
+            handleMigrate(targetMember, "", target);
           }}
         />
       )}
