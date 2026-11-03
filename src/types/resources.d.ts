@@ -1,12 +1,20 @@
 export interface LxdResources {
   cpu: Cpu;
   gpu: Gpu;
+  load?: Load;
   memory: Memory;
   network: Network;
   pci: Pci;
   storage: Storage;
   system: System;
   usb: Usb;
+}
+
+export interface Load {
+  Average1Min: number;
+  Average5Min: number;
+  Average10Min: number;
+  Processes: number;
 }
 
 export interface Cpu {

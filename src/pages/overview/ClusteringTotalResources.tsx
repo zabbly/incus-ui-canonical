@@ -6,9 +6,9 @@ import { useClusterMembers } from "context/useClusterMembers";
 import { useClusterMemberStates } from "context/useClusterMemberState";
 import { useIsClustered } from "context/useIsClustered";
 import { getCpuText, getMemoryText } from "util/resourceDetails";
-import { useServerState } from "context/useSettings";
-import type { UseQueryResult } from "@tanstack/react-query";
-import type { LxdClusterMemberState } from "types/cluster";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "util/queryKeys";
+import { fetchResources } from "api/server";
 
 const ClusteringTotalResources: FC = () => {
   const isClustered = useIsClustered();
@@ -24,37 +24,50 @@ const ClusteringTotalResources: FC = () => {
 
   const memberStateQueries = useClusterMemberStates(onlineMemberNames);
 
-  const { data: serverState, isLoading: isServerStateLoading } =
-    useServerState(!isClustered);
+  // Incus has no /1.0/state, use /1.0/resources on standalone servers.
+  const { data: resources, isLoading: isResourcesLoading } = useQuery({
+    queryKey: [queryKeys.resources],
+    queryFn: async () => fetchResources(),
+    enabled: !isClustered,
+    refetchInterval: 15000,
+  });
 
   const isLoading = isClustered
     ? isMembersLoading || memberStateQueries.some((query) => query.isLoading)
-    : isServerStateLoading;
+    : isResourcesLoading;
 
-  const totalQueries = isClustered ? memberStateQueries : [serverState];
-  const totals = totalQueries.reduce(
-    (acc, query) => {
-      const sysinfo = isClustered
-        ? (query as UseQueryResult<LxdClusterMemberState>).data?.sysinfo
-        : serverState?.sysinfo;
+  const totals = isClustered
+    ? memberStateQueries.reduce(
+        (acc, query) => {
+          const sysinfo = query.data?.sysinfo;
 
-      if (sysinfo) {
-        acc.memory.total += sysinfo.total_ram;
-        acc.memory.used += Math.max(
-          0,
-          sysinfo.total_ram - sysinfo.free_ram - sysinfo.buffered_ram,
-        );
-        acc.cpu.total += sysinfo.logical_cpus || 0;
-        acc.cpu.used += sysinfo.load_averages?.[0] || 0;
-      }
+          if (sysinfo) {
+            acc.memory.total += sysinfo.total_ram;
+            acc.memory.used += Math.max(
+              0,
+              sysinfo.total_ram - sysinfo.free_ram - sysinfo.buffered_ram,
+            );
+            acc.cpu.total += sysinfo.logical_cpus || 0;
+            acc.cpu.used += sysinfo.load_averages?.[0] || 0;
+          }
 
-      return acc;
-    },
-    {
-      memory: { total: 0, used: 0 },
-      cpu: { total: 0, used: 0 },
-    },
-  );
+          return acc;
+        },
+        {
+          memory: { total: 0, used: 0 },
+          cpu: { total: 0, used: 0 },
+        },
+      )
+    : {
+        memory: {
+          total: resources?.memory.total ?? 0,
+          used: resources?.memory.used ?? 0,
+        },
+        cpu: {
+          total: resources?.cpu.total ?? 0,
+          used: resources?.load?.Average1Min ?? 0,
+        },
+      };
 
   const memoryPercentage = totals.memory.total
     ? (totals.memory.used / totals.memory.total) * 100
