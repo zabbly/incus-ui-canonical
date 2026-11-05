@@ -12,6 +12,8 @@ import {
 import InstanceProjectMigration from "pages/instances/InstanceProjectMigration";
 import InstanceRemoteClusterMigration from "pages/instances/InstanceRemoteClusterMigration";
 import { useIsClustered } from "context/useIsClustered";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
+import { getDependentDisks } from "util/dependentDisks";
 
 interface Props {
   close: () => void;
@@ -22,6 +24,14 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
   const isClustered = useIsClustered();
   const [type, setType] = useState<MigrationType>("");
   const [target, setTarget] = useState("");
+  // Root storage pool moves get an extra step for the dependent volume pools.
+  const [volumesConfirmed, setVolumesConfirmed] = useState(false);
+  const { hasDependentDisks } = useSupportedFeatures();
+  const hasDependentStep =
+    type === "root storage pool" &&
+    hasDependentDisks &&
+    getDependentDisks(instance).length > 0;
+  const isVolumesStep = hasDependentStep && !!target && !volumesConfirmed;
   const { handleMigrate } = useInstanceMigration({
     close,
     instance,
@@ -29,6 +39,12 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
   });
 
   const handleGoBack = () => {
+    // from the confirmation stage back to the dependent volume pools stage
+    if (volumesConfirmed) {
+      setVolumesConfirmed(false);
+      return;
+    }
+
     // if target is set, we are on the confirmation stage
     if (target) {
       setTarget("");
@@ -55,11 +71,27 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
 
   const modalTitle = !type ? (
     "Choose migration method"
+  ) : isVolumesStep ? (
+    <BackLink
+      title={
+        <>
+          Choose pools for dependent volumes of <strong>{instance.name}</strong>
+        </>
+      }
+      onClick={handleGoBack}
+      linkText={`Choose ${type}`}
+    />
   ) : (
     <BackLink
       title={target ? "Confirm migration" : selectStepTitle}
       onClick={handleGoBack}
-      linkText={target ? `Choose ${type}` : "Choose migration method"}
+      linkText={
+        !target
+          ? "Choose migration method"
+          : hasDependentStep
+            ? "Choose dependent volume pools"
+            : `Choose ${type}`
+      }
     />
   );
 
@@ -72,7 +104,15 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
       <header className="p-modal__header">
         <h2
           className="p-modal__title"
-          key={type ? (target ? "confirm" : "select") : "start"}
+          key={
+            type
+              ? target
+                ? isVolumesStep
+                  ? "volumes"
+                  : "confirm"
+                : "select"
+              : "start"
+          }
           id="migrate-title"
         >
           {modalTitle}
@@ -135,8 +175,14 @@ const MigrateInstanceModal: FC<Props> = ({ close, instance }) => {
           instance={instance}
           onSelect={setTarget}
           targetPool={target}
+          isVolumesStep={isVolumesStep}
+          onConfirmVolumes={() => {
+            setVolumesConfirmed(true);
+          }}
           onCancel={handleGoBack}
-          migrate={(targetMember) => handleMigrate(targetMember, target, "")}
+          migrate={(targetMember, devices) => {
+            handleMigrate(targetMember, target, "", devices);
+          }}
         />
       )}
 

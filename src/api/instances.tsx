@@ -23,6 +23,7 @@ import type { EventQueue } from "context/eventQueue";
 import axios, { type AxiosResponse } from "axios";
 import type { UploadState } from "types/upload";
 import type { InstanceMigrationBundle } from "types/migration";
+import type { LxdDevices } from "types/device";
 import { addEntitlements } from "util/entitlements/api";
 import { addTarget } from "util/target";
 import { getInstanceDetailUrl } from "util/instances";
@@ -203,6 +204,7 @@ export const migrateInstance = async (
   target?: string,
   pool?: string,
   targetProject?: string,
+  devices?: LxdDevices,
 ): Promise<LxdOperationResponse> => {
   const params = new URLSearchParams();
   params.set("project", instance.project);
@@ -220,6 +222,7 @@ export const migrateInstance = async (
         live: instance.type === "virtual-machine" && instance.status === "Running",
         pool,
         project: targetProject,
+        ...(devices ? { devices } : {}),
       }),
     },
   )

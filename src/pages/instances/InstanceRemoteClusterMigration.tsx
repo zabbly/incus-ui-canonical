@@ -1,5 +1,4 @@
-import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useState, type FC } from "react";
 import {
   ActionButton,
   Button,
@@ -15,6 +14,7 @@ import { useSettings } from "context/useSettings";
 import { useEventQueue } from "context/eventQueue";
 import { InstanceRichChip } from "pages/instances/InstanceRichChip";
 import DsIcon from "components/DsIcon";
+import { useRemoteMigrationStorage } from "./RemoteMigrationStorage";
 
 interface Props {
   instance: LxdInstance;
@@ -33,6 +33,7 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
   const [error, setError] = useState("");
   const [succeeded, setSucceeded] = useState(false);
   const [copied, setCopied] = useState(false);
+  const storage = useRemoteMigrationStorage(instance);
 
   const chip = (
     <InstanceRichChip
@@ -91,7 +92,7 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
           instanceType: instance.type,
           architecture: instance.architecture,
           config: instance.config,
-          devices: instance.devices,
+          devices: storage.devices,
           profiles: instance.profiles,
           ephemeral: instance.ephemeral,
           description: instance.description,
@@ -112,13 +113,6 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
         setLoading(false);
       });
   };
-
-  // Generate as soon as the prerequisites are available.
-  useEffect(() => {
-    if (canGenerate && !bundle && !isLoading && !error) {
-      generate();
-    }
-  }, [canGenerate]);
 
   return (
     <>
@@ -146,6 +140,7 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
             cluster.
           </Notification>
         )}
+        {canGenerate && !bundle && !succeeded && storage.fields}
         {isLoading && <Spinner text="Preparing migration…" />}
         {bundle && !succeeded && (
           <>
@@ -165,8 +160,9 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
               <span>{copied ? "Copied" : "Copy migration code"}</span>
             </Button>
             <p className="u-text--muted">
-              This code contains one-time secrets and stays valid only while the
-              migration is pending. Generate a new one if it expires.
+              This code contains one-time secrets. The remote cluster has to
+              start receiving within 30 seconds, otherwise the migration fails
+              and a new code is needed.
             </p>
           </>
         )}
@@ -186,7 +182,7 @@ const InstanceRemoteClusterMigration: FC<Props> = ({ instance, onCancel }) => {
             className="u-no-margin--bottom"
             onClick={generate}
             loading={isLoading}
-            disabled={!canGenerate || isLoading}
+            disabled={!canGenerate || isLoading || storage.hasErrors}
           >
             Generate migration code
           </ActionButton>

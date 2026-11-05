@@ -42,6 +42,18 @@
     }
   }
 
+  .migrate-dependent-disks {
+    margin-top: $spv--small;
+
+    @include large {
+      min-width: 45rem;
+    }
+  }
+
+  .migrate-dependent-disks-summary {
+    margin-bottom: 0;
+  }
+
   .migrate-instance-remote {
     align-items: flex-start;
     display: flex;
@@ -54,6 +66,10 @@
       width: 100%;
     }
 
+    .remote-migration-storage {
+      width: 100%;
+    }
+
     @include large {
       min-width: 45rem;
     }
@@ -62,5 +78,16 @@
   .migrate-instance-name {
     display: inline;
     max-width: 20rem;
+  }
+}
+
+.copy-dependent-disk-fields {
+  align-items: flex-start;
+  display: flex;
+  gap: $sph--large;
+
+  > * {
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
