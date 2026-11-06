@@ -14,6 +14,7 @@ import { useEventQueue } from "context/eventQueue";
 import { queryKeys } from "util/queryKeys";
 import { createInstanceFromMigration } from "api/instances";
 import type { InstanceMigrationBundle } from "types/migration";
+import { useReceiveMigrationStorage } from "./ReceiveMigrationStorage";
 
 interface Props {
   close: () => void;
@@ -53,6 +54,7 @@ const ReceiveMigrationModal: FC<Props> = ({ close, project }) => {
   const codeIsInvalid = code.trim() !== "" && bundle === null;
   // Default the new instance name to the source name until the user edits it.
   const targetName = name || bundle?.instanceName || "";
+  const storage = useReceiveMigrationStorage(bundle, project);
 
   const handleEscKey = (e: KeyboardEvent<HTMLElement>) => {
     if (e.key === "Escape") {
@@ -74,7 +76,11 @@ const ReceiveMigrationModal: FC<Props> = ({ close, project }) => {
       return;
     }
     setLoading(true);
-    createInstanceFromMigration(bundle, project, targetName)
+    createInstanceFromMigration(
+      { ...bundle, devices: storage.devices },
+      project,
+      targetName,
+    )
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,
@@ -145,6 +151,7 @@ const ReceiveMigrationModal: FC<Props> = ({ close, project }) => {
               setName(e.target.value);
             }}
           />
+          {storage.fields}
         </>
       )}
       <footer className="p-modal__footer">
@@ -161,7 +168,9 @@ const ReceiveMigrationModal: FC<Props> = ({ close, project }) => {
           className="u-no-margin--bottom"
           onClick={receive}
           loading={isLoading}
-          disabled={!bundle || isLoading || targetName === ""}
+          disabled={
+            !bundle || isLoading || targetName === "" || storage.hasErrors
+          }
         >
           Receive
         </ActionButton>

@@ -5,6 +5,7 @@ import { queryKeys } from "./queryKeys";
 import { migrateInstance } from "api/instances";
 import type { LxdInstance } from "types/instance";
 import type { ReactNode } from "react";
+import type { LxdDevices } from "types/device";
 import { capitalizeFirstLetter } from "util/helpers";
 import { ROOT_PATH } from "util/rootPath";
 import { InstanceRichChip } from "pages/instances/InstanceRichChip";
@@ -138,7 +139,12 @@ export const useInstanceMigration = ({
     instanceLoading.setFinish(instance);
   };
 
-  const handleMigrate = (targetMember: string, targetPool: string, targetProject: string) => {
+  const handleMigrate = (
+    targetMember: string,
+    targetPool: string,
+    targetProject: string,
+    devices?: LxdDevices,
+  ) => {
     let target = "";
     if (type === "cluster member") {
       target = targetMember;
@@ -148,7 +154,7 @@ export const useInstanceMigration = ({
       target = targetProject;
     }
     instanceLoading.setLoading(instance, "Migrating");
-    migrateInstance(instance, targetMember, targetPool, targetProject)
+    migrateInstance(instance, targetMember, targetPool, targetProject, devices)
       .then((operation) => {
         eventQueue.set(
           operation.metadata.id,
