@@ -3,8 +3,8 @@ import type { LxdConfigPair } from "types/config";
 export type ProjectReplicaMode = "leader" | "standby" | "";
 
 export interface ProjectStateResource {
-  Limit: number;
-  Usage: number;
+  limit: number;
+  usage: number;
 }
 
 export interface ProjectState {

@@ -11,10 +11,10 @@ export const hasMemberLocalVolumes = (
 ) => {
   const pool = pools.find((pool) => pool.name === poolName);
   const driverDetails = settings?.environment?.storage_supported_drivers.find(
-    (driver) => driver.Name === pool?.driver,
+    (driver) => driver.name === pool?.driver,
   );
   if (!driverDetails) {
     return false;
   }
-  return !driverDetails.Remote;
+  return !driverDetails.remote;
 };

@@ -65,7 +65,7 @@ const ClusteringTotalResources: FC = () => {
         },
         cpu: {
           total: resources?.cpu.total ?? 0,
-          used: resources?.load?.Average1Min ?? 0,
+          used: resources?.load?.average1min ?? 0,
         },
       };
 

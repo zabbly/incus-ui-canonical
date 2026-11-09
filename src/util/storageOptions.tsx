@@ -66,11 +66,11 @@ export const getStorageDriverOptions = (
   const storageDriverOptions: CustomSelectOption[] = [];
 
   for (const driver of serverSupportedStorageDrivers) {
-    const text = storageDriverLabels[driver.Name];
-    const description = storageDriverDescriptions[driver.Name];
+    const text = storageDriverLabels[driver.name];
+    const description = storageDriverDescriptions[driver.name];
     if (text) {
       storageDriverOptions.push({
-        value: driver.Name,
+        value: driver.name,
         text: text,
         label: (
           <div className="storage-driver-label">

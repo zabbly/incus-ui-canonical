@@ -1,3 +1,4 @@
+import { lowercaseKeys } from "util/lowercaseKeys";
 import { handleEtagResponse, handleResponse } from "util/helpers";
 import type {
   LxdProject,
@@ -70,7 +71,13 @@ export const fetchProjectState = async (
   )
     .then(handleResponse)
     .then((data: LxdApiResponse<ProjectState>) => {
-      return data.metadata;
+      const resources = Object.fromEntries(
+        Object.entries(data.metadata.resources ?? {}).map(([k, v]) => [
+          k,
+          lowercaseKeys(v),
+        ]),
+      );
+      return { ...data.metadata, resources };
     });
 };
 
