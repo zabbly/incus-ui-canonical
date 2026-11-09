@@ -11,10 +11,10 @@ export interface LxdResources {
 }
 
 export interface Load {
-  Average1Min: number;
-  Average5Min: number;
-  Average10Min: number;
-  Processes: number;
+  average1min: number;
+  average5min: number;
+  average10min: number;
+  processes: number;
 }
 
 export interface Cpu {

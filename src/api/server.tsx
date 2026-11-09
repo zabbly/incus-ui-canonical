@@ -14,6 +14,7 @@ import type {
 } from "types/cluster";
 import { addTarget } from "util/target";
 import { ROOT_PATH } from "util/rootPath";
+import { lowercaseKeys } from "util/lowercaseKeys";
 
 export const fetchSettings = async (target?: string): Promise<LxdSettings> => {
   const params = new URLSearchParams();
@@ -22,6 +23,11 @@ export const fetchSettings = async (target?: string): Promise<LxdSettings> => {
   return fetch(`${ROOT_PATH}/1.0?${params.toString()}`)
     .then(handleResponse)
     .then((data: LxdApiResponse<LxdSettings>) => {
+      const env = data.metadata.environment;
+      if (env?.storage_supported_drivers) {
+        env.storage_supported_drivers =
+          env.storage_supported_drivers.map(lowercaseKeys);
+      }
       return data.metadata;
     });
 };
@@ -118,6 +124,9 @@ export const fetchResources = async (
   return fetch(`${ROOT_PATH}/1.0/resources?${params.toString()}`)
     .then(handleResponse)
     .then((data: LxdApiResponse<LxdResources>) => {
+      if (data.metadata.load) {
+        data.metadata.load = lowercaseKeys(data.metadata.load);
+      }
       return data.metadata;
     });
 };

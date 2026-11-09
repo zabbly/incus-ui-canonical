@@ -2,9 +2,9 @@ import type { LxdConfigPair } from "./config";
 import { type LXDAuthMethod } from "util/authentication";
 
 interface SupportedStorageDriver {
-  Name: string;
-  Version: string;
-  Remote: boolean;
+  name: string;
+  version: string;
+  remote: boolean;
 }
 
 export interface LxdSettings {

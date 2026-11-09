@@ -58,12 +58,12 @@ const ProjectUsage: FC = () => {
           "aria-label": "Resource",
         },
         {
-          content: v.Limit >= 0 ? v.Limit : "UNLIMITED",
+          content: v.limit >= 0 ? v.limit : "UNLIMITED",
           role: "cell",
           "aria-label": "Limit",
         },
         {
-          content: usageValue(k, v.Usage),
+          content: usageValue(k, v.usage),
           role: "cell",
           "aria-label": "Usage",
         },
