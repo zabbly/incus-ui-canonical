@@ -33,6 +33,14 @@ import { useIsClustered } from "context/useIsClustered";
 import { InstanceRichChip } from "../InstanceRichChip";
 import { isRootDisk } from "util/devices";
 import { encodeServerFilters } from "util/instanceFilter";
+import { useSupportedFeatures } from "context/useSupportedFeatures";
+import {
+  getDependentDisks,
+  getVolumeName,
+  isSharingVolumes,
+  replaceVolumeName,
+} from "util/dependentDisks";
+import DependentDiskCopyFields from "./DependentDiskCopyFields";
 
 interface Props {
   instance: LxdInstance;
@@ -46,6 +54,9 @@ export interface LxdInstanceCopy {
   targetStoragePool: string;
   allowInconsistent: boolean;
   instanceOnly: boolean;
+  // Pool picked for a dependent disk, disks without an entry stay in their current pool.
+  dependentDiskPools: Record<string, string>;
+  dependentDiskNames: Record<string, string>;
 }
 
 const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
@@ -54,6 +65,8 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
   const controllerState = useState<AbortController | null>(null);
   const navigate = useNavigate();
   const eventQueue = useEventQueue();
+  const { hasDependentDisks } = useSupportedFeatures();
+  const dependentDisks = hasDependentDisks ? getDependentDisks(instance) : [];
 
   const { data: projects = [], isLoading: projectsLoading } = useProjects();
   const { canCreateInstances } = useProjectEntitlements();
@@ -94,12 +107,28 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
     return getUniqueResourceName(newInstanceName, instances);
   };
 
+  // Dependent disks stay in their current pool unless a different pool was picked for them.
+  const getDependentDiskPool = (
+    values: LxdInstanceCopy,
+    disk: string,
+    currentPool?: string,
+  ): string =>
+    values.dependentDiskPools[disk] ??
+    (currentPool || values.targetStoragePool || "");
+
   const formik = useFormik<LxdInstanceCopy>({
     initialValues: {
       instanceName: getCopiedInstanceName(instance),
       targetProject: instance.project,
       allowInconsistent: false,
       instanceOnly: false,
+      dependentDiskPools: {},
+      dependentDiskNames: Object.fromEntries(
+        dependentDisks.map((disk) => [
+          disk.name,
+          `${getVolumeName(disk.device.source)}-copy`,
+        ]),
+      ),
       targetClusterMember: isClustered ? instance.location : "",
       targetStoragePool:
         (instance.devices["root"] as LxdDiskDevice)?.pool ??
@@ -112,6 +141,33 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
         controllerState,
       ).required(),
     }),
+    validate: (values) => {
+      const nameErrors: Record<string, string> = {};
+      const sharedVolumes = isSharingVolumes(
+        instance.project,
+        values.targetProject,
+        projects,
+      );
+      dependentDisks.forEach((disk) => {
+        const name = values.dependentDiskNames[disk.name]?.trim() ?? "";
+        if (!name) {
+          nameErrors[disk.name] = "Volume name is required";
+        } else if (name.includes("/")) {
+          nameErrors[disk.name] = "Volume name can't contain a slash";
+        } else if (
+          sharedVolumes &&
+          getDependentDiskPool(values, disk.name, disk.device.pool) ===
+            disk.device.pool &&
+          name === getVolumeName(disk.device.source)
+        ) {
+          nameErrors[disk.name] =
+            "A new name is required when copying the volume into the same pool";
+        }
+      });
+      return Object.keys(nameErrors).length > 0
+        ? { dependentDiskNames: nameErrors }
+        : {};
+    },
     onSubmit: (values) => {
       const instanceLink = (
         <InstanceRichChip
@@ -133,6 +189,26 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
             if (values.targetStoragePool !== "") {
               return [key, { ...value, pool: values.targetStoragePool }];
             }
+          }
+
+          const dependentDisk = dependentDisks.find(
+            (disk) => disk.name === key,
+          );
+          if (dependentDisk) {
+            const source = dependentDisk.device.source ?? "";
+            const name = values.dependentDiskNames[key]?.trim() ?? "";
+            return [
+              key,
+              {
+                ...value,
+                pool: getDependentDiskPool(
+                  values,
+                  key,
+                  dependentDisk.device.pool,
+                ),
+                source: replaceVolumeName(source, name),
+              },
+            ];
           }
 
           return [key, value];
@@ -255,6 +331,34 @@ const CopyInstanceForm: FC<Props> = ({ instance, close }) => {
             id: "storagePool",
             label: "Storage pool",
           }}
+        />
+        <DependentDiskCopyFields
+          disks={dependentDisks}
+          pools={Object.fromEntries(
+            dependentDisks.map((disk) => [
+              disk.name,
+              getDependentDiskPool(formik.values, disk.name, disk.device.pool),
+            ]),
+          )}
+          names={formik.values.dependentDiskNames}
+          errors={
+            (formik.errors.dependentDiskNames ?? {}) as Record<
+              string,
+              string | undefined
+            >
+          }
+          setPool={(disk, pool) =>
+            void formik.setFieldValue("dependentDiskPools", {
+              ...formik.values.dependentDiskPools,
+              [disk]: pool,
+            })
+          }
+          setName={(disk, name) =>
+            void formik.setFieldValue("dependentDiskNames", {
+              ...formik.values.dependentDiskNames,
+              [disk]: name,
+            })
+          }
         />
         <Select
           {...formik.getFieldProps("targetProject")}
