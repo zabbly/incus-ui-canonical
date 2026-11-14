@@ -98,7 +98,7 @@ const CpuCores: FC<{ socket: CpuSockets }> = ({ socket }) => (
   />
 );
 
-const gpuDetails = async (gpu: GpuCard) => {
+const gpuDetails = (gpu: GpuCard): ReactNode => {
   const mdev = (gpu.mdev ?? {}) as Record<string, MdevProfile>;
 
   return lines(
@@ -140,7 +140,7 @@ const portLine = (port: Ports) => {
   return parts.join(", ");
 };
 
-const nicDetails = async (nic: NetworkCards) =>
+const nicDetails = (nic: NetworkCards): ReactNode =>
   lines(present([...(nic.ports ?? []).map(portLine), sriovLine(nic.sriov)]));
 
 interface Props {

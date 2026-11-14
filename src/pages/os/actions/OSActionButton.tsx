@@ -38,6 +38,14 @@ export interface OSActionField {
   required?: boolean;
 }
 
+// Free-form JSON body, as taken by the generic actions.
+export const jsonField: OSActionField = {
+  name: "data",
+  label: "Data (JSON)",
+  type: "textarea",
+  defaultValue: "{}",
+};
+
 export type OSActionValues = Record<string, string | boolean>;
 export type OSActionInput = OSActionValues | File | undefined;
 

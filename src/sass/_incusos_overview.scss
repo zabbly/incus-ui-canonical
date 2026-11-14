@@ -109,3 +109,26 @@
 #incusos-applications-table .actions {
   width: 30rem;
 }
+
+.incusos-debug-network {
+  max-width: 60rem;
+
+  .incusos-debug-network__fields {
+    column-gap: $sph--large;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+}
+
+.incusos-debug-network__output,
+.incusos-license {
+  white-space: pre-wrap;
+}
+
+.incusos-licenses-search {
+  max-width: 30rem;
+}
+
+#incusos-licenses-table .type {
+  width: 10rem;
+}

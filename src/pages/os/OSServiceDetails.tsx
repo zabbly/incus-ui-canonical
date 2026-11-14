@@ -6,9 +6,10 @@ import {
   useToastNotification,
 } from "@canonical/react-components";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchOSService, updateOSService } from "api/os";
+import { fetchOSService, runOSAction, updateOSService } from "api/os";
 import NotificationRow from "components/NotificationRow";
 import OSYamlEditor from "components/forms/OSYamlEditor";
+import OSActionButton, { jsonField } from "pages/os/actions/OSActionButton";
 import type { YamlFormValues } from "types/forms/instanceAndProfile";
 import { queryKeys } from "util/queryKeys";
 import { yamlToObject } from "util/yaml";
@@ -67,6 +68,30 @@ const OSServiceDetails: FC<Props> = ({ name, target }) => {
   return (
     <>
       <NotificationRow />
+      <div className="incusos-section-actions u-sv2">
+        <OSActionButton
+          label="Run action"
+          mode="fields"
+          submitLabel="Run"
+          confirmMessage={`Perform a service-specific action on ${name}.`}
+          fields={[
+            {
+              ...jsonField,
+              defaultValue: '{"action": "", "config": {}}',
+            },
+          ]}
+          run={async (_, values) =>
+            runOSAction(
+              `services/${name}`,
+              "action",
+              target,
+              JSON.parse(String(values.data) || "{}") as object,
+            )
+          }
+          successMessage={`Action run on ${name}`}
+          invalidateKeys={[[queryKeys.osServiceDetails, name, target]]}
+        />
+      </div>
       {isLoading && (
         <Spinner className="u-loader" text="Loading service data..." />
       )}

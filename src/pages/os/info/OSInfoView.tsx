@@ -77,12 +77,14 @@ interface TableProps {
   headers: string[];
   rows: ReactNode[][];
   emptyMessage?: string;
+  paginate?: number;
 }
 
 export const OSInfoTable: FC<TableProps> = ({
   headers,
   rows,
   emptyMessage = "Nothing to show",
+  paginate,
 }) => (
   <MainTable
     className="incusos-info__table"
@@ -95,6 +97,7 @@ export const OSInfoTable: FC<TableProps> = ({
       })),
     }))}
     emptyStateMsg={emptyMessage}
+    paginate={paginate}
   />
 );
 

@@ -124,3 +124,43 @@ export interface IncusOSSecurity {
     tpm_status?: string;
   };
 }
+
+export interface IncusOSLicense {
+  name: string;
+  type: string;
+  content: string;
+}
+
+export interface IncusOSDebugKernelModule {
+  name: string;
+  dependencies?: string[] | null;
+  in_use?: boolean;
+}
+
+export interface IncusOSDebugKernel {
+  version?: string;
+  architecture?: string;
+  cpu_baseline?: string;
+  modules?: IncusOSDebugKernelModule[] | null;
+}
+
+export type IncusOSDebugLVMRow = Record<string, unknown>;
+
+export interface IncusOSDebugLVM {
+  pvs?: IncusOSDebugLVMRow[] | null;
+  vgs?: IncusOSDebugLVMRow[] | null;
+  lvs?: IncusOSDebugLVMRow[] | null;
+}
+
+export interface IncusOSDebugReportMetric {
+  name: string;
+  object?: string;
+  fields?: Record<string, unknown>;
+  value?: unknown;
+}
+
+export interface IncusOSDebugReport {
+  media_type?: string;
+  timestamp?: string;
+  metrics?: IncusOSDebugReportMetric[] | null;
+}
