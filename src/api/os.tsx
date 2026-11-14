@@ -12,16 +12,30 @@ export interface DebugLogOptions {
   unit?: string;
   boot?: string;
   entries?: number;
+  since?: string;
+  until?: string;
 }
 
-const prepareOSURL = (url: string, target: string) => {
-  let result = url;
+const prepareOSURL = (
+  url: string,
+  target: string,
+  params: Record<string, string> = {},
+) => {
+  const query = new URLSearchParams();
 
   if (target) {
-    result += `?target=${target}`;
+    query.set("target", target);
   }
 
-  return result;
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      query.set(key, value);
+    }
+  });
+
+  const search = query.toString();
+
+  return search ? `${url}?${search}` : url;
 };
 
 export const isIncusOS = async (): Promise<boolean> => {
@@ -107,6 +121,14 @@ export const fetchDebugLogs = async (
 
   if (options.boot) {
     url.searchParams.set("boot", options.boot);
+  }
+
+  if (options.since) {
+    url.searchParams.set("since", options.since);
+  }
+
+  if (options.until) {
+    url.searchParams.set("until", options.until);
   }
 
   return fetch(url.pathname + url.search)
@@ -231,42 +253,13 @@ export const runOSActionUpload = async (
   action: string,
   file: File,
   target: string,
+  params: Record<string, string> = {},
 ): Promise<void> => {
-  await fetch(prepareOSURL(`/os/1.0/${endpoint}/:${action}`, target), {
+  await fetch(prepareOSURL(`/os/1.0/${endpoint}/:${action}`, target, params), {
     method: "POST",
     body: file,
     headers: {
       "Content-Type": "application/octet-stream",
     },
   }).then(handleResponse);
-};
-
-export const poweroffOS = async (
-  target: string,
-): Promise<LxdApiResponse<null>> => {
-  await fetch(prepareOSURL("/os/1.0/system/:poweroff", target), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then(handleResponse)
-    .then((data: LxdApiResponse<null>) => {
-      return data;
-    });
-};
-
-export const rebootOS = async (
-  target: string,
-): Promise<LxdApiResponse<null>> => {
-  return fetch(prepareOSURL("/os/1.0/system/:reboot", target), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
-    .then(handleResponse)
-    .then((data: LxdApiResponse<null>) => {
-      return data;
-    });
 };

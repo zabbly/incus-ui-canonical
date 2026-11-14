@@ -1,5 +1,5 @@
 import type { FC } from "react";
-import { runOSAction } from "api/os";
+import { runOSActionUpload } from "api/os";
 import TabLinks from "components/TabLinks";
 import OSConfigSection from "pages/os/OSConfigSection";
 import OSActionButton from "pages/os/actions/OSActionButton";
@@ -16,9 +16,11 @@ interface ActionsProps {
 const SecureBootActions: FC<ActionsProps> = ({ target }) => (
   <OSActionButton
     label="Update keys"
-    mode="confirm"
-    confirmMessage="Update the secure boot keys?"
-    run={() => runOSAction("debug/secureboot", "update", target)}
+    mode="upload"
+    confirmMessage="Upload a signed secure boot key update to apply."
+    run={async (input) =>
+      runOSActionUpload("debug/secureboot", "update", input as File, target)
+    }
     successMessage="Secure boot keys update triggered"
   />
 );

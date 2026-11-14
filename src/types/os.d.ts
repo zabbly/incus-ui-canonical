@@ -15,6 +15,7 @@ export interface IncusOSSettings {
     hostname: string;
     os_name: string;
     os_version?: string;
+    uptime?: number | string;
   };
 }
 
@@ -43,6 +44,83 @@ export interface IncusOSConfig {
   config: object;
 }
 
-export interface IncusOSNetworkState {
-  configuration_in_process?: boolean;
+export interface IncusOSNetworkInterfaceState {
+  addresses?: string[];
+  hwaddr?: string;
+  mtu?: number;
+  roles?: string[];
+  speed?: string;
+  state?: string;
+  type?: string;
+}
+
+export interface IncusOSNetwork {
+  config?: object;
+  state?: {
+    configuration_in_process?: boolean;
+    interfaces?: Record<string, IncusOSNetworkInterfaceState>;
+  };
+}
+
+export interface IncusOSZramSwap {
+  disk_size?: number;
+  // Current API spelling.
+  incompressed_size?: number;
+  uncompressed_size?: number;
+  compressed_size?: number;
+  compression_ratio?: number;
+  total_memory_use?: number;
+}
+
+export interface IncusOSKernel {
+  config?: object;
+  state?: {
+    memory?: {
+      zram_swap?: IncusOSZramSwap;
+    };
+  };
+}
+
+export interface IncusOSStorageDrive {
+  id: string;
+  model_name?: string;
+  serial_number?: string;
+  bus?: string;
+  capacity_in_bytes?: number;
+  boot?: boolean;
+  encrypted?: boolean;
+  member_pool?: string;
+}
+
+export interface IncusOSStoragePool {
+  name: string;
+  type?: string;
+  state?: string;
+  encryption_key_status?: string;
+  raw_pool_size_in_bytes?: number;
+  usable_pool_size_in_bytes?: number;
+  pool_allocated_space_in_bytes?: number;
+  devices?: string[];
+}
+
+export interface IncusOSStorage {
+  config?: {
+    pools?: IncusOSStoragePool[];
+  };
+  state?: {
+    drives?: IncusOSStorageDrive[];
+    root_partition?: {
+      size_in_bytes?: number;
+      available_in_bytes?: number;
+    };
+  };
+}
+
+export interface IncusOSSecurity {
+  config?: object;
+  state?: {
+    encryption_recovery_keys_retrieved?: boolean;
+    secure_boot_enabled?: boolean;
+    tpm_status?: string;
+  };
 }

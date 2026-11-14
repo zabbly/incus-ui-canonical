@@ -9,7 +9,9 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { fetchOSSection, updateOSSection } from "api/os";
 import NotificationRow from "components/NotificationRow";
 import OSYamlEditor from "components/forms/OSYamlEditor";
+import OSInfoView from "pages/os/info/OSInfoView";
 import type { YamlFormValues } from "types/forms/instanceAndProfile";
+import type { IncusOSConfig } from "types/os";
 import { queryKeys } from "util/queryKeys";
 import { objectToYaml, yamlToObject } from "util/yaml";
 
@@ -19,6 +21,8 @@ interface Props {
   target: string;
   readOnly?: boolean;
   actions?: ReactNode;
+  // Formatted view, the raw YAML stays available collapsed.
+  info?: (data: IncusOSConfig) => ReactNode;
 }
 
 const OSConfigSection: FC<Props> = ({
@@ -27,6 +31,7 @@ const OSConfigSection: FC<Props> = ({
   target,
   readOnly = false,
   actions,
+  info,
 }) => {
   const toastNotify = useToastNotification();
   const notify = useNotify();
@@ -77,13 +82,21 @@ const OSConfigSection: FC<Props> = ({
           text={`Loading ${label.toLowerCase()}...`}
         />
       )}
-      {!isLoading && !error && readOnly && (
+      {!isLoading && !error && readOnly && info && data && (
+        <OSInfoView yamlData={data}>{info(data)}</OSInfoView>
+      )}
+      {!isLoading && !error && readOnly && !info && (
         <pre className="yaml-code">
           <code>{objectToYaml(data ?? {})}</code>
         </pre>
       )}
       {!isLoading && !error && !readOnly && (
-        <OSYamlEditor key={editorKey} yamlData={data} onSubmit={onSubmit} />
+        <OSYamlEditor
+          key={editorKey}
+          yamlData={data}
+          info={info && data ? info(data) : undefined}
+          onSubmit={onSubmit}
+        />
       )}
     </>
   );
