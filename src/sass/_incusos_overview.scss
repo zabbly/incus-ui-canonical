@@ -33,3 +33,102 @@
     }
   }
 }
+
+.incusos-overview-log {
+  max-height: 20rem;
+  overflow: auto;
+}
+
+.incusos-info {
+  overflow: auto;
+
+  .incusos-info__section {
+    margin-bottom: $spv--x-large;
+  }
+
+  .incusos-info__list {
+    margin-bottom: $spv--large;
+    max-width: 50rem;
+
+    tr {
+      border: none;
+    }
+
+    td,
+    th {
+      padding-bottom: $spv--x-small;
+      padding-left: 0;
+      padding-top: $spv--x-small;
+      vertical-align: top;
+    }
+
+    th {
+      width: 30%;
+    }
+  }
+
+  .incusos-info__table {
+    td,
+    th {
+      overflow-wrap: anywhere;
+      vertical-align: top;
+      white-space: normal;
+    }
+  }
+
+  .incusos-info__yaml summary {
+    cursor: pointer;
+    margin-bottom: $spv--small;
+  }
+}
+
+.incusos-section-actions {
+  align-items: flex-start;
+  display: flex;
+  margin-bottom: $spv--large;
+  flex-wrap: wrap;
+  gap: $sph--small;
+
+  [class*="p-notification--"] {
+    flex-basis: 100%;
+    margin-bottom: 0;
+  }
+
+  button {
+    margin-bottom: 0;
+  }
+}
+
+.incusos-log-filters {
+  align-items: flex-end;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $sph--large;
+}
+
+#incusos-applications-table .actions {
+  width: 30rem;
+}
+
+.incusos-debug-network {
+  max-width: 60rem;
+
+  .incusos-debug-network__fields {
+    column-gap: $sph--large;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+}
+
+.incusos-debug-network__output,
+.incusos-license {
+  white-space: pre-wrap;
+}
+
+.incusos-licenses-search {
+  max-width: 30rem;
+}
+
+#incusos-licenses-table .type {
+  width: 10rem;
+}

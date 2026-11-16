@@ -1,4 +1,4 @@
-import type { FC } from "react";
+import type { FC, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { ActionButton, Button, useListener } from "@canonical/react-components";
@@ -10,12 +10,15 @@ import type { YamlFormValues } from "types/forms/instanceAndProfile";
 import YamlForm from "components/forms/YamlForm";
 import FormFooterLayout from "components/forms/FormFooterLayout";
 import YamlSwitch from "components/forms/YamlSwitch";
+import OSInfoView from "pages/os/info/OSInfoView";
 import type { IncusOSConfig } from "types/os";
 import { updateMaxHeight } from "util/updateMaxHeight";
 import { objectToYaml } from "util/yaml";
 
 interface Props {
   yamlData?: IncusOSConfig;
+  // Formatted view shown in place of the raw YAML.
+  info?: ReactNode;
   onSubmit: (
     values: YamlFormValues,
     handleSuccess: () => void,
@@ -23,7 +26,7 @@ interface Props {
   ) => void;
 }
 
-const OSYamlEditor: FC<Props> = ({ yamlData, onSubmit }) => {
+const OSYamlEditor: FC<Props> = ({ yamlData, info, onSubmit }) => {
   const [section, setSection] = useState(MAIN_CONFIGURATION);
   const [version, setVersion] = useState(0);
   const [showButtons, setShowButtons] = useState(false);
@@ -69,9 +72,14 @@ const OSYamlEditor: FC<Props> = ({ yamlData, onSubmit }) => {
 
   return (
     <div className="edit-instance">
-      {section === MAIN_CONFIGURATION && (
+      {section === MAIN_CONFIGURATION && info && (
+        <OSInfoView yamlData={yamlData} hasFooter>
+          {info}
+        </OSInfoView>
+      )}
+      {section === MAIN_CONFIGURATION && !info && (
         <pre className="yaml-code">
-          <code>{objectToYaml(yamlData)}</code>
+          <code>{objectToYaml(yamlData ?? {})}</code>
         </pre>
       )}
       {section === YAML_CONFIGURATION && (

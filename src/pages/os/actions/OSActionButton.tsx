@@ -8,6 +8,7 @@ import {
   Input,
   Modal,
   Select,
+  Textarea,
   usePortal,
   useToastNotification,
 } from "@canonical/react-components";
@@ -20,13 +21,30 @@ import DsIcon from "components/DsIcon";
 const toDsIconName = (icon: string): IconName =>
   (icon === "begin-downloading" ? "download" : icon) as IconName;
 
+export interface OSActionOption {
+  label: string;
+  value: string;
+}
+
 export interface OSActionField {
   name: string;
   label: string;
-  type?: "text" | "number" | "checkbox";
-  options?: string[];
+  type?: "text" | "number" | "checkbox" | "textarea";
+  options?: (string | OSActionOption)[];
   defaultValue?: string;
+  help?: string;
+  placeholder?: string;
+  // Must be filled in, selects then start out empty.
+  required?: boolean;
 }
+
+// Free-form JSON body, as taken by the generic actions.
+export const jsonField: OSActionField = {
+  name: "data",
+  label: "Data (JSON)",
+  type: "textarea",
+  defaultValue: "{}",
+};
 
 export type OSActionValues = Record<string, string | boolean>;
 export type OSActionInput = OSActionValues | File | undefined;
@@ -34,7 +52,8 @@ export type OSActionInput = OSActionValues | File | undefined;
 interface Props {
   label: string;
   mode: "confirm" | "fields" | "download" | "upload";
-  run: (input: OSActionInput) => Promise<unknown>;
+  // Upload actions get the file as input and the fields as values.
+  run: (input: OSActionInput, values: OSActionValues) => Promise<unknown>;
   successMessage: string;
   icon?: string;
   destructive?: boolean;
@@ -69,18 +88,27 @@ const OSActionButton: FC<Props> = ({
       ? "negative"
       : "positive";
 
-  const onSuccess = () => {
-    toastNotify.success(<>{successMessage}</>);
-    invalidateKeys.forEach((queryKey) => {
-      void queryClient.invalidateQueries({ queryKey });
-    });
-  };
-
-  const execute = async (input: OSActionInput): Promise<boolean> => {
+  const execute = async (
+    input: OSActionInput,
+    values: OSActionValues,
+  ): Promise<boolean> => {
     setLoading(true);
     try {
-      await run(input);
-      onSuccess();
+      const result = await run(input, values);
+
+      if (mode === "download") {
+        const url = result as string;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      }
+
+      toastNotify.success(<>{successMessage}</>);
+      invalidateKeys.forEach((queryKey) => {
+        void queryClient.invalidateQueries({ queryKey });
+      });
       return true;
     } catch (e) {
       toastNotify.failure(`${label} failed`, e);
@@ -100,7 +128,7 @@ const OSActionButton: FC<Props> = ({
         confirmationModalProps={{
           title: label,
           children: <p>{confirmMessage}</p>,
-          onConfirm: () => void execute(undefined),
+          onConfirm: () => void execute(undefined, {}),
           confirmButtonLabel: submitLabel ?? label,
           confirmButtonAppearance: destructive ? "negative" : "positive",
         }}
@@ -110,36 +138,23 @@ const OSActionButton: FC<Props> = ({
     );
   }
 
-  if (mode === "download") {
-    const handleDownload = async () => {
-      setLoading(true);
-      try {
-        const url = (await run(undefined)) as string;
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        toastNotify.success(<>{successMessage}</>);
-      } catch (e) {
-        toastNotify.failure(`${label} failed`, e);
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  // Downloads without options start right away.
+  if (mode === "download" && fields.length === 0) {
     return (
       <ActionButton
         appearance={buttonAppearance}
         loading={loading}
         className={icon ? "has-icon is-dense" : undefined}
         title={label}
-        onClick={() => void handleDownload()}
+        onClick={() => void execute(undefined, {})}
       >
         {icon ? <DsIcon icon={toDsIconName(icon)} /> : label}
       </ActionButton>
     );
   }
+
+  const defaultSubmitLabel =
+    mode === "upload" ? "Upload" : mode === "download" ? "Download" : label;
 
   return (
     <>
@@ -153,75 +168,77 @@ const OSActionButton: FC<Props> = ({
       </ActionButton>
       {isOpen && (
         <Portal>
-          {mode === "fields" ? (
-            <OSActionFieldsModal
-              title={label}
-              confirmMessage={confirmMessage}
-              fields={fields}
-              submitLabel={submitLabel ?? label}
-              destructive={destructive}
-              loading={loading}
-              onClose={closePortal}
-              onSubmit={async (values) => {
-                const ok = await execute(values);
-                if (ok) {
-                  closePortal();
-                }
-              }}
-            />
-          ) : (
-            <OSActionUploadModal
-              title={label}
-              loading={loading}
-              onClose={closePortal}
-              onSubmit={async (file) => {
-                const ok = await execute(file);
-                if (ok) {
-                  closePortal();
-                }
-              }}
-            />
-          )}
+          <OSActionModal
+            title={label}
+            confirmMessage={confirmMessage}
+            fields={fields}
+            needsFile={mode === "upload"}
+            submitLabel={submitLabel ?? defaultSubmitLabel}
+            destructive={destructive}
+            loading={loading}
+            onClose={closePortal}
+            onSubmit={async (values, file) => {
+              const ok = await execute(
+                mode === "upload" ? file : values,
+                values,
+              );
+              if (ok) {
+                closePortal();
+              }
+            }}
+          />
         </Portal>
       )}
     </>
   );
 };
 
-interface FieldsModalProps {
+interface ModalProps {
   title: string;
   confirmMessage?: string;
   fields: OSActionField[];
+  needsFile: boolean;
   submitLabel: string;
   destructive?: boolean;
   loading: boolean;
   onClose: () => void;
-  onSubmit: (values: OSActionValues) => Promise<void>;
+  onSubmit: (values: OSActionValues, file?: File) => Promise<void>;
 }
 
-const OSActionFieldsModal: FC<FieldsModalProps> = ({
+const OSActionModal: FC<ModalProps> = ({
   title,
   confirmMessage,
   fields,
+  needsFile,
   submitLabel,
   destructive,
   loading,
   onClose,
   onSubmit,
 }) => {
+  const [file, setFile] = useState<File | undefined>(undefined);
+
   const initialValues: OSActionValues = {};
   fields.forEach((field) => {
     if (field.type === "checkbox") {
       initialValues[field.name] = false;
     } else {
-      initialValues[field.name] = field.defaultValue ?? "";
+      // Selects default to their first option.
+      const first = field.options?.[0];
+      const firstValue = typeof first === "string" ? first : first?.value;
+      initialValues[field.name] =
+        field.defaultValue ?? (field.required ? "" : (firstValue ?? ""));
     }
   });
 
   const formik = useFormik<OSActionValues>({
     initialValues,
-    onSubmit: (values) => void onSubmit(values),
+    onSubmit: (values) => void onSubmit(values, file),
   });
+
+  const missing = fields.some(
+    (field) => field.required && !formik.values[field.name],
+  );
 
   return (
     <Modal
@@ -235,6 +252,7 @@ const OSActionFieldsModal: FC<FieldsModalProps> = ({
           <ActionButton
             appearance={destructive ? "negative" : "positive"}
             loading={loading}
+            disabled={(needsFile && !file) || missing}
             onClick={() => void formik.submitForm()}
           >
             {submitLabel}
@@ -247,6 +265,20 @@ const OSActionFieldsModal: FC<FieldsModalProps> = ({
           {confirmMessage}
         </p>
       )}
+      {needsFile && (
+        <div className="u-sv2">
+          <label className="p-form__label" htmlFor="os-action-file">
+            File
+          </label>
+          <input
+            id="os-action-file"
+            type="file"
+            onChange={(e) => {
+              setFile(e.target.files?.[0]);
+            }}
+          />
+        </div>
+      )}
       {fields.map((field) => {
         if (field.type === "checkbox") {
           return (
@@ -255,23 +287,47 @@ const OSActionFieldsModal: FC<FieldsModalProps> = ({
               type="checkbox"
               label={field.label}
               name={field.name}
+              help={field.help}
               checked={Boolean(formik.values[field.name])}
               onChange={formik.handleChange}
             />
           );
         }
 
-        if (field.options) {
+        if (field.type === "textarea") {
+          return (
+            <Textarea
+              key={field.name}
+              label={field.label}
+              name={field.name}
+              help={field.help}
+              placeholder={field.placeholder}
+              rows={6}
+              value={String(formik.values[field.name] ?? "")}
+              onChange={formik.handleChange}
+            />
+          );
+        }
+
+        // Fall back to free text when there is nothing to pick from.
+        if (field.options && field.options.length > 0) {
           return (
             <Select
               key={field.name}
               label={field.label}
               name={field.name}
+              help={field.help}
               value={String(formik.values[field.name] ?? "")}
-              options={field.options.map((option) => ({
-                label: option,
-                value: option,
-              }))}
+              options={[
+                ...(field.required
+                  ? [{ label: "Select an option", value: "", disabled: true }]
+                  : []),
+                ...field.options.map((option) =>
+                  typeof option === "string"
+                    ? { label: option, value: option }
+                    : option,
+                ),
+              ]}
               onChange={formik.handleChange}
             />
           );
@@ -283,62 +339,13 @@ const OSActionFieldsModal: FC<FieldsModalProps> = ({
             type={field.type ?? "text"}
             label={field.label}
             name={field.name}
+            help={field.help}
+            placeholder={field.placeholder}
             value={String(formik.values[field.name] ?? "")}
             onChange={formik.handleChange}
           />
         );
       })}
-    </Modal>
-  );
-};
-
-interface UploadModalProps {
-  title: string;
-  loading: boolean;
-  onClose: () => void;
-  onSubmit: (file: File) => Promise<void>;
-}
-
-const OSActionUploadModal: FC<UploadModalProps> = ({
-  title,
-  loading,
-  onClose,
-  onSubmit,
-}) => {
-  const [file, setFile] = useState<File | null>(null);
-
-  return (
-    <Modal
-      close={onClose}
-      title={title}
-      buttonRow={
-        <>
-          <Button appearance="base" onClick={onClose}>
-            Cancel
-          </Button>
-          <ActionButton
-            appearance="positive"
-            loading={loading}
-            disabled={!file}
-            onClick={() => {
-              if (file) {
-                void onSubmit(file);
-              }
-            }}
-          >
-            Upload
-          </ActionButton>
-        </>
-      }
-    >
-      <label className="p-form__label" htmlFor="os-action-file">
-        File
-      </label>
-      <input
-        id="os-action-file"
-        type="file"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-      />
     </Modal>
   );
 };

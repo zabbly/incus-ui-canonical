@@ -2,6 +2,10 @@ import type { LxdApiResponse } from "types/apiResponse";
 import type {
   IncusOSApplication,
   IncusOSConfig,
+  IncusOSDebugKernel,
+  IncusOSDebugLVM,
+  IncusOSDebugReport,
+  IncusOSLicense,
   IncusOSLog,
   IncusOSSettings,
   IncusOSSystemUpdate,
@@ -12,16 +16,30 @@ export interface DebugLogOptions {
   unit?: string;
   boot?: string;
   entries?: number;
+  since?: string;
+  until?: string;
 }
 
-const prepareOSURL = (url: string, target: string) => {
-  let result = url;
+const prepareOSURL = (
+  url: string,
+  target: string,
+  params: Record<string, string> = {},
+) => {
+  const query = new URLSearchParams();
 
   if (target) {
-    result += `?target=${target}`;
+    query.set("target", target);
   }
 
-  return result;
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) {
+      query.set(key, value);
+    }
+  });
+
+  const search = query.toString();
+
+  return search ? `${url}?${search}` : url;
 };
 
 export const isIncusOS = async (): Promise<boolean> => {
@@ -107,6 +125,14 @@ export const fetchDebugLogs = async (
 
   if (options.boot) {
     url.searchParams.set("boot", options.boot);
+  }
+
+  if (options.since) {
+    url.searchParams.set("since", options.since);
+  }
+
+  if (options.until) {
+    url.searchParams.set("until", options.until);
   }
 
   return fetch(url.pathname + url.search)
@@ -231,8 +257,9 @@ export const runOSActionUpload = async (
   action: string,
   file: File,
   target: string,
+  params: Record<string, string> = {},
 ): Promise<void> => {
-  await fetch(prepareOSURL(`/os/1.0/${endpoint}/:${action}`, target), {
+  await fetch(prepareOSURL(`/os/1.0/${endpoint}/:${action}`, target, params), {
     method: "POST",
     body: file,
     headers: {
@@ -241,32 +268,146 @@ export const runOSActionUpload = async (
   }).then(handleResponse);
 };
 
-export const poweroffOS = async (
-  target: string,
-): Promise<LxdApiResponse<null>> => {
-  await fetch(prepareOSURL("/os/1.0/system/:poweroff", target), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  })
+export const fetchOSLicenses = async (target: string): Promise<string[]> => {
+  return fetch(prepareOSURL("/os/1.0/licenses", target))
     .then(handleResponse)
-    .then((data: LxdApiResponse<null>) => {
-      return data;
+    .then((data: LxdApiResponse<string[]>) => {
+      return data.metadata;
     });
 };
 
-export const rebootOS = async (
+export const fetchOSLicense = async (
+  name: string,
   target: string,
-): Promise<LxdApiResponse<null>> => {
-  return fetch(prepareOSURL("/os/1.0/system/:reboot", target), {
+): Promise<IncusOSLicense> => {
+  // Keep the <type>:<name> separator as sent by the CLI.
+  const entry = encodeURIComponent(name).replace(/%3A/gi, ":");
+
+  return fetch(prepareOSURL(`/os/1.0/licenses/${entry}`, target))
+    .then(handleResponse)
+    .then((data: LxdApiResponse<IncusOSLicense>) => {
+      return data.metadata;
+    });
+};
+
+export const fetchDebugKernel = async (
+  target: string,
+): Promise<IncusOSDebugKernel> => {
+  return fetch(prepareOSURL("/os/1.0/debug/kernel", target))
+    .then(handleResponse)
+    .then((data: LxdApiResponse<IncusOSDebugKernel>) => {
+      return data.metadata;
+    });
+};
+
+export const fetchDebugLVM = async (
+  target: string,
+): Promise<IncusOSDebugLVM> => {
+  return fetch(prepareOSURL("/os/1.0/debug/lvm", target))
+    .then(handleResponse)
+    .then((data: LxdApiResponse<IncusOSDebugLVM>) => {
+      return data.metadata;
+    });
+};
+
+export const fetchDebugReport = async (
+  target: string,
+  match: string[],
+): Promise<IncusOSDebugReport> => {
+  const query = new URLSearchParams();
+
+  if (target) {
+    query.set("target", target);
+  }
+
+  match.forEach((value) => {
+    query.append("match", value);
+  });
+
+  const search = query.toString();
+
+  return fetch(`/os/1.0/debug/report${search ? `?${search}` : ""}`)
+    .then(handleResponse)
+    .then((data: LxdApiResponse<IncusOSDebugReport>) => {
+      return data.metadata;
+    });
+};
+
+// Text reports come back as a string, JSON ones as an object.
+export const fetchDebugNetworkReport = async (
+  name: string,
+  target: string,
+  format = "",
+): Promise<unknown> => {
+  return fetch(
+    prepareOSURL(`/os/1.0/debug/network/${name}`, target, { format }),
+  )
+    .then(handleResponse)
+    .then((data: LxdApiResponse<unknown>) => {
+      return data.metadata;
+    });
+};
+
+// Run a signed debug script, resolving to its output.
+export const runDebugScript = async (
+  file: File,
+  target: string,
+): Promise<string> => {
+  return fetch(prepareOSURL("/os/1.0/debug/:run-script", target), {
     method: "POST",
+    body: file,
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/octet-stream",
     },
   })
     .then(handleResponse)
-    .then((data: LxdApiResponse<null>) => {
-      return data;
+    .then((data: LxdApiResponse<string>) => {
+      return data.metadata;
     });
+};
+
+// Run a network debug tool. Streamed output is passed to onChunk as it
+// arrives, a JSON report is returned once done. The content type can't be
+// relied on to tell them apart as the Incus proxy adds its own.
+export const runDebugNetworkTool = async (
+  action: string,
+  data: object,
+  target: string,
+  stream: boolean,
+  onChunk: (chunk: Uint8Array) => void,
+  signal?: AbortSignal,
+): Promise<unknown> => {
+  const response = await fetch(
+    prepareOSURL(`/os/1.0/debug/network/:${action}`, target),
+    {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      signal,
+    },
+  );
+
+  if (!response.ok || !stream) {
+    const result = (await handleResponse(response)) as LxdApiResponse<unknown>;
+
+    return result.metadata;
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    return undefined;
+  }
+
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) {
+      break;
+    }
+
+    onChunk(value);
+  }
+
+  return undefined;
 };

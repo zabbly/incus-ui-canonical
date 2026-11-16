@@ -19,12 +19,9 @@ import {
 } from "api/os";
 import NotificationRow from "components/NotificationRow";
 import OSActionButton from "pages/os/actions/OSActionButton";
-import type { OSActionInput, OSActionValues } from "pages/os/actions/OSActionButton";
 import { nameFromURL } from "util/os";
 import { queryKeys } from "util/queryKeys";
 import useSortTableData from "util/useSortTableData";
-
-const vals = (input: OSActionInput) => input as OSActionValues;
 
 interface Props {
   target: string;
@@ -86,7 +83,8 @@ const OSApplications: FC<Props> = ({ target }) => {
             className: "name",
           },
           {
-            content: app.data?.state?.version,
+            content:
+              app.data?.state?.friendly_version || app.data?.state?.version,
             "aria-label": "Version",
             className: "version",
           },
@@ -102,7 +100,9 @@ const OSApplications: FC<Props> = ({ target }) => {
                     mode="confirm"
                     icon="begin-downloading"
                     confirmMessage={`Check for updates for the ${name} application?`}
-                    run={() => runOSAction(endpoint, "check-update", target)}
+                    run={async () =>
+                      runOSAction(endpoint, "check-update", target)
+                    }
                     successMessage={`Update check triggered for ${name}`}
                   />,
                   <OSActionButton
@@ -120,13 +120,31 @@ const OSApplications: FC<Props> = ({ target }) => {
                         defaultValue: app.data?.state?.version,
                       },
                     ]}
-                    run={(input) =>
+                    run={async (_, values) =>
                       runOSAction(endpoint, "switch-version", target, {
-                        version: String(vals(input).version),
+                        version: String(values.version),
                       })
                     }
                     successMessage={`Version switched for ${name}`}
                     invalidateKeys={appsInvalidate}
+                  />,
+                  <OSActionButton
+                    key="start"
+                    label="Start application"
+                    mode="confirm"
+                    icon="play"
+                    confirmMessage={`Start the ${name} application?`}
+                    run={async () => runOSAction(endpoint, "start", target)}
+                    successMessage={`Application ${name} started`}
+                  />,
+                  <OSActionButton
+                    key="stop"
+                    label="Stop application"
+                    mode="confirm"
+                    icon="stop"
+                    confirmMessage={`Stop the ${name} application?`}
+                    run={async () => runOSAction(endpoint, "stop", target)}
+                    successMessage={`Application ${name} stopped`}
                   />,
                   <OSActionButton
                     key="restart"
@@ -134,7 +152,7 @@ const OSApplications: FC<Props> = ({ target }) => {
                     mode="confirm"
                     icon="restart"
                     confirmMessage={`Restart the ${name} application?`}
-                    run={() => runOSAction(endpoint, "restart", target)}
+                    run={async () => runOSAction(endpoint, "restart", target)}
                     successMessage={`Application ${name} restarted`}
                   />,
                   <OSActionButton
@@ -142,8 +160,20 @@ const OSApplications: FC<Props> = ({ target }) => {
                     label="Backup application"
                     mode="download"
                     icon="export"
-                    filename={`${name}-backup`}
-                    run={() => runOSActionDownload(endpoint, "backup", target, {})}
+                    filename={`${name}-backup.tar.gz`}
+                    fields={[
+                      {
+                        name: "complete",
+                        label: "Complete backup",
+                        type: "checkbox",
+                        help: "Also include locally cached artifacts and updates, which may be quite large.",
+                      },
+                    ]}
+                    run={async (_, values) =>
+                      runOSActionDownload(endpoint, "backup", target, {
+                        complete: Boolean(values.complete),
+                      })
+                    }
                     successMessage={`Application ${name} backed up`}
                   />,
                   <OSActionButton
@@ -151,8 +181,16 @@ const OSApplications: FC<Props> = ({ target }) => {
                     label="Restore application"
                     mode="upload"
                     icon="upload"
-                    run={(input) =>
-                      runOSActionUpload(endpoint, "restore", input as File, target)
+                    submitLabel="Restore"
+                    destructive
+                    confirmMessage={`This will restore the ${name} application to the provided backup.`}
+                    run={async (input) =>
+                      runOSActionUpload(
+                        endpoint,
+                        "restore",
+                        input as File,
+                        target,
+                      )
                     }
                     successMessage={`Application ${name} restored`}
                   />,
@@ -163,7 +201,9 @@ const OSApplications: FC<Props> = ({ target }) => {
                     icon="settings"
                     destructive
                     confirmMessage={`Factory-reset the ${name} application? This wipes its local configuration.`}
-                    run={() => runOSAction(endpoint, "factory-reset", target, {})}
+                    run={async () =>
+                      runOSAction(endpoint, "factory-reset", target, {})
+                    }
                     successMessage={`Application ${name} factory reset`}
                   />,
                   <OSActionButton
@@ -173,7 +213,7 @@ const OSApplications: FC<Props> = ({ target }) => {
                     icon="delete"
                     destructive
                     confirmMessage={`Remove the ${name} application?`}
-                    run={() => runOSAction(endpoint, "remove", target)}
+                    run={async () => runOSAction(endpoint, "remove", target)}
                     successMessage={`Application ${name} removed`}
                     invalidateKeys={appsInvalidate}
                   />,
@@ -206,8 +246,8 @@ const OSApplications: FC<Props> = ({ target }) => {
           mode="fields"
           submitLabel="Add"
           fields={[{ name: "name", label: "Name" }]}
-          run={(input) =>
-            addOSApplication(String(vals(input).name), target)
+          run={async (_, values) =>
+            addOSApplication(String(values.name), target)
           }
           successMessage="Application added"
           invalidateKeys={appsInvalidate}

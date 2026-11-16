@@ -9,6 +9,8 @@ import OSOverview from "./OSOverview";
 import OSApplications from "./OSApplications";
 import OSApplicationDetails from "./OSApplicationDetails";
 import OSDebug from "./OSDebug";
+import OSLicenses from "./OSLicenses";
+import OSLicenseDetails from "./OSLicenseDetails";
 import OSServices from "./OSServices";
 import OSServiceDetails from "./OSServiceDetails";
 import OSSystem from "./OSSystem";
@@ -19,6 +21,7 @@ const tabs: string[] = [
   "Overview",
   "Applications",
   "Debug",
+  "Licenses",
   "Services",
   "System",
 ];
@@ -81,6 +84,18 @@ const IncusOS: FC = () => {
         {activeTab === "debug" && (
           <div role="tabpanel" aria-labelledby="debug">
             <OSDebug subTab={itemName} target={currentMember} />
+          </div>
+        )}
+
+        {activeTab === "licenses" && !itemName && (
+          <div role="tabpanel" aria-labelledby="licenses">
+            <OSLicenses target={currentMember} />
+          </div>
+        )}
+
+        {activeTab === "licenses" && itemName && (
+          <div role="tabpanel" aria-labelledby="licenses">
+            <OSLicenseDetails name={itemName} target={currentMember} />
           </div>
         )}
 

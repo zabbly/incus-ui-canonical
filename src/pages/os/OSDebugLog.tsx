@@ -58,6 +58,8 @@ const OSDebugLog: FC<Props> = ({ target }) => {
   const [unit, setUnit] = useState("");
   const [boot, setBoot] = useState("");
   const [entries, setEntries] = useState("200");
+  const [since, setSince] = useState("");
+  const [until, setUntil] = useState("");
   const [filters, setFilters] = useState<DebugLogOptions>({ entries: 200 });
 
   const {
@@ -74,6 +76,8 @@ const OSDebugLog: FC<Props> = ({ target }) => {
       unit: unit,
       boot: boot,
       entries: entries ? Number(entries) : undefined,
+      since: since,
+      until: until,
     });
   };
 
@@ -95,19 +99,43 @@ const OSDebugLog: FC<Props> = ({ target }) => {
           type="text"
           label="Unit"
           value={unit}
-          onChange={(e) => setUnit(e.target.value)}
+          onChange={(e) => {
+            setUnit(e.target.value);
+          }}
         />
         <Input
           type="text"
           label="Boot"
           value={boot}
-          onChange={(e) => setBoot(e.target.value)}
+          onChange={(e) => {
+            setBoot(e.target.value);
+          }}
         />
         <Input
           type="number"
           label="Entries"
           value={entries}
-          onChange={(e) => setEntries(e.target.value)}
+          onChange={(e) => {
+            setEntries(e.target.value);
+          }}
+        />
+        <Input
+          type="text"
+          label="Since"
+          placeholder="2026-01-31 12:00 or -1h"
+          value={since}
+          onChange={(e) => {
+            setSince(e.target.value);
+          }}
+        />
+        <Input
+          type="text"
+          label="Until"
+          placeholder="2026-01-31 13:00 or -5m"
+          value={until}
+          onChange={(e) => {
+            setUntil(e.target.value);
+          }}
         />
         <Button type="submit" appearance="positive">
           Apply
@@ -121,7 +149,9 @@ const OSDebugLog: FC<Props> = ({ target }) => {
       {!isLoading && logs.length > 0 && (
         <pre>
           <code>
-            {logs?.map((item, i) => <span key={i}>{JournalLine(item)}</span>)}
+            {logs?.map((item, i) => (
+              <span key={i}>{JournalLine(item)}</span>
+            ))}
           </code>
         </pre>
       )}
