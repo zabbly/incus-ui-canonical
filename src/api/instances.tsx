@@ -750,8 +750,16 @@ export const fetchInstanceFileHeader = async (
       );
     }
     return {
-      type: response.headers.get("x-lxd-type") ?? "unknown",
-      modified: response.headers.get("x-lxd-modified") ?? "-",
+      // Incus sends X-Incus-* (upstream UI still reads the legacy LXD names, which
+      // makes every directory look like a file -> clicking a folder downloads it).
+      type:
+        response.headers.get("x-incus-type") ??
+        response.headers.get("x-lxd-type") ??
+        "unknown",
+      modified:
+        response.headers.get("x-incus-modified") ??
+        response.headers.get("x-lxd-modified") ??
+        "-",
     };
   });
 };
