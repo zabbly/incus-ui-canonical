@@ -123,7 +123,8 @@ export const isCustomNic = (device: LxdDeviceValue): boolean => {
   ];
   return (
     isNicDevice(device) &&
-    Object.keys(device).some((key) => !standardKeys.includes(key))
+    ((device.nictype !== undefined && device.nictype !== "bridged") ||
+      Object.keys(device).some((key) => !standardKeys.includes(key)))
   );
 };
 
@@ -232,7 +233,9 @@ export const getAttachedNetworkNames = (
   return connectedNetworksNames;
 };
 
-export const getDeviceAcls = (device?: LxdNicDevice | null) => {
+export const getDeviceAcls = (
+  device?: Partial<Pick<LxdNicDevice, "security.acls">> | null,
+) => {
   if (device) {
     return device["security.acls"]?.split(",").filter((t) => t) || [];
   }
