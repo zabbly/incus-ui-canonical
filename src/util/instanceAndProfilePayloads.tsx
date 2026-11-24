@@ -24,7 +24,7 @@ import type { LxdConfigPair } from "types/config";
 import type { LxdProject } from "types/project";
 import type { LxdStorageVolume } from "types/storage";
 import { remoteImageToInstanceSource } from "util/images";
-import type { FormDevice } from "types/formDevice";
+import type { FormDevice, FormNetworkDevice } from "types/formDevice";
 import { ISO_VOLUME_TYPE } from "util/devices";
 import { type CpuLimit, type MemoryLimit, CPU_LIMIT_TYPE } from "types/limits";
 import { parseCpuLimit, parseMemoryLimit } from "util/limits";
@@ -103,18 +103,22 @@ export const formDeviceToPayload = (devices: FormDevice[]) => {
         };
       }
       if (item.type === "nic") {
-        if (item.parent && item.parent != "") {
-          delete item.network;
+        const { interfaceName, ...nic } = item as FormNetworkDevice;
+        if (interfaceName) {
+          nic.name = interfaceName;
+        }
+        if (nic.parent && nic.parent != "") {
+          delete nic.network;
           return {
             ...obj,
-            [name]: item,
+            [name]: nic,
           };
         }
-        delete item.parent;
-        delete item.nictype;
+        delete nic.parent;
+        delete nic.nictype;
         return {
           ...obj,
-          [name]: item,
+          [name]: nic,
         };
       }
       if (item.type === "disk") {

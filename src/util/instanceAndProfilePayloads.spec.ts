@@ -9,6 +9,7 @@ import type { LxdInstance } from "types/instance";
 import type { LxdProfile } from "types/profile";
 import { objectToYaml, yamlToObject } from "./yaml";
 import { parseDevices } from "./formDevices";
+import type { LxdDevices } from "types/device";
 
 describe("conversion to form values and back with getInstanceEditValues and getInstancePayload", () => {
   it("preserves custom top level instance setting field", () => {
@@ -384,5 +385,51 @@ describe("formDeviceToPayload", () => {
     const outYaml = objectToYaml({ devices: formDeviceToPayload(formDevices) });
 
     expect(outYaml).not.toContain("dependent");
+  });
+
+  describe("nic round trip", () => {
+    const nics = {
+      managed: {
+        type: "nic",
+        name: "eth0",
+        network: "incusbr0",
+        "ipv4.address": "10.0.0.10",
+        "ipv6.address": "fd42::10",
+        hwaddr: "00:16:3e:00:00:01",
+      },
+      bridged: {
+        type: "nic",
+        name: "eth1",
+        nictype: "bridged",
+        parent: "br0",
+        "ipv4.address": "10.0.1.10",
+        "ipv6.address": "fd43::10",
+      },
+      macvlan: {
+        type: "nic",
+        name: "eth2",
+        nictype: "macvlan",
+        parent: "enp5s0",
+      },
+    };
+
+    // Cast: LxdNicDevice requires network, but parent-based nics have none.
+    const devices = () => structuredClone(nics) as unknown as LxdDevices;
+
+    // JSON round trip drops keys set to undefined, as the API does.
+    const roundTrip = () =>
+      JSON.parse(
+        JSON.stringify(formDeviceToPayload(parseDevices(devices()))),
+      ) as Record<string, Record<string, string>>;
+
+    it("returns all nic kinds unchanged", () => {
+      expect(roundTrip()).toEqual(nics);
+    });
+
+    it("never puts interfaceName into the payload", () => {
+      Object.values(roundTrip()).forEach((nic) => {
+        expect(nic).not.toHaveProperty("interfaceName");
+      });
+    });
   });
 });

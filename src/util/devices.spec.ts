@@ -1,6 +1,12 @@
 import React from "react";
 import type { LxdDeviceValue, LxdNicDevice } from "types/device";
-import { getDeviceAcls, getIndex, isNoneDevice, isValidIPV6 } from "./devices";
+import {
+  getDeviceAcls,
+  getIndex,
+  isCustomNic,
+  isNoneDevice,
+  isValidIPV6,
+} from "./devices";
 import type { InstanceAndProfileFormikProps } from "types/forms/instanceAndProfileFormProps";
 import type { FormDevice } from "types/formDevice";
 import { describe, it, expect } from "vitest";
@@ -494,5 +500,28 @@ describe("getNicIpDisableReason", () => {
       );
       expect(result).toBeNull();
     });
+  });
+});
+
+describe("isCustomNic", () => {
+  it("treats non-bridged nictypes as custom", () => {
+    ["macvlan", "physical"].forEach((nictype) => {
+      expect(
+        isCustomNic({ type: "nic", nictype, parent: "eth0" } as LxdNicDevice),
+      ).toBe(true);
+    });
+  });
+
+  it("does not treat bridged or managed nics as custom", () => {
+    expect(
+      isCustomNic({
+        type: "nic",
+        nictype: "bridged",
+        parent: "br0",
+      } as LxdNicDevice),
+    ).toBe(false);
+    expect(
+      isCustomNic({ type: "nic", network: "incusbr0" } as LxdNicDevice),
+    ).toBe(false);
   });
 });

@@ -39,11 +39,15 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
 
     switch (item.type) {
       case "nic":
+        // Only bridged or unset nictype reaches here; other nictypes are custom-nic.
         if (item.parent && item.parent != "") {
           return {
             name: key,
+            interfaceName: item.name,
             parent: item.parent,
             nictype: item.nictype,
+            "ipv4.address": item["ipv4.address"],
+            "ipv6.address": item["ipv6.address"],
             type: "nic",
             hwaddr: item.hwaddr,
             "security.acls": item["security.acls"],
@@ -56,6 +60,7 @@ export const parseDevices = (devices: LxdDevices): FormDevice[] => {
 
         return {
           name: key,
+          interfaceName: item.name,
           "ipv4.address": item["ipv4.address"],
           "ipv6.address": item["ipv6.address"],
           network: item.network,

@@ -12,7 +12,6 @@ import {
 import type { FC, ReactNode } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import type { LxdNicDevice } from "types/device";
 import NotificationRow from "components/NotificationRow";
 import NetworkDeviceIPAddressEdit from "components/forms/NetworkDevicesForm/edit/NetworkDeviceIPAddressEdit";
 import { useNetworks } from "context/useNetworks";
@@ -78,7 +77,7 @@ const NetworkDevicePanel: FC<Props> = ({
   const deviceName = panelParams?.deviceName;
   const device = parentFormik.values.devices.find(
     (d) => d.name === deviceName && d.type === "nic",
-  ) as LxdNicDevice | undefined;
+  ) as FormNetworkDevice | undefined;
 
   const inheritedNetworks = getInheritedNetworks(parentFormik.values, profiles);
   const inheritedDevice = inheritedNetworks.find((d) => d.key === deviceName);
@@ -246,9 +245,15 @@ const NetworkDevicePanel: FC<Props> = ({
 
       const deviceData: FormNetworkDevice = {
         name: values.name,
+        // Overrides replace the profile device entirely, so keep its inner name and MAC.
+        interfaceName: isCreatingOverride
+          ? inheritedDevice.network?.name
+          : device?.interfaceName,
         type: "nic",
         network: values.network,
-        hwaddr: device?.hwaddr,
+        hwaddr: isCreatingOverride
+          ? inheritedDevice.network?.hwaddr
+          : device?.hwaddr,
         "security.acls":
           userSelectedAcls.length > 0 ? userSelectedAcls.join(",") : undefined,
         "ipv4.address": values.ipv4 || undefined,
